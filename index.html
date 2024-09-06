@@ -43,7 +43,7 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, onValue, runTransaction, get, set, goOnline } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
         import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
@@ -66,6 +66,7 @@
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getDatabase(app);
+        goOnline(db); // Ensure persistent connection
         const storage = getStorage(app);
 
         const globalPatCountRef = ref(db, 'globalPatCount');
@@ -74,16 +75,31 @@
         const patCountDisplay = document.getElementById('globalPatCount');
         const catContainer = document.getElementById('catContainer');
 
+        // Initialize the counter if it doesn't exist
+        get(globalPatCountRef).then((snapshot) => {
+            if (!snapshot.exists()) {
+                set(globalPatCountRef, 0).then(() => {
+                    console.log("Counter initialized to 0");
+                }).catch((error) => {
+                    console.error("Error initializing counter:", error);
+                });
+            }
+        });
+
         // Listen for changes to the global pat count
         onValue(globalPatCountRef, (snapshot) => {
             const count = snapshot.val() || 0;
             patCountDisplay.textContent = `Global Pat Count: ${count}`;
+        }, (error) => {
+            console.error("Error reading count:", error);
         });
 
         // Function to increment the global pat count
         function incrementGlobalPatCount() {
             runTransaction(globalPatCountRef, (currentCount) => {
                 return (currentCount || 0) + 1;
+            }).then(() => {
+                console.log("Count incremented successfully");
             }).catch((error) => {
                 console.error("Error updating pat count:", error);
             });
@@ -93,6 +109,16 @@
         catContainer.addEventListener('click', (event) => {
             incrementGlobalPatCount();
             showPatEffect(event);
+        });
+
+        // Connection status logging
+        const connectedRef = ref(db, ".info/connected");
+        onValue(connectedRef, (snap) => {
+            if (snap.val() === true) {
+                console.log("Connected to Firebase");
+            } else {
+                console.log("Disconnected from Firebase");
+            }
         });
 
         // Cat images array
