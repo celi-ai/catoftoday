@@ -40,9 +40,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, get, increment } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
         import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
-        
-        // Your existing Firebase configuration...
-
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
+            authDomain: "catoftoday-e2451.firebaseapp.com",
+            databaseURL: "https://catoftoday-e2451-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "catoftoday-e2451",
+            storageBucket: "catoftoday-e2451.appspot.com",
+            messagingSenderId: "246259753230",
+            appId: "1:246259753230:web:abc91475e03e9f13cf775f",
+            measurementId: "G-53VSVBFRK1"
+        };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const storage = getStorage(app);
@@ -77,14 +84,33 @@
             userPatCountElement.textContent = count;
         });
 
-        // Increment counters
+        // Increment counter
         catContainer.addEventListener('click', () => {
-            set(countRef, increment(1));
+            get(countRef).then((snapshot) => {
+                const currentCount = snapshot.val() || 0;
+                const newCount = currentCount + 1;
+                set(countRef, newCount);
+            });
             set(userPatCountRef, increment(1));
         });
 
-        // Your existing cat image functionality...
-
+        // Cat image functionality
+        const catImages = ['cat1.jpeg', 'cat2.jpeg', 'cat3.jpeg'];
+        function getCatOfTheDay() {
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            return catImages[dayOfYear % catImages.length];
+        }
+        function updateCatImage() {
+            const catImageFilename = getCatOfTheDay();
+            const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
+            
+            getDownloadURL(imageRef).then((url) => {
+                catContainer.style.backgroundImage = `url(${url})`;
+            }).catch((error) => {
+                console.error("Error getting cat image:", error);
+            });
+        }
         // Initial setup
         updateCatImage();
     </script>
