@@ -74,22 +74,22 @@
         const patCountDisplay = document.getElementById('globalPatCount');
         const catContainer = document.getElementById('catContainer');
 
-        // Function to initialize the global counter if it doesn't exist
-        function initializeCounter() {
-            get(globalPatCountRef).then((snapshot) => {
-                if (!snapshot.exists()) {
-                    set(globalPatCountRef, 0);
-                }
-            });
-        }
 
-        // Initialize the counter when the app starts
-        initializeCounter();
-
-        // Listen for changes to the global pat count
+        // Listen for changes to the global pat count and initialize if it doesn't exist
         onValue(globalPatCountRef, (snapshot) => {
-            const count = snapshot.val() || 0;
-            patCountDisplay.textContent = `Global Pat Count: ${count}`;
+            if (snapshot.exists()) {
+                const count = snapshot.val();
+                patCountDisplay.textContent = `Global Pat Count: ${count}`;
+            } else {
+                // If the counter doesn't exist, initialize it to 0
+                set(globalPatCountRef, 0)
+                    .then(() => {
+                        patCountDisplay.textContent = `Global Pat Count: 0`;
+                    })
+                    .catch((error) => {
+                        console.error("Error initializing counter:", error);
+                     });
+            }
         });
 
         // Function to increment the global pat count
