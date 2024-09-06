@@ -2,90 +2,146 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cat of Today</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--tg-theme-bg-color, #fff);
+            color: var(--tg-theme-text-color, #000);
+        }
+        .content {
+            padding: 16px;
+        }
         #catContainer {
-            width: 300px;
-            height: 300px;
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%;
             background-size: cover;
             background-position: center;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .pat-button {
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s ease;
+        }
+        .pat-button:active {
+            opacity: 0.8;
+        }
+        .counter {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin: 16px 0;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .list-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--tg-theme-hint-color, #ccc);
+        }
+        .list-item:last-child {
+            border-bottom: none;
         }
     </style>
 </head>
 <body>
-    <h1>Cat of Today</h1>
-    <h2>Global Pat Count: <span id="counter">0</span></h2>
-    <div id="catContainer"></div>
-
+    <div class="content">
+        <div id="home" class="tab-content active">
+            <div id="catContainer"></div>
+            <div class="counter">Global Pat Count: <span id="counter">0</span></div>
+            <button class="pat-button" id="patButton">Pat the Cat</button>
+        </div>
+        <div id="pats" class="tab-content">
+            <h2>Get More Pats</h2>
+            <div class="list-item">Buy Pats</div>
+            <div class="list-item">Share on Twitter</div>
+            <div class="list-item">Invite Friends</div>
+        </div>
+        <div id="top" class="tab-content">
+            <h2>Top Pat-ters</h2>
+            <div class="list-item">User 1 - 1000 pats</div>
+            <div class="list-item">User 2 - 950 pats</div>
+            <div class="list-item">User 3 - 900 pats</div>
+        </div>
+        <div id="user" class="tab-content">
+            <h2>User Profile</h2>
+            <div class="list-item">Username: CatLover123</div>
+            <div class="list-item">Total Pats: 500</div>
+            <div class="list-item">Available Pats: 50</div>
+            <div class="list-item">Days in a row: 7</div>
+        </div>
+    </div>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-        import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
+        // Your existing Firebase initialization code here
+        
+        // ... (keep all the existing JavaScript code)
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
-            authDomain: "catoftoday-e2451.firebaseapp.com",
-            databaseURL: "https://catoftoday-e2451-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "catoftoday-e2451",
-            storageBucket: "catoftoday-e2451.appspot.com",
-            messagingSenderId: "246259753230",
-            appId: "1:246259753230:web:abc91475e03e9f13cf775f",
-            measurementId: "G-53VSVBFRK1"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const storage = getStorage(app);
-        const countRef = ref(db, 'globalPatCount');
-
-        const counterElement = document.getElementById('counter');
-        const catContainer = document.getElementById('catContainer');
-
-        // Initialize counter
-        get(countRef).then((snapshot) => {
-            const count = snapshot.val() || 0;
-            counterElement.textContent = count;
+        // Telegram WebApp initialization
+        const webapp = window.Telegram.WebApp;
+        webapp.ready();
+        webapp.MainButton.setText('Close').show().onClick(() => {
+            webapp.close();
         });
 
-        // Listen for real-time updates
-        onValue(countRef, (snapshot) => {
-            const count = snapshot.val() || 0;
-            counterElement.textContent = count;
+        // Set up the bottom menu using Telegram's built-in functionality
+        webapp.MainButton.hide();
+        webapp.BackButton.hide();
+        webapp.settingsButton.hide();
+        webapp.expand();
+
+        const menuItems = [
+            {name: 'Home', icon: '🏠'},
+            {name: 'Pats', icon: '🐾'},
+            {name: 'Top', icon: '🏆'},
+            {name: 'User', icon: '👤'}
+        ];
+
+        webapp.CloudStorage.getItem('activeTab', (error, value) => {
+            const activeTab = value || 'home';
+            showTab(activeTab);
         });
 
-        // Increment counter
-        catContainer.addEventListener('click', () => {
-            get(countRef).then((snapshot) => {
-                const currentCount = snapshot.val() || 0;
-                const newCount = currentCount + 1;
-                set(countRef, newCount);
+        menuItems.forEach(item => {
+            webapp.HapticFeedback.impactOccurred('light');
+            webapp.showSectionButton({
+                icon: item.icon,
+                text: item.name,
+                callback: () => {
+                    showTab(item.name.toLowerCase());
+                    webapp.CloudStorage.setItem('activeTab', item.name.toLowerCase());
+                }
             });
         });
 
-        // Cat image functionality
-        const catImages = ['cat1.jpeg', 'cat2.jpeg', 'cat3.jpeg'];
-
-        function getCatOfTheDay() {
-            const today = new Date();
-            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            return catImages[dayOfYear % catImages.length];
-        }
-
-        function updateCatImage() {
-            const catImageFilename = getCatOfTheDay();
-            const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
-            
-            getDownloadURL(imageRef).then((url) => {
-                catContainer.style.backgroundImage = `url(${url})`;
-            }).catch((error) => {
-                console.error("Error getting cat image:", error);
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
             });
+            document.getElementById(tabName).classList.add('active');
         }
 
-        // Initial setup
-        updateCatImage();
+        // Pat button functionality
+        document.getElementById('patButton').addEventListener('click', () => {
+            webapp.HapticFeedback.impactOccurred('medium');
+            // Your existing pat incrementing logic here
+        });
     </script>
 </body>
 </html>
