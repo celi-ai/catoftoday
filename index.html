@@ -2,217 +2,115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat of Today</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics-compat.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            color: var(--tg-theme-text-color);
-            background-color: var(--tg-theme-bg-color);
-        }
-        h1 {
-            margin-bottom: 10px;
-        }
-        #dateDisplay {
-            margin-bottom: 20px;
-        }
         #catContainer {
+            width: 300px;
+            height: 300px;
+            background-size: cover;
             position: relative;
             cursor: pointer;
-            overflow: hidden;
-        }
-        #catImage {
-            max-width: 100%;
-            height: auto;
-            transition: transform 0.2s ease, filter 0.3s ease;
         }
         #patEffect {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            width: 150px;
-            height: 150px;
-            border: 4px solid #ff69b4;
-            border-radius: 50%;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
-        }
-        #patCount {
-            margin-bottom: 10px;
             font-size: 24px;
-            font-weight: bold;
-            transition: transform 0.2s ease;
-        }
-        @keyframes patPulse {
-            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.7; }
-            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.5; }
-            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
-        }
-        @keyframes float {
-            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-100px) scale(1.5) rotate(360deg); opacity: 0; }
-        }
-        @keyframes particle {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
-        }
-        .particle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: particle 1s ease-out forwards;
+            opacity: 0;
+            transition: all 0.5s;
         }
     </style>
 </head>
 <body>
     <h1>Cat of Today</h1>
+    
     <div id="patCount">Global Pat Count: 0</div>
+    
     <div id="dateDisplay"></div>
+    
     <div id="catContainer">
-        <img id="catImage" alt="Cat of Today">
-        <div id="patEffect"></div>
+        <div id="patEffect">❤️</div>
     </div>
+
     <script>
-        const API_URL = 'https://catoftoday.onrender.com/api/pat';
-        const images = ['1.jpeg', '2.jpeg', '3.jpeg'];
-        const catImage = document.getElementById('catImage');
+        // Initialize Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
+            authDomain: "catoftoday-e2451.firebaseapp.com",
+            projectId: "catoftoday-e2451",
+            storageBucket: "catoftoday-e2451.appspot.com",
+            messagingSenderId: "246259753230",
+            appId: "1:246259753230:web:abc91475e03e9f13cf775f",
+            measurementId: "G-53VSVBFRK1"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const analytics = firebase.analytics();
+        const database = firebase.database();
+
         const dateDisplay = document.getElementById('dateDisplay');
         const patEffect = document.getElementById('patEffect');
         const patCountDisplay = document.getElementById('patCount');
         const catContainer = document.getElementById('catContainer');
-        let patCount = 0;
 
-        function updateDateAndImage() {
-            const today = new Date();
-            dateDisplay.textContent = today.toDateString();
-            const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
-            const imageIndex = daysSinceEpoch % 3;
-            catImage.src = `images/${images[imageIndex]}`;
+        // Reference to patCount in Firebase
+        const patCountRef = database.ref('patCount');
+
+        // Update pat count display
+        patCountRef.on('value', (snapshot) => {
+            const count = snapshot.val() || 0;
+            patCountDisplay.textContent = `Global Pat Count: ${count}`;
+        });
+
+        // Function to increment pat count
+        function incrementPatCount() {
+            patCountRef.transaction((currentCount) => {
+                return (currentCount || 0) + 1;
+            });
         }
 
-        async function patCat(event) {
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+        // Display current date
+        function updateDateDisplay() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateDisplay.textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Fetch and display cat image
+        function fetchCatImage() {
+            fetch('https://api.thecatapi.com/v1/images/search')
+                .then(response => response.json())
+                .then(data => {
+                    catContainer.style.backgroundImage = `url(${data[0].url})`;
                 });
-                if (!response.ok) {
-                    throw new Error('Failed to update pat count');
-                }
-                const data = await response.json();
-                patCount = data.count;
-                updatePatCountDisplay();
-            } catch (error) {
-                console.error('Error updating pat count:', error);
-            }
+        }
 
-            patCountDisplay.style.transform = 'scale(1.2)';
-            setTimeout(() => { patCountDisplay.style.transform = 'scale(1)'; }, 200);
-
-            // Animate cat
-            catImage.style.transform = 'scale(0.95)';
-            catImage.style.filter = 'brightness(1.2)';
+        // Pat effect
+        function showPatEffect(event) {
+            patEffect.style.left = `${event.offsetX}px`;
+            patEffect.style.top = `${event.offsetY}px`;
+            patEffect.style.opacity = 1;
             setTimeout(() => {
-                catImage.style.transform = 'scale(1)';
-                catImage.style.filter = 'brightness(1)';
-            }, 200);
-
-            // Show pat effect
-            patEffect.style.animation = 'none';
-            patEffect.offsetHeight; // Trigger reflow
-            patEffect.style.animation = 'patPulse 0.5s ease-out';
-
-            // Add multiple hearts
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => createHeart(), i * 100);
-            }
-
-            // Create particle explosion
-            createParticles(event.clientX, event.clientY);
-
-            // Haptic feedback (if supported)
-            if (navigator.vibrate) {
-                navigator.vibrate(50);
-            }
+                patEffect.style.opacity = 0;
+            }, 500);
         }
 
-        function updatePatCountDisplay() {
-            patCountDisplay.textContent = `Global Pat Count: ${patCount}`;
-        }
+        // Event listeners
+        catContainer.addEventListener('click', (event) => {
+            incrementPatCount();
+            showPatEffect(event);
+        });
 
-        async function getInitialPatCount() {
-            try {
-                const response = await fetch(API_URL);
-                if (!response.ok) {
-                    throw new Error('Failed to get pat count');
-                }
-                const data = await response.json();
-                patCount = data.count;
-                updatePatCountDisplay();
-            } catch (error) {
-                console.error('Error getting initial pat count:', error);
-            }
-        }
-
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.innerHTML = ['❤️', '🐾', '🐱'][Math.floor(Math.random() * 3)];
-            heart.style.position = 'absolute';
-            heart.style.fontSize = '24px';
-            heart.style.pointerEvents = 'none';
-            heart.style.left = `${Math.random() * 100}%`;
-            heart.style.top = `${Math.random() * 100}%`;
-            heart.style.animation = 'float 2s ease-out';
-            catContainer.appendChild(heart);
-
-            setTimeout(() => {
-                catContainer.removeChild(heart);
-            }, 2000);
-        }
-
-        function createParticles(x, y) {
-            const rect = catContainer.getBoundingClientRect();
-            const localX = x - rect.left;
-            const localY = y - rect.top;
-
-            for (let i = 0; i < 20; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                particle.style.left = `${localX}px`;
-                particle.style.top = `${localY}px`;
-                particle.style.setProperty('--tx', `${(Math.random() - 0.5) * 200}px`);
-                particle.style.setProperty('--ty', `${(Math.random() - 0.5) * 200}px`);
-                catContainer.appendChild(particle);
-
-                setTimeout(() => {
-                    catContainer.removeChild(particle);
-                }, 1000);
-            }
-        }
-
-        // Initialize Telegram Mini App
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.setHeaderColor('secondary_bg_color');
-        window.Telegram.WebApp.onEvent('viewportChanged', updateDateAndImage);
-
-        // Initial update
-        updateDateAndImage();
-        getInitialPatCount();
-
-        // Add click event listener for patting
-        catImage.addEventListener('click', patCat);
+        // Initial setup
+        updateDateDisplay();
+        fetchCatImage();
+        setInterval(fetchCatImage, 24 * 60 * 60 * 1000); // Fetch new cat every 24 hours
     </script>
 </body>
 </html>
