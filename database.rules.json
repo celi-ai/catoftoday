@@ -12,6 +12,20 @@
     }
   },
   "storage": {
-    "rules": "rules_version = '2';\nservice firebase.storage {\n  match /b/{bucket}/o {\n    match /{allPaths=**} {\n      allow read, write: if true;\n    }\n  }\n}"
+    "rules_version": "2",
+    "service": {
+      "firebase.storage": {
+        "match": {
+          "/b/{bucket}/o": {
+            "match": {
+              "/{allPaths=**}": {
+                "allow read: if true;"
+                "allow write: if request.auth != null;"
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
