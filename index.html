@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
     <style>
         body {
             color: var(--tg-theme-text-color);
@@ -57,6 +58,7 @@
         const app = firebase.initializeApp(firebaseConfig);
         const analytics = firebase.analytics();
         const database = firebase.database();
+        const storage = firebase.storage();
 
         const dateDisplay = document.getElementById('dateDisplay');
         const patEffect = document.getElementById('patEffect');
@@ -65,6 +67,14 @@
 
         // Reference to patCount in Firebase
         const patCountRef = database.ref('patCount');
+
+        // Cat images array
+        const catImages = [
+            'cat1.jpg',
+            'cat2.jpg',
+            'cat3.jpg',
+            // Add more image filenames as needed
+        ];
 
         // Update pat count display
         patCountRef.on('value', (snapshot) => {
@@ -92,13 +102,24 @@
             dateDisplay.textContent = now.toLocaleDateString('en-US', options);
         }
 
-        // Fetch and display cat image
-        function fetchCatImage() {
-            fetch('https://api.thecatapi.com/v1/images/search')
-                .then(response => response.json())
-                .then(data => {
-                    catContainer.style.backgroundImage = `url(${data[0].url})`;
-                });
+        // Get cat of the day
+        function getCatOfTheDay() {
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            const imageIndex = dayOfYear % catImages.length;
+            return catImages[imageIndex];
+        }
+
+        // Fetch and display cat image from Firebase Storage
+        function updateCatImage() {
+            const catImageFilename = getCatOfTheDay();
+            const imageRef = storage.ref('cat_images/' + catImageFilename);
+            
+            imageRef.getDownloadURL().then((url) => {
+                catContainer.style.backgroundImage = `url(${url})`;
+            }).catch((error) => {
+                console.error("Error getting cat image:", error);
+            });
         }
 
         // Pat effect
@@ -119,8 +140,8 @@
 
         // Initial setup
         updateDateDisplay();
-        fetchCatImage();
-        setInterval(fetchCatImage, 24 * 60 * 60 * 1000); // Fetch new cat every 24 hours
+        updateCatImage();
+        setInterval(updateCatImage, 24 * 60 * 60 * 1000); // Update cat image every 24 hours
     </script>
 </body>
 </html>
