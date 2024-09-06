@@ -40,7 +40,7 @@
     </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, get, increment } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, get, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
         import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -72,18 +72,27 @@
         tg.ready();
 
         async function checkAndResetIfNeeded() {
-            const lastResetSnapshot = await get(lastResetRef);
-            const lastReset = lastResetSnapshot.val();
-            const now = Date.now();
+            try {
+                const lastResetSnapshot = await get(lastResetRef);
+                const lastReset = lastResetSnapshot.val();
+                const now = Date.now();
 
-            if (!lastReset || (now - lastReset > 24 * 60 * 60 * 1000)) {
-                // More than 24 hours have passed, reset global count and update timestamp
-                await set(countRef, 0);
-                await set(lastResetRef, serverTimestamp());
-                updateCatImage();
-                return true;
+                console.log("Last reset:", lastReset);
+                console.log("Current time:", now);
+
+                if (!lastReset || (now - lastReset > 24 * 60 * 60 * 1000)) {
+                    console.log("Resetting counters and updating timestamp");
+                    await set(countRef, 0);
+                    await set(lastResetRef, serverTimestamp());
+                    updateCatImage();
+                    return true;
+                }
+                console.log("No reset needed");
+                return false;
+            } catch (error) {
+                console.error("Error in checkAndResetIfNeeded:", error);
+                return false;
             }
-            return false;
         }
 
         // Get user data from Telegram
@@ -99,33 +108,37 @@
         get(countRef).then((snapshot) => {
             const count = snapshot.val() || 0;
             counterElement.textContent = count;
-        });
+        }).catch(error => console.error("Error getting global count:", error));
 
         get(userPatCountRef).then((snapshot) => {
             const count = snapshot.val() || 0;
             userPatCountElement.textContent = count;
-        });
+        }).catch(error => console.error("Error getting user count:", error));
 
         // Listen for real-time updates
         onValue(countRef, (snapshot) => {
             const count = snapshot.val() || 0;
             counterElement.textContent = count;
-        });
+        }, error => console.error("Error in global count listener:", error));
 
         onValue(userPatCountRef, (snapshot) => {
             const count = snapshot.val() || 0;
             userPatCountElement.textContent = count;
-        });
+        }, error => console.error("Error in user count listener:", error));
 
         // Increment counter
         catContainer.addEventListener('click', async () => {
             if (user) {
-                const wasReset = await checkAndResetIfNeeded();
-                if (!wasReset) {
-                    await set(countRef, increment(1));
+                try {
+                    const wasReset = await checkAndResetIfNeeded();
+                    if (!wasReset) {
+                        await set(countRef, increment(1));
+                    }
+                    await set(userPatCountRef, increment(1));
+                    tg.HapticFeedback.impactOccurred('medium');
+                } catch (error) {
+                    console.error("Error incrementing counters:", error);
                 }
-                await set(userPatCountRef, increment(1));
-                tg.HapticFeedback.impactOccurred('medium');
             } else {
                 alert("Please open this app in Telegram to pat the cat!");
             }
@@ -143,7 +156,8 @@
             const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
             
             getDownloadURL(imageRef).then((url) => {
-                catContainer.style.backgroundImage = `url(${url})`;
+                catContainer.style.backgroundImage = `url("${url}")`;
+                console.log("Cat image updated:", url);
             }).catch((error) => {
                 console.error("Error getting cat image:", error);
             });
@@ -151,8 +165,12 @@
         
         // Initial setup
         async function initialize() {
-            await checkAndResetIfNeeded();
-            updateCatImage();
+            try {
+                await checkAndResetIfNeeded();
+                updateCatImage();
+            } catch (error) {
+                console.error("Error during initialization:", error);
+            }
         }
         initialize();
 
