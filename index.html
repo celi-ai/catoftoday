@@ -43,7 +43,7 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, onValue, increment, set, get, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
         import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
@@ -74,28 +74,18 @@
         const patCountDisplay = document.getElementById('globalPatCount');
         const catContainer = document.getElementById('catContainer');
 
-
-        // Listen for changes to the global pat count and initialize if it doesn't exist
+        // Listen for changes to the global pat count
         onValue(globalPatCountRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const count = snapshot.val();
-                patCountDisplay.textContent = `Global Pat Count: ${count}`;
-            } else {
-                // If the counter doesn't exist, initialize it to 0
-                set(globalPatCountRef, 0)
-                    .then(() => {
-                        patCountDisplay.textContent = `Global Pat Count: 0`;
-                    })
-                    .catch((error) => {
-                        console.error("Error initializing counter:", error);
-                     });
-            }
+            const count = snapshot.val() || 0;
+            patCountDisplay.textContent = `Global Pat Count: ${count}`;
         });
 
         // Function to increment the global pat count
         function incrementGlobalPatCount() {
             runTransaction(globalPatCountRef, (currentCount) => {
                 return (currentCount || 0) + 1;
+            }).catch((error) => {
+                console.error("Error updating pat count:", error);
             });
         }
 
