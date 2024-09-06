@@ -1,12 +1,16 @@
 {
   "name": "catoftoday",
   "version": "1.0.0",
-  "main": "server.js",
-  "dependencies": {
-    "express": "^4.17.1",
-    "cors": "^2.8.5"
-  },
+  "description": "Cat of Today Telegram Mini App",
+  "main": "index.html",
   "scripts": {
-    "start": "node server.js"
+    "start": "firebase serve",
+    "deploy": "firebase deploy"
+  },
+  "dependencies": {
+    "firebase": "^9.22.1"
+  },
+  "devDependencies": {
+    "firebase-tools": "^11.30.0"
   }
 }
