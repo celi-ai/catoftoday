@@ -43,7 +43,7 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, onValue, transaction, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, onValue, increment, set, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
         import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
@@ -92,15 +92,9 @@
             patCountDisplay.textContent = `Global Pat Count: ${count}`;
         });
 
-        // Function to increment the global pat count using transaction()
+        // Function to increment the global pat count
         function incrementGlobalPatCount() {
-            transaction(globalPatCountRef, (currentCount) => {
-                return (currentCount || 0) + 1; // Safely increment the current count
-            }).then(() => {
-                console.log("Global pat count incremented successfully.");
-            }).catch((error) => {
-                console.error("Error incrementing global pat count:", error);
-            });
+            set(globalPatCountRef, increment(1));
         }
 
         // Add event listener to increment pat count and show effect
@@ -156,7 +150,7 @@
 
         // Initial setup
         updateDateDisplay();
-        updateCatImage(); // Load cat image on startup
+        updateCatImage();
         setInterval(updateCatImage, 24 * 60 * 60 * 1000); // Update cat image every 24 hours
     </script>
 </body>
