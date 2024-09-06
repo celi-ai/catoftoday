@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat of Today</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js"></script>
     <style>
         body {
             color: var(--tg-theme-text-color);
@@ -40,12 +40,18 @@
         <div id="patEffect">❤️</div>
     </div>
 
-    <script>
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, onValue, increment, set, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
+        import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
+
         // Initialize Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Initialize Firebase
+        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
             authDomain: "catoftoday-e2451.firebaseapp.com",
@@ -55,18 +61,47 @@
             appId: "1:246259753230:web:abc91475e03e9f13cf775f",
             measurementId: "G-53VSVBFRK1"
         };
-        const app = firebase.initializeApp(firebaseConfig);
-        const analytics = firebase.analytics();
-        const database = firebase.database();
-        const storage = firebase.storage();
 
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+
+        const globalPatCountRef = ref(db, 'globalPatCount');
         const dateDisplay = document.getElementById('dateDisplay');
         const patEffect = document.getElementById('patEffect');
         const patCountDisplay = document.getElementById('patCount');
         const catContainer = document.getElementById('catContainer');
 
-        // Reference to patCount in Firebase
-        const patCountRef = database.ref('patCount');
+        // Function to initialize the global counter if it doesn't exist
+        function initializeCounter() {
+            get(globalPatCountRef).then((snapshot) => {
+                if (!snapshot.exists()) {
+                    set(globalPatCountRef, 0);
+                }
+            });
+        }
+
+        // Initialize the counter when the app starts
+        initializeCounter();
+
+        // Listen for changes to the global pat count
+        onValue(globalPatCountRef, (snapshot) => {
+            const count = snapshot.val() || 0;
+            patCountDisplay.textContent = `Global Pat Count: ${count}`;
+        });
+
+        // Function to increment the global pat count
+        function incrementGlobalPatCount() {
+            set(globalPatCountRef, increment(1));
+        }
+
+        // Add event listener to increment pat count and show effect
+        catContainer.addEventListener('click', (event) => {
+            incrementGlobalPatCount();
+            showPatEffect(event);
+        });
 
         // Cat images array
         const catImages = [
@@ -75,25 +110,6 @@
             'cat3.jpeg',
             // Add more image filenames as needed
         ];
-
-        // Update pat count display
-        patCountRef.on('value', (snapshot) => {
-            const count = snapshot.val() || 0;
-            patCountDisplay.textContent = `Global Pat Count: ${count}`;
-        }, (error) => {
-            console.error("Error fetching pat count:", error);
-        });
-
-        // Function to increment pat count
-        function incrementPatCount() {
-            patCountRef.transaction((currentCount) => {
-                return (currentCount || 0) + 1;
-            }).then(() => {
-                console.log("Pat count incremented successfully");
-            }).catch((error) => {
-                console.error("Error incrementing pat count:", error);
-            });
-        }
 
         // Display current date
         function updateDateDisplay() {
@@ -113,9 +129,9 @@
         // Fetch and display cat image from Firebase Storage
         function updateCatImage() {
             const catImageFilename = getCatOfTheDay();
-            const imageRef = storage.ref('cat_images/' + catImageFilename);
+            const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
             
-            imageRef.getDownloadURL().then((url) => {
+            getDownloadURL(imageRef).then((url) => {
                 catContainer.style.backgroundImage = `url(${url})`;
             }).catch((error) => {
                 console.error("Error getting cat image:", error);
@@ -131,12 +147,6 @@
                 patEffect.style.opacity = 0;
             }, 500);
         }
-
-        // Event listeners
-        catContainer.addEventListener('click', (event) => {
-            incrementPatCount();
-            showPatEffect(event);
-        });
 
         // Initial setup
         updateDateDisplay();
