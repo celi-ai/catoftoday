@@ -3,54 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat of Today</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            color: var(--tg-theme-text-color);
-            background-color: var(--tg-theme-bg-color);
-        }
-        #catContainer {
-            width: 300px;
-            height: 300px;
-            background-size: cover;
-            position: relative;
-            cursor: pointer;
-        }
-        #patEffect {
-            position: absolute;
-            font-size: 24px;
-            opacity: 0;
-            transition: all 0.5s;
-        }
-    </style>
+    <title>Firebase Counter</title>
 </head>
 <body>
-    <h1>Cat of Today</h1>
-    
-    <div id="globalPatCount">Global Pat Count: 0</div>
-    
-    <div id="dateDisplay"></div>
-    
-    <div id="catContainer">
-        <div id="patEffect">❤️</div>
-    </div>
+    <h1>Global Pat Count: <span id="counter">0</span></h1>
+    <button id="incrementButton">Increment</button>
 
     <script type="module">
-        // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
-        import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
-        // Initialize Telegram Web App
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
             authDomain: "catoftoday-e2451.firebaseapp.com",
+            databaseURL: "https://catoftoday-e2451-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "catoftoday-e2451",
             storageBucket: "catoftoday-e2451.appspot.com",
             messagingSenderId: "246259753230",
@@ -58,112 +24,33 @@
             measurementId: "G-53VSVBFRK1"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const db = getDatabase(app);
-        const storage = getStorage(app);
+        const countRef = ref(db, 'globalPatCount');
 
-        const globalPatCountRef = ref(db, 'globalPatCount');
-        const dateDisplay = document.getElementById('dateDisplay');
-        const patEffect = document.getElementById('patEffect');
-        const patCountDisplay = document.getElementById('globalPatCount');
-        const catContainer = document.getElementById('catContainer');
+        const counterElement = document.getElementById('counter');
+        const incrementButton = document.getElementById('incrementButton');
 
-        function updateUI(count) {
-            patCountDisplay.textContent = `Global Pat Count: ${count}`;
-        }
-
-        // Initialize or fetch the current count
-        get(globalPatCountRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                const count = snapshot.val();
-                console.log(`Initial count from Firebase: ${count}`);
-                updateUI(count);
-            } else {
-                console.log('No count in Firebase, initializing to 0');
-                set(globalPatCountRef, 0);
-                updateUI(0);
-            }
-        }).catch((error) => {
-            console.error(`Error fetching initial count: ${error.message}`);
+        // Initialize counter
+        get(countRef).then((snapshot) => {
+            const count = snapshot.val() || 0;
+            counterElement.textContent = count;
         });
 
         // Listen for real-time updates
-        onValue(globalPatCountRef, (snapshot) => {
-            const count = snapshot.val();
-            console.log(`Real-time update: count is now ${count}`);
-            updateUI(count);
-        }, (error) => {
-            console.error(`Error in real-time listener: ${error.message}`);
+        onValue(countRef, (snapshot) => {
+            const count = snapshot.val() || 0;
+            counterElement.textContent = count;
         });
 
-        // Function to increment the global pat count
-        function incrementGlobalPatCount(event) {
-            get(globalPatCountRef).then((snapshot) => {
-                const currentCount = (snapshot.val() || 0) + 1;
-                console.log(`Incrementing count to ${currentCount}`);
-                return set(globalPatCountRef, currentCount);
-            }).then(() => {
-                console.log('Count updated successfully');
-                showPatEffect(event);
-            }).catch((error) => {
-                console.error(`Error updating count: ${error.message}`);
+        // Increment counter
+        incrementButton.addEventListener('click', () => {
+            get(countRef).then((snapshot) => {
+                const currentCount = snapshot.val() || 0;
+                const newCount = currentCount + 1;
+                set(countRef, newCount);
             });
-        }
-
-        // Add event listener to increment pat count and show effect
-        catContainer.addEventListener('click', incrementGlobalPatCount);
-
-        // Cat images array
-        const catImages = [
-            'cat1.jpeg',
-            'cat2.jpeg',
-            'cat3.jpeg',
-            // Add more image filenames as needed
-        ];
-
-        // Display current date
-        function updateDateDisplay() {
-            const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            dateDisplay.textContent = now.toLocaleDateString('en-US', options);
-        }
-
-        // Get cat of the day
-        function getCatOfTheDay() {
-            const today = new Date();
-            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            const imageIndex = dayOfYear % catImages.length;
-            return catImages[imageIndex];
-        }
-
-        // Fetch and display cat image from Firebase Storage
-        function updateCatImage() {
-            const catImageFilename = getCatOfTheDay();
-            const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
-            
-            getDownloadURL(imageRef).then((url) => {
-                catContainer.style.backgroundImage = `url(${url})`;
-            }).catch((error) => {
-                console.error("Error getting cat image:", error);
-            });
-        }
-
-        // Pat effect
-        function showPatEffect(event) {
-            patEffect.style.left = `${event.offsetX}px`;
-            patEffect.style.top = `${event.offsetY}px`;
-            patEffect.style.opacity = 1;
-            setTimeout(() => {
-                patEffect.style.opacity = 0;
-            }, 500);
-        }
-
-        // Initial setup
-        updateDateDisplay();
-        updateCatImage();
-        setInterval(updateCatImage, 24 * 60 * 60 * 1000); // Update cat image every 24 hours
+        });
     </script>
 </body>
 </html>
