@@ -3,15 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Counter</title>
+    <title>Cat of Today</title>
+    <style>
+        #catContainer {
+            width: 300px;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h1>Global Pat Count: <span id="counter">0</span></h1>
-    <button id="incrementButton">Increment</button>
+    <h1>Cat of Today</h1>
+    <h2>Global Pat Count: <span id="counter">0</span></h2>
+    <div id="catContainer"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
@@ -26,10 +37,11 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const storage = getStorage(app);
         const countRef = ref(db, 'globalPatCount');
 
         const counterElement = document.getElementById('counter');
-        const incrementButton = document.getElementById('incrementButton');
+        const catContainer = document.getElementById('catContainer');
 
         // Initialize counter
         get(countRef).then((snapshot) => {
@@ -44,13 +56,36 @@
         });
 
         // Increment counter
-        incrementButton.addEventListener('click', () => {
+        catContainer.addEventListener('click', () => {
             get(countRef).then((snapshot) => {
                 const currentCount = snapshot.val() || 0;
                 const newCount = currentCount + 1;
                 set(countRef, newCount);
             });
         });
+
+        // Cat image functionality
+        const catImages = ['cat1.jpeg', 'cat2.jpeg', 'cat3.jpeg'];
+
+        function getCatOfTheDay() {
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            return catImages[dayOfYear % catImages.length];
+        }
+
+        function updateCatImage() {
+            const catImageFilename = getCatOfTheDay();
+            const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
+            
+            getDownloadURL(imageRef).then((url) => {
+                catContainer.style.backgroundImage = `url(${url})`;
+            }).catch((error) => {
+                console.error("Error getting cat image:", error);
+            });
+        }
+
+        // Initial setup
+        updateCatImage();
     </script>
 </body>
 </html>
