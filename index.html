@@ -32,7 +32,7 @@
 <body>
     <h1>Cat of Today</h1>
     
-    <div id="patCount">Global Pat Count: 0</div>
+    <div id="globalPatCount">Global Pat Count: 0</div>
     
     <div id="dateDisplay"></div>
     
@@ -71,7 +71,7 @@
         const globalPatCountRef = ref(db, 'globalPatCount');
         const dateDisplay = document.getElementById('dateDisplay');
         const patEffect = document.getElementById('patEffect');
-        const patCountDisplay = document.getElementById('patCount');
+        const patCountDisplay = document.getElementById('globalPatCount');
         const catContainer = document.getElementById('catContainer');
 
         // Function to initialize the global counter if it doesn't exist

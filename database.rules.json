@@ -1,7 +1,7 @@
 {
   "database": {
     "rules": {
-      "patCount": {
+      "globalPatCount": {
         ".read": true,
         ".write": true
       },
