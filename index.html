@@ -59,6 +59,7 @@
         const storage = getStorage(app);
 
         const countRef = ref(db, 'globalPatCount');
+        const lastResetRef = ref(db, 'lastResetTimestamp');
         const counterElement = document.getElementById('counter');
         const catContainer = document.getElementById('catContainer');
         const userPatCountElement = document.getElementById('userPatCount');
@@ -69,6 +70,21 @@
 
         // Ensure the app is ready
         tg.ready();
+
+        async function checkAndResetIfNeeded() {
+            const lastResetSnapshot = await get(lastResetRef);
+            const lastReset = lastResetSnapshot.val();
+            const now = Date.now();
+
+            if (!lastReset || (now - lastReset > 24 * 60 * 60 * 1000)) {
+                // More than 24 hours have passed, reset global count and update timestamp
+                await set(countRef, 0);
+                await set(lastResetRef, serverTimestamp());
+                updateCatImage();
+                return true;
+            }
+            return false;
+        }
 
         // Get user data from Telegram
         const user = tg.initDataUnsafe.user;
@@ -102,14 +118,13 @@
         });
 
         // Increment counter
-        catContainer.addEventListener('click', () => {
+        catContainer.addEventListener('click', async () => {
             if (user) {
-                get(countRef).then((snapshot) => {
-                    const currentCount = snapshot.val() || 0;
-                    const newCount = currentCount + 1;
-                    set(countRef, newCount);
-                });
-                set(userPatCountRef, increment(1));
+                const wasReset = await checkAndResetIfNeeded();
+                if (!wasReset) {
+                    await set(countRef, increment(1));
+                }
+                await set(userPatCountRef, increment(1));
                 tg.HapticFeedback.impactOccurred('medium');
             } else {
                 alert("Please open this app in Telegram to pat the cat!");
@@ -133,8 +148,13 @@
                 console.error("Error getting cat image:", error);
             });
         }
+        
         // Initial setup
-        updateCatImage();
+        async function initialize() {
+            await checkAndResetIfNeeded();
+            updateCatImage();
+        }
+        initialize();
 
         // Expand to full screen
         tg.expand();
