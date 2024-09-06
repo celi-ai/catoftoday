@@ -37,10 +37,12 @@
         <h3>Your Profile</h3>
         <p>Welcome, <span id="userName"></span>!</p>
         <p>Total Pats: <span id="userPatCount">0</span></p>
+        <p>Available Pats: <span id="availablePats">0</span></p>
+        <p>Streak: <span id="userStreak">0</span> days</p>
     </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, get, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, get, increment, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
         import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -64,6 +66,8 @@
         const catContainer = document.getElementById('catContainer');
         const userPatCountElement = document.getElementById('userPatCount');
         const userNameElement = document.getElementById('userName');
+        const availablePatsElement = document.getElementById('availablePats');
+        const userStreakElement = document.getElementById('userStreak');
 
         // Telegram WebApp initialization
         const tg = window.Telegram.WebApp;
@@ -102,7 +106,41 @@
 
         userNameElement.textContent = userName;
 
+        const userRef = ref(db, `users/${userId}`);
         const userPatCountRef = ref(db, `users/${userId}/patCount`);
+        const userAvailablePatsRef = ref(db, `users/${userId}/availablePats`);
+        const userStreakRef = ref(db, `users/${userId}/streak`);
+        const userLastLoginRef = ref(db, `users/${userId}/lastLogin`);
+
+        async function checkAndUpdateDailyLogin() {
+            const userSnapshot = await get(userRef);
+            const userData = userSnapshot.val() || {};
+            const now = new Date();
+            const today = now.toDateString();
+            const yesterday = new Date(now.setDate(now.getDate() - 1)).toDateString();
+
+            if (!userData.lastLogin || userData.lastLogin !== today) {
+                // It's a new day
+                let newStreak = 1;
+                if (userData.lastLogin === yesterday) {
+                    // User logged in yesterday, increment streak
+                    newStreak = (userData.streak || 0) + 1;
+                }
+
+                // Calculate new available pats
+                const newAvailablePats = 10 + (newStreak * 10);
+
+                // Update user data
+                await set(userRef, {
+                    ...userData,
+                    streak: newStreak,
+                    lastLogin: today,
+                    availablePats: newAvailablePats
+                });
+
+                console.log("Updated daily login data");
+            }
+        }
 
         // Initialize counters
         get(countRef).then((snapshot) => {
@@ -115,6 +153,16 @@
             userPatCountElement.textContent = count;
         }).catch(error => console.error("Error getting user count:", error));
 
+        get(userAvailablePatsRef).then((snapshot) => {
+            const count = snapshot.val() || 0;
+            availablePatsElement.textContent = count;
+        }).catch(error => console.error("Error getting available pats:", error));
+
+        get(userStreakRef).then((snapshot) => {
+            const streak = snapshot.val() || 0;
+            userStreakElement.textContent = streak;
+        }).catch(error => console.error("Error getting user streak:", error));
+
         // Listen for real-time updates
         onValue(countRef, (snapshot) => {
             const count = snapshot.val() || 0;
@@ -126,6 +174,16 @@
             userPatCountElement.textContent = count;
         }, error => console.error("Error in user count listener:", error));
 
+        onValue(userAvailablePatsRef, (snapshot) => {
+            const count = snapshot.val() || 0;
+            availablePatsElement.textContent = count;
+        }, error => console.error("Error in available pats listener:", error));
+
+        onValue(userStreakRef, (snapshot) => {
+            const streak = snapshot.val() || 0;
+            userStreakElement.textContent = streak;
+        }, error => console.error("Error in user streak listener:", error));
+
         // Increment counter
         catContainer.addEventListener('click', async () => {
             if (user) {
@@ -134,8 +192,26 @@
                     if (!wasReset) {
                         await set(countRef, increment(1));
                     }
-                    await set(userPatCountRef, increment(1));
-                    tg.HapticFeedback.impactOccurred('medium');
+
+                    const result = await runTransaction(userRef, (userData) => {
+                        if (!userData) {
+                            return null; // abort the transaction
+                        }
+
+                        if (userData.availablePats > 0) {
+                            userData.patCount = (userData.patCount || 0) + 1;
+                            userData.availablePats--;
+                            return userData;
+                        } else {
+                            return undefined; // abort the transaction
+                        }
+                    });
+
+                    if (result.committed) {
+                        tg.HapticFeedback.impactOccurred('medium');
+                    } else {
+                        alert("You're out of pats! Come back tomorrow for more pats.");
+                    }
                 } catch (error) {
                     console.error("Error incrementing counters:", error);
                 }
@@ -167,6 +243,7 @@
         async function initialize() {
             try {
                 await checkAndResetIfNeeded();
+                await checkAndUpdateDailyLogin();
                 updateCatImage();
             } catch (error) {
                 console.error("Error during initialization:", error);
