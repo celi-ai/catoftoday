@@ -1,7 +1,17 @@
 {
-  /* Visit https://firebase.google.com/docs/database/security to learn more about security rules. */
-  "rules": {
-    ".read": false,
-    ".write": false
+  "database": {
+    "rules": {
+      "patCount": {
+        ".read": true,
+        ".write": false
+      },
+      "$other": {
+        ".read": false,
+        ".write": false
+      }
+    }
+  },
+  "storage": {
+    "rules": "rules_version = '2';\nservice firebase.storage {\n  match /b/{bucket}/o {\n    match /{allPaths=**} {\n      allow read, write: if true;\n    }\n  }\n}"
   }
 }
