@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cat of Today</title>
+    <title>Cat of the Day</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -74,14 +74,15 @@
     </style>
 </head>
 <body>
-    <h1>Cat of Today</h1>
-    <div id="patCount">Pat Count: 0</div>
+    <h1>Cat of the Day</h1>
+    <div id="patCount">Global Pat Count: 0</div>
     <div id="dateDisplay"></div>
     <div id="catContainer">
-        <img id="catImage" alt="Cat of Today">
+        <img id="catImage" alt="Cat of the Day">
         <div id="patEffect"></div>
     </div>
     <script>
+        const API_URL = 'https://catoftoday.onrender.com/api/pat';
         const images = ['1.jpeg', '2.jpeg', '3.jpeg'];
         const catImage = document.getElementById('catImage');
         const dateDisplay = document.getElementById('dateDisplay');
@@ -98,9 +99,24 @@
             catImage.src = `images/${images[imageIndex]}`;
         }
 
-        function patCat(event) {
-            patCount++;
-            patCountDisplay.textContent = `Pat Count: ${patCount}`;
+        async function patCat(event) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to update pat count');
+                }
+                const data = await response.json();
+                patCount = data.count;
+                updatePatCountDisplay();
+            } catch (error) {
+                console.error('Error updating pat count:', error);
+            }
+
             patCountDisplay.style.transform = 'scale(1.2)';
             setTimeout(() => { patCountDisplay.style.transform = 'scale(1)'; }, 200);
 
@@ -131,9 +147,27 @@
             }
         }
 
+        function updatePatCountDisplay() {
+            patCountDisplay.textContent = `Global Pat Count: ${patCount}`;
+        }
+
+        async function getInitialPatCount() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error('Failed to get pat count');
+                }
+                const data = await response.json();
+                patCount = data.count;
+                updatePatCountDisplay();
+            } catch (error) {
+                console.error('Error getting initial pat count:', error);
+            }
+        }
+
         function createHeart() {
             const heart = document.createElement('div');
-            heart.innerHTML = ['❤️', '😺', '🐾', '🐱'][Math.floor(Math.random() * 4)];
+            heart.innerHTML = ['❤️', '🐾', '🐱'][Math.floor(Math.random() * 3)];
             heart.style.position = 'absolute';
             heart.style.fontSize = '24px';
             heart.style.pointerEvents = 'none';
@@ -175,6 +209,7 @@
 
         // Initial update
         updateDateAndImage();
+        getInitialPatCount();
 
         // Add click event listener for patting
         catImage.addEventListener('click', patCat);
