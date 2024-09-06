@@ -4,54 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat of Today</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
+            color: var(--tg-theme-text-color);
+            background-color: var(--tg-theme-bg-color);
         }
         #catContainer {
-            width: 200px;
-            height: 200px;
-            background-color: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 100px;
+            width: 300px;
+            height: 300px;
+            background-size: cover;
+            position: relative;
             cursor: pointer;
-            user-select: none;
         }
         #patEffect {
-            display: none;
-            color: red;
-            font-size: 50px;
             position: absolute;
+            font-size: 24px;
+            opacity: 0;
+            transition: all 0.5s;
         }
     </style>
 </head>
 <body>
     <h1>Cat of Today</h1>
-
+    
     <div id="globalPatCount">Global Pat Count: 0</div>
-
+    
     <div id="dateDisplay"></div>
-
+    
     <div id="catContainer">
         <div id="patEffect">❤️</div>
-        🐱
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, onValue, increment, set, get, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
+        import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
-    <!-- Your main script file -->
-    <script src="app.js"></script>
+        // Initialize Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
+            authDomain: "catoftoday-e2451.firebaseapp.com",
+            projectId: "catoftoday-e2451",
+            storageBucket: "catoftoday-e2451.appspot.com",
+            messagingSenderId: "246259753230",
+            appId: "1:246259753230:web:abc91475e03e9f13cf775f",
+            measurementId: "G-53VSVBFRK1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+
+        const globalPatCountRef = ref(db, 'globalPatCount');
+        const dateDisplay = document.getElementById('dateDisplay');
+        const patEffect = document.getElementById('patEffect');
+        const patCountDisplay = document.getElementById('globalPatCount');
+        const catContainer = document.getElementById('catContainer');
+
+        // Function to initialize the global counter if it doesn't exist
+        function initializeCounter() {
+            get(globalPatCountRef).then((snapshot) => {
+                if (!snapshot.exists()) {
+                    set(globalPatCountRef, 0);
+                }
+            });
+        }
+
+        // Initialize the counter when the app starts
+        initializeCounter();
+
+        // Listen for changes to the global pat count
+        onValue(globalPatCountRef, (snapshot) => {
+            const count = snapshot.val() || 0;
+            patCountDisplay.textContent = `Global Pat Count: ${count}`;
+        });
+
+        // Function to increment the global pat count
+        function incrementGlobalPatCount() {
+            runTransaction(globalPatCountRef, (currentCount) => {
+                return (currentCount || 0) + 1;
+            });
+        }
+
+        // Add event listener to increment pat count and show effect
+        catContainer.addEventListener('click', (event) => {
+            incrementGlobalPatCount();
+            showPatEffect(event);
+        });
+
+        // Cat images array
+        const catImages = [
+            'cat1.jpeg',
+            'cat2.jpeg',
+            'cat3.jpeg',
+            // Add more image filenames as needed
+        ];
+
+        // Display current date
+        function updateDateDisplay() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateDisplay.textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Get cat of the day
+        function getCatOfTheDay() {
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            const imageIndex = dayOfYear % catImages.length;
+            return catImages[imageIndex];
+        }
+
+        // Fetch and display cat image from Firebase Storage
+        function updateCatImage() {
+            const catImageFilename = getCatOfTheDay();
+            const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
+            
+            getDownloadURL(imageRef).then((url) => {
+                catContainer.style.backgroundImage = `url(${url})`;
+            }).catch((error) => {
+                console.error("Error getting cat image:", error);
+            });
+        }
+
+        // Pat effect
+        function showPatEffect(event) {
+            patEffect.style.left = `${event.offsetX}px`;
+            patEffect.style.top = `${event.offsetY}px`;
+            patEffect.style.opacity = 1;
+            setTimeout(() => {
+                patEffect.style.opacity = 0;
+            }, 500);
+        }
+
+        // Initial setup
+        updateDateDisplay();
+        updateCatImage();
+        setInterval(updateCatImage, 24 * 60 * 60 * 1000); // Update cat image every 24 hours
+    </script>
 </body>
 </html>
