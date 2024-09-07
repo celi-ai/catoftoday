@@ -198,17 +198,18 @@ function animateValue(element, start, end, duration) {
 
 // Particle effect when patting
 function createParticles(x, y) {
-    const particleCount = 15;
+    const particleCount = 20;
+    const particleTypes = ['❤️', '😺', '🐾', '⭐', '🌟', '✨', '💖', '😻'];
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
-        particle.style.left = `${x}px`;
-        particle.style.top = `${y}px`;
-        particle.style.setProperty('--x', Math.random() * 200 - 100 + 'px');
-        particle.style.setProperty('--y', Math.random() * -50 - 50 + 'px');
-        particle.innerText = ['❤️', '😺', '🐾', '⭐'][Math.floor(Math.random() * 4)];
+        particle.style.left = `${x + (Math.random() - 0.5) * 100}px`;
+        particle.style.top = `${y + (Math.random() - 0.5) * 100}px`;
+        particle.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
+        particle.style.setProperty('--y', `${Math.random() * -100 - 50}px`);
+        particle.innerText = particleTypes[Math.floor(Math.random() * particleTypes.length)];
         document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 1000);
+        setTimeout(() => particle.remove(), 1000 + Math.random() * 500);
     }
 }
 
@@ -242,6 +243,12 @@ catContainer.addEventListener('click', async (event) => {
                 if (tg.HapticFeedback) {
                     tg.HapticFeedback.impactOccurred('medium');
                 }
+                
+                // Add shake effect to cat container only
+                catContainer.classList.add('shaking');
+                setTimeout(() => {
+                    catContainer.classList.remove('shaking');
+                }, 500);
                 
                 // Add particle effect
                 createParticles(event.clientX, event.clientY);
