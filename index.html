@@ -20,6 +20,23 @@
             background-size: cover;
             background-position: center;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s ease-in-out;
+        }
+        #catContainer:active {
+            transform: scale(0.98);
+        }
+        .pat-effect {
+            position: absolute;
+            pointer-events: none;
+            font-size: 24px;
+            animation: patAnimation 0.5s ease-out;
+            opacity: 0;
+        }
+        @keyframes patAnimation {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
         }
         #userProfile, #leaderboard {
             margin-top: 20px;
@@ -232,8 +249,22 @@
             });
         }
 
+        // Function to animate value changes
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.textContent = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
         // Increment counter
-        catContainer.addEventListener('click', async () => {
+        catContainer.addEventListener('click', async (event) => {
             if (user) {
                 try {
                     const wasReset = await checkAndResetIfNeeded();
@@ -259,6 +290,23 @@
 
                     if (result.committed) {
                         tg.HapticFeedback.impactOccurred('medium');
+                        
+                        // Create and animate pat effect
+                        const patEffect = document.createElement('div');
+                        patEffect.className = 'pat-effect';
+                        patEffect.textContent = '❤️';
+                        patEffect.style.left = `${event.clientX - catContainer.offsetLeft}px`;
+                        patEffect.style.top = `${event.clientY - catContainer.offsetTop}px`;
+                        catContainer.appendChild(patEffect);
+
+                        // Remove pat effect after animation
+                        setTimeout(() => {
+                            patEffect.remove();
+                        }, 500);
+
+                        // Animate pat count and available pats
+                        animateValue(userPatCountElement, parseInt(userPatCountElement.textContent), parseInt(userPatCountElement.textContent) + 1, 500);
+                        animateValue(availablePatsElement, parseInt(availablePatsElement.textContent), parseInt(availablePatsElement.textContent) - 1, 500);
                     } else {
                         alert("You're out of pats! Come back tomorrow for more pats.");
                     }
