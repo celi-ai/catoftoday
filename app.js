@@ -173,12 +173,14 @@ async function updateUserData() {
 function updateCatImage() {
     return new Promise((resolve, reject) => {
         const catImageFilename = getCatOfTheDay();
-        const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
+        console.log("Attempting to load cat image:", catImageFilename);
+        const imageRef = storage.ref('cat_images/' + catImageFilename);
         
-        getDownloadURL(imageRef).then((url) => {
+        imageRef.getDownloadURL().then((url) => {
+            console.log("Got download URL:", url);
             const img = catContainer.querySelector('img');
             img.onload = () => {
-                console.log("Cat image loaded:", url);
+                console.log("Cat image loaded successfully:", url);
                 resolve();
             };
             img.onerror = (error) => {
@@ -190,6 +192,8 @@ function updateCatImage() {
             img.alt = "Cat of Today";
         }).catch((error) => {
             console.error("Error getting cat image URL:", error);
+            console.log("Error code:", error.code);
+            console.log("Error message:", error.message);
             const img = catContainer.querySelector('img');
             img.src = 'https://via.placeholder.com/400x400.png?text=Cat+of+Today';
             img.alt = "Default Cat";
