@@ -1,6 +1,4 @@
-import { getDatabase, ref, runTransaction } from "firebase/database";
-
-export function initializeBuyPats(tg) {
+window.initializeBuyPats = function(tg) {
     const buyPatsBtn = document.getElementById('buyPatsBtn');
     
     buyPatsBtn.addEventListener('click', () => {
@@ -9,7 +7,6 @@ export function initializeBuyPats(tg) {
             { id: 'pats_50', name: '50 Pats', amount: 50, price: 399 },
             { id: 'pats_100', name: '100 Pats', amount: 100, price: 699 }
         ];
-
         tg.showPopup({
             title: 'Buy More Pats',
             message: 'Choose how many pats you want to buy:',
@@ -37,32 +34,26 @@ async function processPayment(tg, option) {
             },
             body: JSON.stringify({ amount: option.amount }),
         });
-
         if (!response.ok) {
             throw new Error('Failed to generate invoice');
         }
-
         const { invoiceLink } = await response.json();
-
         tg.openInvoice(invoiceLink, (status) => {
             if (status === 'paid') {
                 // Update user's available pats
-                const db = getDatabase();
-                const userRef = ref(db, `users/${tg.initDataUnsafe.user.id}`);
-
-                runTransaction(userRef, (userData) => {
+                const db = firebase.database();
+                const userRef = db.ref(`users/${tg.initDataUnsafe.user.id}`);
+                userRef.transaction((userData) => {
                     if (userData) {
                         userData.availablePats = (userData.availablePats || 0) + option.amount;
                         return userData;
                     }
                     return null;
                 });
-
                 // Update UI
                 const availablePatsElement = document.getElementById('availablePats');
                 const currentPats = parseInt(availablePatsElement.textContent);
                 animateValue(availablePatsElement, currentPats, currentPats + option.amount, 300);
-
                 tg.showAlert('Payment successful! Your pats have been added.');
             } else {
                 tg.showAlert('Payment was not completed.');

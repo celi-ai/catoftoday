@@ -1,7 +1,6 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-import { getDatabase, ref, onValue, set, get, increment, serverTimestamp, runTransaction, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js';
-import { getStorage, ref as storageRef, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js';
-import { initializeBuyPats } from './buyPats.js';
+const { initializeApp } = firebase;
+const { getDatabase, ref, onValue, set, get, increment, serverTimestamp, runTransaction, query, orderByChild, limitToLast } = firebase.database;
+const { getStorage, ref: storageRef, getDownloadURL } = firebase.storage;
 
 console.log("Firebase modules imported successfully");
 
@@ -88,7 +87,7 @@ async function initializeApplication() {
         setupTabNavigation();
 
         console.log("Initializing buy pats functionality...");
-        initializeBuyPats(tg);
+        window.initializeBuyPats(tg);
 
         console.log("Setting up listeners...");
         setupListeners();
@@ -428,5 +427,3 @@ tg.expand();
 
 // Add this at the end of the file
 console.log("app.js loaded and executed.");
-
-
