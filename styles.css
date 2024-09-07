@@ -273,12 +273,18 @@ body {
     background-color: #1e2632;
     min-height: 100vh;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #currentUserRank, #leaderboard {
     background-color: rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     padding: 12px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 16px;
 }
 
 .user-circle {
@@ -298,6 +304,7 @@ body {
     display: flex;
     align-items: center;
     padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .leaderboard-entry:last-child {
