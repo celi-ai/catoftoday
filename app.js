@@ -171,10 +171,9 @@ function updateLeaderboard() {
         leaderboardData.forEach((user, index) => {
             const li = document.createElement('li');
             const displayName = user.username.startsWith('@') ? user.username : `@${user.username}`;
-            li.className = 'flex justify-between items-center text-white';
             li.innerHTML = `
-                <span>${index + 1}. ${displayName}</span>
-                <span class="font-bold">${user.patCount} pats</span>
+                <span class="username">${index + 1}. ${displayName}</span>
+                <span class="pat-count">${user.patCount} pats</span>
             `;
             leaderboardListElement.appendChild(li);
         });

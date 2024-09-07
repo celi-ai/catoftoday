@@ -236,6 +236,39 @@ body {
     color: #63b3ed;
 }
 
+#leaderboard {
+    background-color: #1e2632;
+    border-radius: 12px;
+}
+
+#leaderboardList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#leaderboardList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#leaderboardList li:last-child {
+    border-bottom: none;
+}
+
+#leaderboardList .username {
+    color: #ffffff;
+    font-size: 16px;
+}
+
+#leaderboardList .pat-count {
+    color: #63b3ed;
+    font-size: 16px;
+    font-weight: bold;
+}
+
 @keyframes particle-animation {
     0% {
         transform: translateY(0) scale(1);
