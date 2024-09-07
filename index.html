@@ -8,71 +8,6 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
-    <style>
-        #loadingOverlay {
-            transition: opacity 0.5s ease-out;
-        }
-        #loadingOverlay.fade-out {
-            opacity: 0;
-        }
-        .cat-loader {
-            width: 100px;
-            height: 100px;
-            position: relative;
-        }
-        .cat-ear {
-            position: absolute;
-            top: 0;
-            width: 0;
-            height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-bottom: 40px solid #63b3ed;
-            animation: wiggle 1s infinite alternate;
-        }
-        .cat-ear.left {
-            left: 10px;
-            transform: rotate(-30deg);
-        }
-        .cat-ear.right {
-            right: 10px;
-            transform: rotate(30deg);
-        }
-        .cat-face {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 60px;
-            background-color: #63b3ed;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-        }
-        .cat-eye {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background-color: #1a202c;
-            border-radius: 50%;
-            top: 20px;
-            animation: blink 2.5s infinite;
-        }
-        .cat-eye.left { left: 20px; }
-        .cat-eye.right { right: 20px; }
-        @keyframes wiggle {
-            0% { transform: rotate(-30deg); }
-            100% { transform: rotate(-25deg); }
-        }
-        @keyframes blink {
-            0%, 45%, 50%, 100% { transform: scaleY(1); }
-            48% { transform: scaleY(0.1); }
-        }
-        .cat-fact {
-            margin-top: 20px;
-            text-align: center;
-            font-style: italic;
-        }
-    </style>
 </head>
 <body class="flex flex-col min-h-screen pb-20">
     <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900">
@@ -171,8 +106,5 @@
 
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script type="module" src="app.js"></script>
-    <script>
-        console.log("HTML file loaded and executed.");
-    </script>
 </body>
 </html>
