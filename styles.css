@@ -214,6 +214,28 @@ body {
     font-size: 1.2rem;
 }
 
+#leaderboard {
+    background-color: rgba(26, 32, 44, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+#leaderboardList li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#leaderboardList li:last-child {
+    border-bottom: none;
+}
+
+#leaderboardList li span:first-child {
+    font-weight: normal;
+}
+
+#leaderboardList li span:last-child {
+    color: #63b3ed;
+}
+
 @keyframes particle-animation {
     0% {
         transform: translateY(0) scale(1);

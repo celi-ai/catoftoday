@@ -171,7 +171,11 @@ function updateLeaderboard() {
         leaderboardData.forEach((user, index) => {
             const li = document.createElement('li');
             const displayName = user.username.startsWith('@') ? user.username : `@${user.username}`;
-            li.textContent = `${index + 1}. ${displayName}: ${user.patCount} pats`;
+            li.className = 'flex justify-between items-center text-white';
+            li.innerHTML = `
+                <span>${index + 1}. ${displayName}</span>
+                <span class="font-bold">${user.patCount} pats</span>
+            `;
             leaderboardListElement.appendChild(li);
         });
     }, (error) => {
