@@ -362,11 +362,6 @@ function createParticles(x, y) {
 }
 
 const catImages = ['cat1.jpeg', 'cat2.jpeg', 'cat3.jpeg'];
-function getCatOfTheDay() {
-    const today = new Date();
-    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-    return catImages[dayOfYear % catImages.length];
-}
 
 function getCatOfTheDay() {
     const today = new Date();
