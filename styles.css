@@ -269,6 +269,64 @@ body {
     font-weight: bold;
 }
 
+#topTab {
+    background-color: #1e2632;
+}
+
+.user-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: white;
+}
+
+.leaderboard-entry {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaderboard-entry:last-child {
+    border-bottom: none;
+}
+
+.user-info {
+    margin-left: 15px;
+    flex-grow: 1;
+}
+
+.username {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+.pat-count {
+    font-size: 14px;
+    color: #63b3ed;
+}
+
+.rank {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+}
+
+#currentUserRank {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#totalHolders {
+    font-size: 18px;
+    color: #63b3ed;
+}
+
 @keyframes particle-animation {
     0% {
         transform: translateY(0) scale(1);

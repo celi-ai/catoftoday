@@ -159,27 +159,54 @@ function updateLeaderboard() {
             const userData = childSnapshot.val();
             leaderboardData.push({
                 username: userData.username || userData.name || 'unknown_user',
-                patCount: userData.patCount || 0
+                patCount: userData.patCount || 0,
+                userId: childSnapshot.key
             });
         });
 
         // Sort in descending order
         leaderboardData.sort((a, b) => b.patCount - a.patCount);
 
+        // Update total holders
+        const totalHoldersElement = document.getElementById('totalHolders');
+        totalHoldersElement.textContent = `${snapshot.size} holders`;
+
         // Update leaderboard UI
+        const leaderboardListElement = document.getElementById('leaderboardList');
+        const currentUserRankElement = document.getElementById('currentUserRank');
         leaderboardListElement.innerHTML = '';
+        currentUserRankElement.innerHTML = '';
+
         leaderboardData.forEach((user, index) => {
-            const li = document.createElement('li');
-            const displayName = user.username.startsWith('@') ? user.username : `@${user.username}`;
-            li.innerHTML = `
-                <span class="username">${index + 1}. ${displayName}</span>
-                <span class="pat-count">${user.patCount} pats</span>
-            `;
-            leaderboardListElement.appendChild(li);
+            const rank = index + 1;
+            const isCurrentUser = user.userId === userId;
+            const entryHtml = createLeaderboardEntryHtml(user, rank, isCurrentUser);
+
+            if (isCurrentUser) {
+                currentUserRankElement.innerHTML = entryHtml;
+            } else {
+                leaderboardListElement.innerHTML += entryHtml;
+            }
         });
     }, (error) => {
         console.error("Error fetching leaderboard data:", error);
     });
+}
+
+function createLeaderboardEntryHtml(user, rank, isCurrentUser) {
+    const initials = user.username.substring(0, 2).toUpperCase();
+    const backgroundColor = isCurrentUser ? 'bg-blue-500' : `bg-${['red', 'pink', 'yellow', 'green', 'blue', 'indigo', 'purple'][Math.floor(Math.random() * 7)]}-500`;
+    
+    return `
+        <li class="leaderboard-entry ${isCurrentUser ? 'bg-opacity-20 bg-white' : ''}">
+            <div class="user-circle ${backgroundColor}">${initials}</div>
+            <div class="user-info">
+                <div class="username">@${user.username}</div>
+                <div class="pat-count">${user.patCount} pats</div>
+            </div>
+            <div class="rank">${rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : `#${rank}`}</div>
+        </li>
+    `;
 }
 
 // Function to animate value changes
