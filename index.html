@@ -18,36 +18,54 @@
         .cat-loader {
             width: 100px;
             height: 100px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            border-top-color: #FF6B6B;
-            animation: spin 1s linear infinite;
+            position: relative;
         }
-        .cat-loader::before, .cat-loader::after {
-            content: "";
+        .cat-ear {
             position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 40px solid #63b3ed;
+            animation: wiggle 1s infinite alternate;
+        }
+        .cat-ear.left {
+            left: 10px;
+            transform: rotate(-30deg);
+        }
+        .cat-ear.right {
+            right: 10px;
+            transform: rotate(30deg);
+        }
+        .cat-face {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 60px;
+            background-color: #63b3ed;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        }
+        .cat-eye {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #1a202c;
             border-radius: 50%;
-            border: 3px solid transparent;
+            top: 20px;
+            animation: blink 2.5s infinite;
         }
-        .cat-loader::before {
-            top: 5px;
-            left: 5px;
-            right: 5px;
-            bottom: 5px;
-            border-top-color: #4CAF50;
-            animation: spin 3s linear infinite;
+        .cat-eye.left { left: 20px; }
+        .cat-eye.right { right: 20px; }
+        @keyframes wiggle {
+            0% { transform: rotate(-30deg); }
+            100% { transform: rotate(-25deg); }
         }
-        .cat-loader::after {
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            border-top-color: #03A9F4;
-            animation: spin 1.5s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes blink {
+            0%, 45%, 50%, 100% { transform: scaleY(1); }
+            48% { transform: scaleY(0.1); }
         }
         .cat-fact {
             margin-top: 20px;
@@ -58,7 +76,14 @@
 </head>
 <body class="flex flex-col min-h-screen pb-20">
     <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900">
-        <div class="cat-loader"></div>
+        <div class="cat-loader">
+            <div class="cat-ear left"></div>
+            <div class="cat-ear right"></div>
+            <div class="cat-face">
+                <div class="cat-eye left"></div>
+                <div class="cat-eye right"></div>
+            </div>
+        </div>
         <div class="text-white text-2xl mt-4">Warming up the cat...</div>
         <div class="cat-fact text-white text-lg max-w-md px-4">
             Did you know? Cats can make over 100 different sounds, while dogs can only make about 10.
