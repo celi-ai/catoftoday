@@ -7,14 +7,18 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 </head>
 <body class="flex flex-col min-h-screen pb-16">
     <div id="content" class="flex-grow overflow-y-auto">
         <!-- Home Tab -->
         <div id="homeTab" class="tab-content">
-            <h1>Cat of Today</h1>
-            <h2>Global Pat Count: <span id="counter">0</span></h2>
-            <div id="catContainer"></div>
+            <h1 class="text-4xl font-bold mb-4">Cat of Today</h1>
+            <h2 class="text-2xl mb-6">Global Pat Count: <span id="counter" class="text-blue-500">0</span></h2>
+            <div id="catContainer" class="mb-6">
+                <div id="patMe" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-70 px-3 py-1 rounded-full text-sm">Pat me!</div>
+            </div>
+            <div id="dailyFact" class="text-gray-600 italic mt-4">Did you know? Cats sleep for about 70% of their lives.</div>
         </div>
 
         <!-- Pats Tab -->
@@ -47,10 +51,22 @@
 
     <!-- Tab Navigation -->
     <div id="tabNavigation" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center h-16">
-        <button class="tab-button" data-tab="homeTab">Home</button>
-        <button class="tab-button" data-tab="patsTab">Pats</button>
-        <button class="tab-button" data-tab="topTab">Top</button>
-        <button class="tab-button" data-tab="userTab">User</button>
+        <button class="tab-button flex flex-col items-center" data-tab="homeTab">
+            <span class="text-xl mb-1">🏠</span>
+            <span>Home</span>
+        </button>
+        <button class="tab-button flex flex-col items-center" data-tab="patsTab">
+            <span class="text-xl mb-1">🐾</span>
+            <span>Pats</span>
+        </button>
+        <button class="tab-button flex flex-col items-center" data-tab="topTab">
+            <span class="text-xl mb-1">🏆</span>
+            <span>Top</span>
+        </button>
+        <button class="tab-button flex flex-col items-center" data-tab="userTab">
+            <span class="text-xl mb-1">👤</span>
+            <span>User</span>
+        </button>
     </div>
 
     <script type="module" src="app.js"></script>

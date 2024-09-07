@@ -5,6 +5,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    background: linear-gradient(to bottom, #e6e6ff, #ffffff);
+}
+
+h1 {
+    font-family: 'Comic Neue', cursive;
+    color: #ff6b6b;
 }
 
 #catContainer {
@@ -15,9 +21,13 @@ body {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: transform 0.1s ease-in-out;
+    transition: transform 0.3s ease-in-out;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+#catContainer:hover {
+    transform: scale(1.05);
 }
 
 #catContainer:active {
@@ -75,4 +85,19 @@ body {
 
 .hidden {
     display: none;
+}
+
+.tab-button {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+.tab-button.active {
+    color: #ff6b6b;
+}
+
+#dailyFact {
+    max-width: 300px;
+    text-align: center;
 }
