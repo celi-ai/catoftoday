@@ -16,16 +16,53 @@ const firebaseConfig = {
 
 let db;
 let storage;
+let countRef;
+let lastResetRef;
+let userRef;
+let userPatCountRef;
+let userAvailablePatsRef;
+let userStreakRef;
+let userLastLoginRef;
+
+const counterElement = document.getElementById('counter');
+const catContainer = document.getElementById('catContainer');
+const userPatCountElement = document.getElementById('userPatCount');
+const userNameElement = document.getElementById('userName');
+const availablePatsElement = document.getElementById('availablePats');
+const userStreakElement = document.getElementById('userStreak');
+const leaderboardListElement = document.getElementById('leaderboardList');
+
+// Telegram WebApp initialization
+const tg = window.Telegram.WebApp;
+
+// Ensure the app is ready
+tg.ready();
+
+// Get user data from Telegram
+const user = tg.initDataUnsafe.user;
+const userId = user ? user.id.toString() : 'anonymous';
+const userName = user ? user.first_name : 'Anonymous';
+const userUsername = user ? user.username : 'unknown_user';
 
 async function initializeApplication() {
     console.log("Starting initialization...");
     try {
-        console.log("Firebase config:", firebaseConfig);
         console.log("Initializing Firebase...");
         const app = initializeApp(firebaseConfig);
         db = getDatabase(app);
         storage = getStorage(app);
+        
+        countRef = ref(db, 'globalPatCount');
+        lastResetRef = ref(db, 'lastResetTimestamp');
+        userRef = ref(db, `users/${userId}`);
+        userPatCountRef = ref(db, `users/${userId}/patCount`);
+        userAvailablePatsRef = ref(db, `users/${userId}/availablePats`);
+        userStreakRef = ref(db, `users/${userId}/streak`);
+        userLastLoginRef = ref(db, `users/${userId}/lastLogin`);
+
         console.log("Firebase initialized successfully");
+
+        userNameElement.textContent = userName;
 
         console.log("Checking and resetting if needed...");
         await checkAndResetIfNeeded();
@@ -34,13 +71,7 @@ async function initializeApplication() {
         await checkAndUpdateDailyLogin();
         
         console.log("Updating user data...");
-        await runTransaction(userRef, (userData) => {
-            if (userData) {
-                userData.username = userUsername;
-                return userData;
-            }
-            return null;
-        });
+        await updateUserData();
         
         console.log("Updating cat image...");
         await updateCatImage();
@@ -53,6 +84,9 @@ async function initializeApplication() {
 
         console.log("Initializing buy pats functionality...");
         initializeBuyPats(tg);
+
+        console.log("Setting up listeners...");
+        setupListeners();
 
         console.log("Initialization complete!");
     } catch (error) {
@@ -72,59 +106,25 @@ async function initializeApplication() {
     }
 }
 
-const countRef = ref(db, 'globalPatCount');
-const lastResetRef = ref(db, 'lastResetTimestamp');
-const counterElement = document.getElementById('counter');
-const catContainer = document.getElementById('catContainer');
-const userPatCountElement = document.getElementById('userPatCount');
-const userNameElement = document.getElementById('userName');
-const availablePatsElement = document.getElementById('availablePats');
-const userStreakElement = document.getElementById('userStreak');
-const leaderboardListElement = document.getElementById('leaderboardList');
-
-// Telegram WebApp initialization
-const tg = window.Telegram.WebApp;
-
-// Ensure the app is ready
-tg.ready();
-
 async function checkAndResetIfNeeded() {
     try {
         const lastResetSnapshot = await get(lastResetRef);
         const lastReset = lastResetSnapshot.val();
         const now = Date.now();
 
-        console.log("Last reset:", lastReset);
-        console.log("Current time:", now);
-
         if (!lastReset || (now - lastReset > 24 * 60 * 60 * 1000)) {
             console.log("Resetting counters and updating timestamp");
             await set(countRef, 0);
             await set(lastResetRef, serverTimestamp());
-            updateCatImage();
+            await updateCatImage();
             return true;
         }
-        console.log("No reset needed");
         return false;
     } catch (error) {
         console.error("Error in checkAndResetIfNeeded:", error);
         return false;
     }
 }
-
-// Get user data from Telegram
-const user = tg.initDataUnsafe.user;
-const userId = user ? user.id.toString() : 'anonymous';
-const userName = user ? user.first_name : 'Anonymous';
-const userUsername = user ? user.username : 'unknown_user';
-
-userNameElement.textContent = userName;
-
-const userRef = ref(db, `users/${userId}`);
-const userPatCountRef = ref(db, `users/${userId}/patCount`);
-const userAvailablePatsRef = ref(db, `users/${userId}/availablePats`);
-const userStreakRef = ref(db, `users/${userId}/streak`);
-const userLastLoginRef = ref(db, `users/${userId}/lastLogin`);
 
 async function checkAndUpdateDailyLogin() {
     const userSnapshot = await get(userRef);
@@ -134,17 +134,13 @@ async function checkAndUpdateDailyLogin() {
     const yesterday = new Date(now.setDate(now.getDate() - 1)).toDateString();
 
     if (!userData.lastLogin || userData.lastLogin !== today) {
-        // It's a new day
         let newStreak = 1;
         if (userData.lastLogin === yesterday) {
-            // User logged in yesterday, increment streak
             newStreak = (userData.streak || 0) + 1;
         }
 
-        // Calculate new available pats
         const newAvailablePats = 10 + (newStreak * 10);
 
-        // Update user data
         await set(userRef, {
             ...userData,
             name: userName,
@@ -159,49 +155,44 @@ async function checkAndUpdateDailyLogin() {
     }
 }
 
-// Initialize counters
-get(countRef).then((snapshot) => {
-    const count = snapshot.val() || 0;
-    counterElement.textContent = count;
-}).catch(error => console.error("Error getting global count:", error));
+async function updateUserData() {
+    await runTransaction(userRef, (userData) => {
+        if (userData) {
+            userData.username = userUsername;
+            return userData;
+        }
+        return null;
+    });
+}
 
-get(userPatCountRef).then((snapshot) => {
-    const count = snapshot.val() || 0;
-    userPatCountElement.textContent = count;
-}).catch(error => console.error("Error getting user count:", error));
+function updateCatImage() {
+    return new Promise((resolve, reject) => {
+        const catImageFilename = getCatOfTheDay();
+        const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
+        
+        getDownloadURL(imageRef).then((url) => {
+            const img = catContainer.querySelector('img');
+            img.onload = () => {
+                console.log("Cat image loaded:", url);
+                resolve();
+            };
+            img.onerror = (error) => {
+                console.error("Error loading cat image:", error);
+                img.src = 'https://via.placeholder.com/400x400.png?text=Cat+of+Today';
+                resolve();
+            };
+            img.src = url;
+            img.alt = "Cat of Today";
+        }).catch((error) => {
+            console.error("Error getting cat image URL:", error);
+            const img = catContainer.querySelector('img');
+            img.src = 'https://via.placeholder.com/400x400.png?text=Cat+of+Today';
+            img.alt = "Default Cat";
+            resolve();
+        });
+    });
+}
 
-get(userAvailablePatsRef).then((snapshot) => {
-    const count = snapshot.val() || 0;
-    availablePatsElement.textContent = count;
-}).catch(error => console.error("Error getting available pats:", error));
-
-get(userStreakRef).then((snapshot) => {
-    const streak = snapshot.val() || 0;
-    userStreakElement.textContent = streak;
-}).catch(error => console.error("Error getting user streak:", error));
-
-// Listen for real-time updates
-onValue(countRef, (snapshot) => {
-    const count = snapshot.val() || 0;
-    counterElement.textContent = count;
-}, error => console.error("Error in global count listener:", error));
-
-onValue(userPatCountRef, (snapshot) => {
-    const count = snapshot.val() || 0;
-    userPatCountElement.textContent = count;
-}, error => console.error("Error in user count listener:", error));
-
-onValue(userAvailablePatsRef, (snapshot) => {
-    const count = snapshot.val() || 0;
-    availablePatsElement.textContent = count;
-}, error => console.error("Error in available pats listener:", error));
-
-onValue(userStreakRef, (snapshot) => {
-    const streak = snapshot.val() || 0;
-    userStreakElement.textContent = streak;
-}, error => console.error("Error in user streak listener:", error));
-
-// Function to update leaderboard
 function updateLeaderboard() {
     const leaderboardRef = ref(db, 'users');
     const leaderboardQuery = query(leaderboardRef, orderByChild('patCount'), limitToLast(10));
@@ -217,14 +208,11 @@ function updateLeaderboard() {
             });
         });
 
-        // Sort in descending order
         leaderboardData.sort((a, b) => b.patCount - a.patCount);
 
-        // Update total holders
         const totalHoldersElement = document.getElementById('totalHolders');
         totalHoldersElement.textContent = `${snapshot.size} holders`;
 
-        // Update leaderboard UI
         const leaderboardListElement = document.getElementById('leaderboardList');
         const currentUserRankElement = document.getElementById('currentUserRank');
         leaderboardListElement.innerHTML = '';
@@ -270,7 +258,77 @@ function createLeaderboardEntryHtml(user, rank, isCurrentUser) {
     `;
 }
 
-// Function to animate value changes
+function setupListeners() {
+    onValue(countRef, (snapshot) => {
+        const count = snapshot.val() || 0;
+        counterElement.textContent = count;
+    }, error => console.error("Error in global count listener:", error));
+
+    onValue(userPatCountRef, (snapshot) => {
+        const count = snapshot.val() || 0;
+        userPatCountElement.textContent = count;
+    }, error => console.error("Error in user count listener:", error));
+
+    onValue(userAvailablePatsRef, (snapshot) => {
+        const count = snapshot.val() || 0;
+        availablePatsElement.textContent = count;
+    }, error => console.error("Error in available pats listener:", error));
+
+    onValue(userStreakRef, (snapshot) => {
+        const streak = snapshot.val() || 0;
+        userStreakElement.textContent = streak;
+    }, error => console.error("Error in user streak listener:", error));
+
+    catContainer.addEventListener('click', handleCatClick);
+}
+
+async function handleCatClick(event) {
+    if (user) {
+        try {
+            createParticles(event.clientX, event.clientY);
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+
+            const wasReset = await checkAndResetIfNeeded();
+            if (!wasReset) {
+                await set(countRef, increment(1));
+            }
+
+            const result = await runTransaction(userRef, (userData) => {
+                if (!userData) {
+                    return null;
+                }
+
+                if (userData.availablePats > 0) {
+                    userData.patCount = (userData.patCount || 0) + 1;
+                    userData.availablePats--;
+                    userData.name = userName;
+                    userData.username = userUsername;
+                    return userData;
+                } else {
+                    return undefined;
+                }
+            });
+
+            if (result.committed) {
+                const audio = new Audio('pat-sound.mp3');
+                audio.play();
+
+                animateValue(userPatCountElement, parseInt(userPatCountElement.textContent), parseInt(userPatCountElement.textContent) + 1, 300);
+                animateValue(availablePatsElement, parseInt(availablePatsElement.textContent), parseInt(availablePatsElement.textContent) - 1, 300);
+                animateValue(counterElement, parseInt(counterElement.textContent), parseInt(counterElement.textContent) + 1, 300);
+            } else {
+                alert("You're out of pats! Come back tomorrow for more pats.");
+            }
+        } catch (error) {
+            console.error("Error incrementing counters:", error);
+        }
+    } else {
+        alert("Please open this app in Telegram to pat the cat!");
+    }
+}
+
 function animateValue(element, start, end, duration) {
     let startTimestamp = null;
     const step = (timestamp) => {
@@ -287,76 +345,22 @@ function animateValue(element, start, end, duration) {
     window.requestAnimationFrame(step);
 }
 
-// Particle effect when patting
 function createParticles(x, y) {
-    const particleCount = 5; // Reduced from 20
-    const particleTypes = ['✨', '🐾']; // Reduced variety
+    const particleCount = 5;
+    const particleTypes = ['✨', '🐾'];
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
-        particle.style.left = `${x + (Math.random() - 0.5) * 50}px`; // Reduced spread
-        particle.style.top = `${y + (Math.random() - 0.5) * 50}px`; // Reduced spread
+        particle.style.left = `${x + (Math.random() - 0.5) * 50}px`;
+        particle.style.top = `${y + (Math.random() - 0.5) * 50}px`;
         particle.style.setProperty('--x', `${(Math.random() - 0.5) * 100}px`);
         particle.style.setProperty('--y', `${Math.random() * -50 - 25}px`);
         particle.innerText = particleTypes[Math.floor(Math.random() * particleTypes.length)];
         document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 500 + Math.random() * 250); // Shorter duration
+        setTimeout(() => particle.remove(), 500 + Math.random() * 250);
     }
 }
 
-// Increment counter
-catContainer.addEventListener('click', async (event) => {
-    if (user) {
-        try {
-            // Immediate feedback
-            createParticles(event.clientX, event.clientY);
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-
-            const wasReset = await checkAndResetIfNeeded();
-            if (!wasReset) {
-                await set(countRef, increment(1));
-            }
-
-            const result = await runTransaction(userRef, (userData) => {
-                if (!userData) {
-                    return null; // abort the transaction
-                }
-
-                if (userData.availablePats > 0) {
-                    userData.patCount = (userData.patCount || 0) + 1;
-                    userData.availablePats--;
-                    userData.name = userName;
-                    userData.username = userUsername;
-                    return userData;
-                } else {
-                    return undefined; // abort the transaction
-                }
-            });
-
-            if (result.committed) {
-                // Play sound effect
-                const audio = new Audio('pat-sound.mp3');
-                audio.play();
-
-                // Animate pat count and available pats
-                animateValue(userPatCountElement, parseInt(userPatCountElement.textContent), parseInt(userPatCountElement.textContent) + 1, 300);
-                animateValue(availablePatsElement, parseInt(availablePatsElement.textContent), parseInt(availablePatsElement.textContent) - 1, 300);
-                animateValue(counterElement, parseInt(counterElement.textContent), parseInt(counterElement.textContent) + 1, 300);
-            } else {
-                alert("You're out of pats! Come back tomorrow for more pats.");
-            }
-        } catch (error) {
-            console.error("Error incrementing counters:", error);
-        }
-    } else {
-        alert("Please open this app in Telegram to pat the cat!");
-    }
-});
-
-
-// Cat image functionality
 const catImages = ['cat1.jpeg', 'cat2.jpeg', 'cat3.jpeg'];
 function getCatOfTheDay() {
     const today = new Date();
@@ -364,26 +368,23 @@ function getCatOfTheDay() {
     return catImages[dayOfYear % catImages.length];
 }
 
-function updateCatImage() {
-    return new Promise((resolve, reject) => {
-        const catImageFilename = getCatOfTheDay();
-        const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
-        
-        getDownloadURL(imageRef).then((url) => {
-            const img = catContainer.querySelector('img');
-            img.onload = () => {
-                console.log("Cat image loaded:", url);
-                resolve();
-            };
-            img.onerror = (error) => {
-                console.error("Error loading cat image:", error);
-                reject(error);
-            };
-            img.src = url;
-            img.alt = "Cat of Today";
-        }).catch((error) => {
-            console.error("Error getting cat image URL:", error);
-            reject(error);
+function getCatOfTheDay() {
+    const today = new Date();
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+    return catImages[dayOfYear % catImages.length];
+}
+
+function setupTabNavigation() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
         });
     });
 }
@@ -409,89 +410,13 @@ function updateCatFact() {
     }
 }
 
-// Initial setup
-async function initialize() {
-    console.log("Starting initialization...");
-    // Update fact every 3.5 seconds
-    let factInterval = setInterval(updateCatFact, 3500);
-    try {
-        console.log("Checking and resetting if needed...");
-        await checkAndResetIfNeeded();
-        
-        console.log("Checking and updating daily login...");
-        await checkAndUpdateDailyLogin();
-        
-        console.log("Updating user data...");
-        await runTransaction(userRef, (userData) => {
-            if (userData) {
-                userData.username = userUsername;
-                return userData;
-            }
-            return null;
-        });
-        
-        console.log("Updating cat image...");
-        await updateCatImage();
-        
-        console.log("Updating leaderboard...");
-        updateLeaderboard();
-        
-        console.log("Setting up tab navigation...");
-        setupTabNavigation();
-
-        console.log("Initializing buy pats functionality...");
-        initializeBuyPats(tg);
-
-        console.log("Initializing particle.js...");
-        particlesJS('particles-js', {
-            particles: {
-                number: { value: 80, density: { enable: true, value_area: 800 } },
-                color: { value: "#ffffff" },
-                shape: { type: "circle" },
-                opacity: { value: 0.5, random: true },
-                size: { value: 3, random: true },
-                move: { enable: true, speed: 1, direction: "none", random: true, out_mode: "out" }
-            }
-        });
-        
-        console.log("Initialization complete!");
-    } catch (error) {
-        console.error("Error during initialization:", error);
-    } finally {
-        clearInterval(factInterval); // Stop updating facts
-        console.log("Fading out loading overlay...");
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        if (loadingOverlay) {
-            loadingOverlay.classList.add('fade-out');
-            setTimeout(() => {
-                loadingOverlay.classList.add('hidden');
-                console.log("Loading overlay hidden.");
-            }, 500); // Wait for fade-out transition to complete
-        } else {
-            console.error("Loading overlay element not found!");
-        }
-    }
-}
-
-function setupTabNavigation() {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const tabId = button.getAttribute('data-tab');
-            tabContents.forEach(content => {
-                content.classList.add('hidden');
-            });
-            document.getElementById(tabId).classList.remove('hidden');
-        });
-    });
-}
-
 // Call initialize function when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM content loaded. Calling initializeApplication...");
     initializeApplication();
+    
+    // Set up cat fact update interval
+    setInterval(updateCatFact, 3500);
 });
 
 // Expand to full screen
@@ -499,3 +424,5 @@ tg.expand();
 
 // Add this at the end of the file
 console.log("app.js loaded and executed.");
+
+
