@@ -150,6 +150,9 @@ onValue(userStreakRef, (snapshot) => {
 
 // Function to update leaderboard
 function updateLeaderboard() {
+    if (document.getElementById('topTab').classList.contains('hidden')) {
+        return; // Don't update if Top tab is not visible
+    }
     const leaderboardRef = ref(db, 'users');
     const leaderboardQuery = query(leaderboardRef, orderByChild('patCount'), limitToLast(10));
 
@@ -401,7 +404,6 @@ async function initialize() {
     }
 }
 
-
 function setupTabNavigation() {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -409,10 +411,24 @@ function setupTabNavigation() {
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tabId = button.getAttribute('data-tab');
+            
+            // Hide all tabs
             tabContents.forEach(content => {
                 content.classList.add('hidden');
             });
-            document.getElementById(tabId).classList.remove('hidden');
+            
+            // Show the selected tab
+            const selectedTab = document.getElementById(tabId);
+            selectedTab.classList.remove('hidden');
+            
+            // Update leaderboard if Top tab is selected
+            if (tabId === 'topTab') {
+                updateLeaderboard();
+            }
+            
+            // Update active state of tab buttons
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
         });
     });
 }
