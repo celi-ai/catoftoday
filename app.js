@@ -1,3 +1,4 @@
+//app.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import { getDatabase, ref, onValue, set, get, increment, serverTimestamp, runTransaction, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
@@ -7,7 +8,7 @@ try {
     console.log("Initializing Firebase...");
     const app = initializeApp(firebaseConfig);
     console.log("Firebase initialized:", app);
-    const db = getDatabase();
+    const db = getDatabase(app);
     console.log("Database reference created:", db);
     const storage = getStorage(app);
     console.log("Storage reference created:", storage);
