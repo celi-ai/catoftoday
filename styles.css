@@ -167,3 +167,71 @@ h1 span:not(:first-child):not(:last-child) {
     margin-right: auto;
     text-align: center;
 }
+
+.title {
+    font-family: 'Fredoka One', cursive;
+    color: #FF6B6B;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.global-pat-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.8);
+    border-radius: 20px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.global-pat-count::before {
+    content: '🐾';
+    margin-right: 10px;
+}
+
+#catContainer {
+    box-shadow: 0 0 20px rgba(255,105,180,0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+#patMe {
+    background-color: #FF6B6B;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+#patMe:active {
+    transform: scale(0.95);
+}
+
+.daily-fact {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.8);
+    border-radius: 15px;
+    padding: 15px;
+    margin-top: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.daily-fact::before {
+    content: '💡';
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
