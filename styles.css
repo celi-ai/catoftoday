@@ -271,25 +271,33 @@ body {
 
 #topTab {
     background-color: #1e2632;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+#currentUserRank, #leaderboard {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 12px;
 }
 
 .user-circle {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
     color: white;
+    margin-right: 12px;
 }
 
 .leaderboard-entry {
     display: flex;
     align-items: center;
     padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .leaderboard-entry:last-child {
@@ -297,7 +305,6 @@ body {
 }
 
 .user-info {
-    margin-left: 15px;
     flex-grow: 1;
 }
 
@@ -313,9 +320,13 @@ body {
 }
 
 .rank {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     color: white;
+}
+
+.medal {
+    font-size: 24px;
 }
 
 #currentUserRank {

@@ -197,14 +197,22 @@ function createLeaderboardEntryHtml(user, rank, isCurrentUser) {
     const initials = user.username.substring(0, 2).toUpperCase();
     const backgroundColor = isCurrentUser ? 'bg-blue-500' : `bg-${['red', 'pink', 'yellow', 'green', 'blue', 'indigo', 'purple'][Math.floor(Math.random() * 7)]}-500`;
     
+    let rankDisplay;
+    if (rank <= 3) {
+        const medals = ['🥇', '🥈', '🥉'];
+        rankDisplay = `<span class="medal">${medals[rank - 1]}</span>`;
+    } else {
+        rankDisplay = `#${rank}`;
+    }
+    
     return `
-        <li class="leaderboard-entry ${isCurrentUser ? 'bg-opacity-20 bg-white' : ''}">
+        <li class="leaderboard-entry">
             <div class="user-circle ${backgroundColor}">${initials}</div>
             <div class="user-info">
                 <div class="username">@${user.username}</div>
                 <div class="pat-count">${user.patCount} pats</div>
             </div>
-            <div class="rank">${rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : `#${rank}`}</div>
+            <div class="rank">${rankDisplay}</div>
         </li>
     `;
 }
