@@ -297,10 +297,32 @@ function updateCatImage() {
     });
 }
 
+const catFacts = [
+    "Cats can make over 100 different sounds, while dogs can only make about 10.",
+    "A group of cats is called a 'clowder'.",
+    "Cats spend 70% of their lives sleeping.",
+    "A cat's nose print is unique, like a human's fingerprint.",
+    "Cats can't taste sweetness.",
+    "The first cat in space was a French cat named Felicette in 1963.",
+    "Cats can jump up to 6 times their length.",
+    "A cat's hearing is better than a dog's.",
+    "Cats have 32 muscles in each ear.",
+    "A cat's purr may be a form of self-healing."
+];
+
+function updateCatFact() {
+    const factElement = document.querySelector('.cat-fact');
+    if (factElement) {
+        const randomFact = catFacts[Math.floor(Math.random() * catFacts.length)];
+        factElement.textContent = `Did you know? ${randomFact}`;
+    }
+}
 
 // Initial setup
 async function initialize() {
     console.log("Starting initialization...");
+    // Update fact every 3.5 seconds
+    let factInterval = setInterval(updateCatFact, 3500);
     try {
         console.log("Checking and resetting if needed...");
         await checkAndResetIfNeeded();
@@ -345,6 +367,7 @@ async function initialize() {
     } catch (error) {
         console.error("Error during initialization:", error);
     } finally {
+        clearInterval(factInterval); // Stop updating facts
         console.log("Fading out loading overlay...");
         const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
