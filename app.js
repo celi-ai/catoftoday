@@ -17,9 +17,10 @@ const firebaseConfig = {
 let db;
 let storage;
 
-async function initialize() {
+async function initializeApp() {
     console.log("Starting initialization...");
     try {
+        console.log("Firebase config:", firebaseConfig);
         console.log("Initializing Firebase...");
         const app = initializeApp(firebaseConfig);
         db = getDatabase(app);
@@ -489,8 +490,8 @@ function setupTabNavigation() {
 
 // Call initialize function when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM content loaded. Calling initialize...");
-    initialize();
+    console.log("DOM content loaded. Calling initializeApp...");
+    initializeApp();
 });
 
 // Expand to full screen
