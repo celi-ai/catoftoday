@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 body {
     font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     margin: 0;
@@ -5,35 +8,47 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(to bottom, #e6e6ff, #ffffff);
+    background: linear-gradient(to bottom, #1a202c, #2d3748);
     padding-bottom: 70px;
+    color: white;
 }
 
-h1 {
-    font-family: 'Poppins', sans-serif;
-    color: #4a4a4a;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    letter-spacing: 1px;
+.title {
+    font-family: 'Press Start 2P', cursive;
+    color: #FF6B6B;
+    text-shadow: 0 0 10px #63b3ed, 0 0 20px #63b3ed, 0 0 30px #63b3ed;
+    animation: bounce 2s infinite;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
 }
 
-h1 span:not(:first-child):not(:last-child) {
-    background: linear-gradient(45deg, #ff9a9e, #fad0c4, #ffecd2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-#counter {
-    color: #3498db;
-    font-weight: bold;
-}
-
-@keyframes float {
-    0% { transform: translateY(0px); }
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
+}
+
+.global-pat-count, .available-pats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border-radius: 20px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.global-pat-count::before {
+    content: '🐾';
+    margin-right: 10px;
+}
+
+#counter, #availablePats {
+    color: #63b3ed;
+    font-weight: bold;
 }
 
 #catContainer {
@@ -48,8 +63,14 @@ h1 span:not(:first-child):not(:last-child) {
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-radius: 20px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 0 20px rgba(255,105,180,0.3);
     animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
 }
 
 #catContainer:hover {
@@ -63,13 +84,26 @@ h1 span:not(:first-child):not(:last-child) {
 }
 
 #patMe {
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 20px;
-    padding: 5px 15px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #4a4a4a;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: #FF6B6B;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#patMe:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+#patMe:active {
+    transform: translateX(-50%) scale(0.95);
 }
 
 .pat-effect {
@@ -89,9 +123,10 @@ h1 span:not(:first-child):not(:last-child) {
 #userProfile, #leaderboard {
     margin-top: 20px;
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 5px;
     width: 300px;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 #leaderboardList {
@@ -101,6 +136,7 @@ h1 span:not(:first-child):not(:last-child) {
 
 #leaderboardList li {
     margin-bottom: 5px;
+    color: #e2e8f0;
 }
 
 .highlight {
@@ -126,15 +162,15 @@ h1 span:not(:first-child):not(:last-child) {
 }
 
 #tabNavigation {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(40, 44, 52, 0.9);
     backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: env(safe-area-inset-bottom);
 }
 
 .tab-button {
     text-decoration: none;
-    color: #333;
+    color: #ffffff;
     font-weight: bold;
     font-size: 12px;
     display: flex;
@@ -143,6 +179,11 @@ h1 span:not(:first-child):not(:last-child) {
     justify-content: center;
     height: 100%;
     padding: 5px 0;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    transform: translateY(-2px);
 }
 
 .tab-button span:first-child {
@@ -151,87 +192,42 @@ h1 span:not(:first-child):not(:last-child) {
 }
 
 .tab-button.active {
-    color: #ff6b6b;
+    color: #63b3ed;
 }
 
 #dailyFact {
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 15px;
-    padding: 10px 15px;
+    padding: 15px;
     margin-top: 1rem;
     font-style: italic;
-    color: #555;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    color: #e2e8f0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     max-width: 90%;
     margin-left: auto;
     margin-right: auto;
     text-align: center;
 }
 
-.title {
-    font-family: 'Fredoka One', cursive;
-    color: #FF6B6B;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-.global-pat-count {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255,255,255,0.8);
-    border-radius: 20px;
-    padding: 10px 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.global-pat-count::before {
-    content: '🐾';
-    margin-right: 10px;
-}
-
-#catContainer {
-    box-shadow: 0 0 20px rgba(255,105,180,0.3);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-#patMe {
-    background-color: #FF6B6B;
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
-    border-radius: 30px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-}
-
-#patMe:active {
-    transform: scale(0.95);
-}
-
-.daily-fact {
-    display: flex;
-    align-items: center;
-    background: rgba(255,255,255,0.8);
-    border-radius: 15px;
-    padding: 15px;
-    margin-top: 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.daily-fact::before {
+#dailyFact::before {
     content: '💡';
     margin-right: 10px;
     font-size: 1.2rem;
+}
+
+@keyframes particle-animation {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) scale(0);
+        opacity: 0;
+    }
+}
+
+.particle {
+    position: absolute;
+    pointer-events: none;
+    animation: particle-animation 1s ease-out forwards;
 }

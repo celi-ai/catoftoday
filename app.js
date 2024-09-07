@@ -196,6 +196,22 @@ function animateValue(element, start, end, duration) {
     window.requestAnimationFrame(step);
 }
 
+// Particle effect when patting
+function createParticles(x, y) {
+    const particleCount = 15;
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        particle.style.setProperty('--x', Math.random() * 200 - 100 + 'px');
+        particle.style.setProperty('--y', Math.random() * -50 - 50 + 'px');
+        particle.innerText = ['❤️', '😺', '🐾', '⭐'][Math.floor(Math.random() * 4)];
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1000);
+    }
+}
+
 // Increment counter
 catContainer.addEventListener('click', async (event) => {
     if (user) {
@@ -222,8 +238,18 @@ catContainer.addEventListener('click', async (event) => {
             });
 
             if (result.committed) {
-                tg.HapticFeedback.impactOccurred('medium');
+                // Add vibration
+                if (tg.HapticFeedback) {
+                    tg.HapticFeedback.impactOccurred('medium');
+                }
                 
+                // Add particle effect
+                createParticles(event.clientX, event.clientY);
+
+                // Play sound effect
+                const audio = new Audio('pat-sound.mp3'); // Make sure to add this sound file to your project
+                audio.play();
+
                 // Create multiple pat effects
                 for (let i = 0; i < 5; i++) {
                     setTimeout(() => {
@@ -240,11 +266,6 @@ catContainer.addEventListener('click', async (event) => {
                         }, 800);
                     }, i * 100);
                 }
-
-                // Play pat sound
-                const patSound = document.getElementById('patSound');
-                patSound.currentTime = 0;
-                patSound.play();
 
                 // Add screen shake effect
                 document.body.style.animation = 'shake 0.5s';
@@ -307,6 +328,18 @@ async function initialize() {
 
         // Initialize buy pats functionality
         initializeBuyPats(tg);
+
+        // Initialize particle.js for background effect
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#ffffff" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                move: { enable: true, speed: 1, direction: "none", random: true, out_mode: "out" }
+            }
+        });
         
     } catch (error) {
         console.error("Error during initialization:", error);

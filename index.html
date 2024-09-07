@@ -8,26 +8,30 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
-
 </head>
 <body class="flex flex-col min-h-screen pb-20">
     <div id="content" class="flex-grow overflow-y-auto">
         <!-- Home Tab -->
         <div id="homeTab" class="tab-content">
-            <h1 class="title text-4xl font-bold mb-4 flex items-center justify-center">
-                <span class="mr-2">🐱</span>
-                <span>Cat of Today</span>
-                <span class="ml-2">🐾</span>
-            </h1>
-            <h2 class="global-pat-count text-2xl mb-6 bg-white bg-opacity-70 px-4 py-2 rounded-full inline-block">
-                Global Pat Count: <span id="counter" class="text-blue-500 font-bold">0</span>
-            </h2>
-            <div id="catContainer" class="mb-6">
-                <div id="patMe" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full text-sm flex items-center">
-                    <span class="mr-1">👋</span> Pat me!
+            <h1 class="text-3xl font-bold mb-6 text-center pixel-font glow">Cat of Today</h1>
+            <div class="flex justify-between items-center mb-6">
+                <div class="global-pat-count">
+                    Global Pat Count: <span id="counter" class="text-blue-400 font-bold">347</span>
+                </div>
+                <div class="available-pats">
+                    Available Pats: <span id="availablePats" class="text-green-400 font-bold">10</span>
                 </div>
             </div>
-            <div id="dailyFact" class="daily-fact text-gray-600 italic mt-4">Did you know? Cats sleep for about 70% of their lives.</div>
+            <div id="catContainer" class="mb-6 relative">
+                <img src="cat-image.png" alt="Pixel Cat" class="w-full rounded-lg">
+                <button id="patMe" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-full text-sm flex items-center hover:bg-blue-600 transition-colors">
+                    <span class="mr-1">👋</span> Pat me!
+                </button>
+            </div>
+            <div id="dailyFact" class="bg-gray-800 rounded-lg p-4 text-center">
+                <span class="block text-yellow-400 mb-2">📚 Did you know?</span>
+                Cats sleep for about 70% of their lives.
+            </div>
         </div>
 
         <!-- Pats Tab -->
@@ -59,25 +63,25 @@
     </div>
 
     <!-- Tab Navigation -->
-    <div id="tabNavigation" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center h-16">
+    <div id="tabNavigation" class="fixed bottom-0 left-0 right-0 bg-gray-800 bg-opacity-80 backdrop-blur-md border-t border-gray-700 flex justify-around items-center h-20 z-20">
         <button class="tab-button flex flex-col items-center" data-tab="homeTab">
-            <span class="text-xl mb-1">🏠</span>
+            <span class="text-2xl mb-1">🏠</span>
             <span>Home</span>
         </button>
         <button class="tab-button flex flex-col items-center" data-tab="patsTab">
-            <span class="text-xl mb-1">🐾</span>
+            <span class="text-2xl mb-1">🐾</span>
             <span>Pats</span>
         </button>
         <button class="tab-button flex flex-col items-center" data-tab="topTab">
-            <span class="text-xl mb-1">🏆</span>
+            <span class="text-2xl mb-1">🏆</span>
             <span>Top</span>
         </button>
         <button class="tab-button flex flex-col items-center" data-tab="userTab">
-            <span class="text-xl mb-1">👤</span>
+            <span class="text-2xl mb-1">👤</span>
             <span>User</span>
         </button>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script type="module" src="app.js"></script>
 </body>
 </html>
