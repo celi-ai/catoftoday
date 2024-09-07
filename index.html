@@ -76,17 +76,10 @@
 </head>
 <body class="flex flex-col min-h-screen pb-20">
     <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900">
-        <div class="cat-loader">
-            <div class="cat-ear left"></div>
-            <div class="cat-ear right"></div>
-            <div class="cat-face">
-                <div class="cat-eye left"></div>
-                <div class="cat-eye right"></div>
-            </div>
-        </div>
-        <div class="text-white text-2xl mt-4">Warming up the cat...</div>
-        <div class="cat-fact text-white text-lg max-w-md px-4">
-            Did you know? Cats can make over 100 different sounds, while dogs can only make about 10.
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-white mb-4">Cat of Today</h1>
+            <div class="cat-loader mb-4"></div>
+            <p class="text-xl text-blue-400">Loading purr-fection...</p>
         </div>
     </div>
     <div id="content" class="flex-grow overflow-y-auto">
