@@ -3,9 +3,17 @@ import { getDatabase, ref, onValue, set, get, increment, serverTimestamp, runTra
 import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 import { firebaseConfig } from './firebase-config.js';
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const storage = getStorage(app);
+try {
+    console.log("Initializing Firebase...");
+    const app = initializeApp(firebaseConfig);
+    console.log("Firebase initialized:", app);
+    const db = getDatabase(app);
+    console.log("Database reference created:", db);
+    const storage = getStorage(app);
+    console.log("Storage reference created:", storage);
+} catch (error) {
+    console.error("Error initializing Firebase:", error);
+}
 
 const countRef = ref(db, 'globalPatCount');
 const lastResetRef = ref(db, 'lastResetTimestamp');
@@ -277,10 +285,12 @@ function updateCatImage() {
 // Initial setup
 async function initialize() {
     try {
-        await checkAndResetIfNeeded();
+        console.log("Starting initialization...");
+        const resetResult = await checkAndResetIfNeeded();
+        console.log("Reset check result:", resetResult);
         await checkAndUpdateDailyLogin();
+        console.log("Daily login updated");
         
-        // Update user data with current username
         await runTransaction(userRef, (userData) => {
             if (userData) {
                 userData.username = userUsername;
@@ -288,9 +298,11 @@ async function initialize() {
             }
             return null;
         });
+        console.log("User data updated");
         
         updateCatImage();
         updateLeaderboard();
+        console.log("Initialization complete");
     } catch (error) {
         console.error("Error during initialization:", error);
     }
