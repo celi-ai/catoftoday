@@ -33,12 +33,13 @@
             position: absolute;
             pointer-events: none;
             font-size: 32px;
-            animation: patAnimation 0.5s ease-out;
+            animation: patAnimation 0.8s ease-out;
             opacity: 0;
         }
         @keyframes patAnimation {
-            0% { transform: scale(0.5); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; }
+            0% { transform: scale(0.5) translateY(0); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: scale(1.5) translateY(-50px); opacity: 0; }
         }
         #userProfile, #leaderboard {
             margin-top: 20px;
@@ -62,6 +63,13 @@
             50% { color: #4CAF50; }
             100% { color: inherit; }
         }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
     </style>
 </head>
 <body>
@@ -76,9 +84,10 @@
         <p>Streak: <span id="userStreak">0</span> days</p>
     </div>
     <div id="leaderboard">
-        <h3>Top 10 Patters</h3>
+        <h3>Top Patters</h3>
         <ol id="leaderboardList"></ol>
     </div>
+    <audio id="patSound" src="https://example.com/pat-sound.mp3" preload="auto"></audio>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, get, increment, serverTimestamp, runTransaction, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
@@ -304,17 +313,32 @@
                     if (result.committed) {
                         tg.HapticFeedback.impactOccurred('medium');
                         
-                        // Create and animate pat effect
-                        const patEffect = document.createElement('div');
-                        patEffect.className = 'pat-effect';
-                        patEffect.textContent = '❤️';
-                        patEffect.style.left = `${event.clientX - catContainer.offsetLeft}px`;
-                        patEffect.style.top = `${event.clientY - catContainer.offsetTop}px`;
-                        catContainer.appendChild(patEffect);
+                        // Create multiple pat effects
+                        for (let i = 0; i < 5; i++) {
+                            setTimeout(() => {
+                                const patEffect = document.createElement('div');
+                                patEffect.className = 'pat-effect';
+                                patEffect.textContent = '❤️';
+                                patEffect.style.left = `${event.clientX - catContainer.offsetLeft + (Math.random() * 40 - 20)}px`;
+                                patEffect.style.top = `${event.clientY - catContainer.offsetTop + (Math.random() * 40 - 20)}px`;
+                                catContainer.appendChild(patEffect);
 
-                        // Remove pat effect after animation
+                                // Remove pat effect after animation
+                                setTimeout(() => {
+                                    patEffect.remove();
+                                }, 800);
+                            }, i * 100);
+                        }
+
+                        // Play pat sound
+                        const patSound = document.getElementById('patSound');
+                        patSound.currentTime = 0;
+                        patSound.play();
+
+                        // Add screen shake effect
+                        document.body.style.animation = 'shake 0.5s';
                         setTimeout(() => {
-                            patEffect.remove();
+                            document.body.style.animation = '';
                         }, 500);
 
                         // Animate pat count and available pats
