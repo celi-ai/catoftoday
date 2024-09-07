@@ -41,11 +41,6 @@ body {
     margin-bottom: 1rem;
 }
 
-.global-pat-count::before {
-    content: '🐾';
-    margin-right: 10px;
-}
-
 #counter, #availablePats {
     color: #63b3ed;
     font-weight: bold;

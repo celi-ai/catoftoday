@@ -198,18 +198,18 @@ function animateValue(element, start, end, duration) {
 
 // Particle effect when patting
 function createParticles(x, y) {
-    const particleCount = 20;
-    const particleTypes = ['❤️', '😺', '🐾', '⭐', '🌟', '✨', '💖', '😻'];
+    const particleCount = 5; // Reduced from 20
+    const particleTypes = ['✨', '🐾']; // Reduced variety
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
-        particle.style.left = `${x + (Math.random() - 0.5) * 100}px`;
-        particle.style.top = `${y + (Math.random() - 0.5) * 100}px`;
-        particle.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
-        particle.style.setProperty('--y', `${Math.random() * -100 - 50}px`);
+        particle.style.left = `${x + (Math.random() - 0.5) * 50}px`; // Reduced spread
+        particle.style.top = `${y + (Math.random() - 0.5) * 50}px`; // Reduced spread
+        particle.style.setProperty('--x', `${(Math.random() - 0.5) * 100}px`);
+        particle.style.setProperty('--y', `${Math.random() * -50 - 25}px`);
         particle.innerText = particleTypes[Math.floor(Math.random() * particleTypes.length)];
         document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 1000 + Math.random() * 500);
+        setTimeout(() => particle.remove(), 500 + Math.random() * 250); // Shorter duration
     }
 }
 
@@ -217,6 +217,12 @@ function createParticles(x, y) {
 catContainer.addEventListener('click', async (event) => {
     if (user) {
         try {
+            // Immediate feedback
+            createParticles(event.clientX, event.clientY);
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+
             const wasReset = await checkAndResetIfNeeded();
             if (!wasReset) {
                 await set(countRef, increment(1));
@@ -239,39 +245,14 @@ catContainer.addEventListener('click', async (event) => {
             });
 
             if (result.committed) {
-                // Add vibration
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.impactOccurred('medium');
-                }
-                
-                // Add particle effect
-                createParticles(event.clientX, event.clientY);
-
                 // Play sound effect
                 const audio = new Audio('pat-sound.mp3');
                 audio.play();
 
-                // Create multiple pat effects
-                for (let i = 0; i < 5; i++) {
-                    setTimeout(() => {
-                        const patEffect = document.createElement('div');
-                        patEffect.className = 'pat-effect';
-                        patEffect.textContent = '❤️';
-                        patEffect.style.left = `${event.clientX - catContainer.offsetLeft + (Math.random() * 40 - 20)}px`;
-                        patEffect.style.top = `${event.clientY - catContainer.offsetTop + (Math.random() * 40 - 20)}px`;
-                        catContainer.appendChild(patEffect);
-
-                        // Remove pat effect after animation
-                        setTimeout(() => {
-                            patEffect.remove();
-                        }, 800);
-                    }, i * 100);
-                }
-
                 // Animate pat count and available pats
-                animateValue(userPatCountElement, parseInt(userPatCountElement.textContent), parseInt(userPatCountElement.textContent) + 1, 500);
-                animateValue(availablePatsElement, parseInt(availablePatsElement.textContent), parseInt(availablePatsElement.textContent) - 1, 500);
-                animateValue(counterElement, parseInt(counterElement.textContent), parseInt(counterElement.textContent) + 1, 500);
+                animateValue(userPatCountElement, parseInt(userPatCountElement.textContent), parseInt(userPatCountElement.textContent) + 1, 300);
+                animateValue(availablePatsElement, parseInt(availablePatsElement.textContent), parseInt(availablePatsElement.textContent) - 1, 300);
+                animateValue(counterElement, parseInt(counterElement.textContent), parseInt(counterElement.textContent) + 1, 300);
             } else {
                 alert("You're out of pats! Come back tomorrow for more pats.");
             }
@@ -282,6 +263,7 @@ catContainer.addEventListener('click', async (event) => {
         alert("Please open this app in Telegram to pat the cat!");
     }
 });
+
 
 // Cat image functionality
 const catImages = ['cat1.jpeg', 'cat2.jpeg', 'cat3.jpeg'];
