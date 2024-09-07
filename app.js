@@ -359,9 +359,16 @@ function updateCatFact() {
 // Initial setup
 async function initialize() {
     console.log("Starting initialization...");
+    // Update fact every 3.5 seconds
+    let factInterval = setInterval(updateCatFact, 3500);
     try {
+        console.log("Checking and resetting if needed...");
         await checkAndResetIfNeeded();
+        
+        console.log("Checking and updating daily login...");
         await checkAndUpdateDailyLogin();
+        
+        console.log("Updating user data...");
         await runTransaction(userRef, (userData) => {
             if (userData) {
                 userData.username = userUsername;
@@ -369,10 +376,20 @@ async function initialize() {
             }
             return null;
         });
+        
+        console.log("Updating cat image...");
         await updateCatImage();
+        
+        console.log("Updating leaderboard...");
         updateLeaderboard();
+        
+        console.log("Setting up tab navigation...");
         setupTabNavigation();
+
+        console.log("Initializing buy pats functionality...");
         initializeBuyPats(tg);
+
+        console.log("Initializing particle.js...");
         particlesJS('particles-js', {
             particles: {
                 number: { value: 80, density: { enable: true, value_area: 800 } },
@@ -383,10 +400,12 @@ async function initialize() {
                 move: { enable: true, speed: 1, direction: "none", random: true, out_mode: "out" }
             }
         });
+        
         console.log("Initialization complete!");
     } catch (error) {
         console.error("Error during initialization:", error);
     } finally {
+        clearInterval(factInterval); // Stop updating facts
         console.log("Fading out loading overlay...");
         const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
@@ -400,7 +419,6 @@ async function initialize() {
         }
     }
 }
-
 
 function setupTabNavigation() {
     const tabButtons = document.querySelectorAll('.tab-button');
