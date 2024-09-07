@@ -41,6 +41,18 @@ body {
     margin-bottom: 1rem;
 }
 
+#loadingOverlay {
+    background-color: rgba(26, 32, 44, 0.9);
+    backdrop-filter: blur(5px);
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+}
+
+#loadingOverlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 #counter, #availablePats {
     color: #63b3ed;
     font-weight: bold;

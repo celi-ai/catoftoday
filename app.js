@@ -301,7 +301,7 @@ async function initialize() {
             return null;
         });
         
-        updateCatImage();
+        await updateCatImage();
         updateLeaderboard();
         setupTabNavigation();
 
@@ -322,6 +322,9 @@ async function initialize() {
         
     } catch (error) {
         console.error("Error during initialization:", error);
+    } finally {
+        // Hide loading overlay
+        document.getElementById('loadingOverlay').classList.add('hidden');
     }
 }
 
@@ -340,7 +343,8 @@ function setupTabNavigation() {
     });
 }
 
-initialize();
+// Call initialize function when the page loads
+document.addEventListener('DOMContentLoaded', initialize);
 
 // Expand to full screen
 tg.expand();
