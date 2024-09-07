@@ -49,7 +49,7 @@
         <p>Streak: <span id="userStreak">0</span> days</p>
     </div>
     <div id="leaderboard">
-        <h3>Top Patters</h3>
+        <h3>Top 10 Patters</h3>
         <ol id="leaderboardList"></ol>
     </div>
     <script type="module">
@@ -116,6 +116,7 @@
         const user = tg.initDataUnsafe.user;
         const userId = user ? user.id.toString() : 'anonymous';
         const userName = user ? user.first_name : 'Anonymous';
+        const userUsername = user ? user.username : 'unknown_user';
 
         userNameElement.textContent = userName;
 
@@ -147,6 +148,7 @@
                 await set(userRef, {
                     ...userData,
                     name: userName,
+                    username: userUsername,
                     streak: newStreak,
                     lastLogin: today,
                     availablePats: newAvailablePats
@@ -201,13 +203,13 @@
         // Function to update leaderboard
         function updateLeaderboard() {
             const leaderboardRef = ref(db, 'users');
-            const leaderboardQuery = query(leaderboardRef, orderByChild('patCount'), limitToLast(5));
+            const leaderboardQuery = query(leaderboardRef, orderByChild('patCount'), limitToLast(10));
 
             onValue(leaderboardQuery, (snapshot) => {
                 const leaderboardData = [];
                 snapshot.forEach((childSnapshot) => {
                     leaderboardData.push({
-                        name: childSnapshot.val().name || 'Anonymous',
+                        username: childSnapshot.val().username || 'unknown_user',
                         patCount: childSnapshot.val().patCount || 0
                     });
                 });
@@ -219,7 +221,7 @@
                 leaderboardListElement.innerHTML = '';
                 leaderboardData.forEach((user, index) => {
                     const li = document.createElement('li');
-                    li.textContent = `${index + 1}. ${user.name}: ${user.patCount} pats`;
+                    li.textContent = `${index + 1}. @${user.username}: ${user.patCount} pats`;
                     leaderboardListElement.appendChild(li);
                 });
             }, (error) => {
@@ -245,6 +247,7 @@
                             userData.patCount = (userData.patCount || 0) + 1;
                             userData.availablePats--;
                             userData.name = userName; // Ensure user's name is always up to date
+                            userData.username = userUsername; // Ensure username is always up to date
                             return userData;
                         } else {
                             return undefined; // abort the transaction
