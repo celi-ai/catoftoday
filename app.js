@@ -244,17 +244,11 @@ catContainer.addEventListener('click', async (event) => {
                     tg.HapticFeedback.impactOccurred('medium');
                 }
                 
-                // Add shake effect to cat container only
-                catContainer.classList.add('shaking');
-                setTimeout(() => {
-                    catContainer.classList.remove('shaking');
-                }, 500);
-                
                 // Add particle effect
                 createParticles(event.clientX, event.clientY);
 
                 // Play sound effect
-                const audio = new Audio('pat-sound.mp3'); // Make sure to add this sound file to your project
+                const audio = new Audio('pat-sound.mp3');
                 audio.play();
 
                 // Create multiple pat effects
@@ -273,12 +267,6 @@ catContainer.addEventListener('click', async (event) => {
                         }, 800);
                     }, i * 100);
                 }
-
-                // Add screen shake effect
-                document.body.style.animation = 'shake 0.5s';
-                setTimeout(() => {
-                    document.body.style.animation = '';
-                }, 500);
 
                 // Animate pat count and available pats
                 animateValue(userPatCountElement, parseInt(userPatCountElement.textContent), parseInt(userPatCountElement.textContent) + 1, 500);
@@ -307,7 +295,9 @@ function updateCatImage() {
     const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
     
     getDownloadURL(imageRef).then((url) => {
-        catContainer.style.backgroundImage = `url("${url}")`;
+        const img = catContainer.querySelector('img');
+        img.src = url;
+        img.alt = "Cat of Today";
         console.log("Cat image updated:", url);
     }).catch((error) => {
         console.error("Error getting cat image:", error);
