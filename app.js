@@ -288,11 +288,15 @@ function updateCatImage() {
 
 // Initial setup
 async function initialize() {
+    console.log("Starting initialization...");
     try {
+        console.log("Checking and resetting if needed...");
         await checkAndResetIfNeeded();
+        
+        console.log("Checking and updating daily login...");
         await checkAndUpdateDailyLogin();
         
-        // Update user data with current username
+        console.log("Updating user data...");
         await runTransaction(userRef, (userData) => {
             if (userData) {
                 userData.username = userUsername;
@@ -301,14 +305,19 @@ async function initialize() {
             return null;
         });
         
+        console.log("Updating cat image...");
         await updateCatImage();
+        
+        console.log("Updating leaderboard...");
         updateLeaderboard();
+        
+        console.log("Setting up tab navigation...");
         setupTabNavigation();
 
-        // Initialize buy pats functionality
+        console.log("Initializing buy pats functionality...");
         initializeBuyPats(tg);
 
-        // Initialize particle.js for background effect
+        console.log("Initializing particle.js...");
         particlesJS('particles-js', {
             particles: {
                 number: { value: 80, density: { enable: true, value_area: 800 } },
@@ -320,11 +329,18 @@ async function initialize() {
             }
         });
         
+        console.log("Initialization complete!");
     } catch (error) {
         console.error("Error during initialization:", error);
     } finally {
-        // Hide loading overlay
-        document.getElementById('loadingOverlay').classList.add('hidden');
+        console.log("Hiding loading overlay...");
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
+            console.log("Loading overlay hidden.");
+        } else {
+            console.error("Loading overlay element not found!");
+        }
     }
 }
 
@@ -344,7 +360,13 @@ function setupTabNavigation() {
 }
 
 // Call initialize function when the page loads
-document.addEventListener('DOMContentLoaded', initialize);
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM content loaded. Calling initialize...");
+    initialize();
+});
 
 // Expand to full screen
 tg.expand();
+
+// Add this at the end of the file
+console.log("app.js loaded and executed.");
