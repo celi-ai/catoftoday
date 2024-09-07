@@ -2,6 +2,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebas
 import { getDatabase, ref, onValue, set, get, increment, serverTimestamp, runTransaction, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
+import { initializeBuyPats } from './buyPats.js';
+
 const firebaseConfig = {
     apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
     authDomain: "catoftoday-e2451.firebaseapp.com",
@@ -302,6 +304,10 @@ async function initialize() {
         updateCatImage();
         updateLeaderboard();
         setupTabNavigation();
+
+        // Initialize buy pats functionality
+        initializeBuyPats(tg);
+        
     } catch (error) {
         console.error("Error during initialization:", error);
     }
