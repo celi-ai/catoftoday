@@ -150,7 +150,8 @@ onValue(userStreakRef, (snapshot) => {
 
 // Function to update leaderboard
 function updateLeaderboard() {
-    if (document.getElementById('topTab').classList.contains('hidden')) {
+    const topTab = document.getElementById('topTab');
+    if (topTab.classList.contains('hidden')) {
         return; // Don't update if Top tab is not visible
     }
     const leaderboardRef = ref(db, 'users');
