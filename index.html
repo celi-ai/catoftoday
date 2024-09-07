@@ -151,7 +151,8 @@
                     username: userUsername,
                     streak: newStreak,
                     lastLogin: today,
-                    availablePats: newAvailablePats
+                    availablePats: newAvailablePats,
+                    patCount: userData.patCount || 0
                 });
 
                 console.log("Updated daily login data");
@@ -208,9 +209,10 @@
             onValue(leaderboardQuery, (snapshot) => {
                 const leaderboardData = [];
                 snapshot.forEach((childSnapshot) => {
+                    const userData = childSnapshot.val();
                     leaderboardData.push({
-                        username: childSnapshot.val().username || 'unknown_user',
-                        patCount: childSnapshot.val().patCount || 0
+                        username: userData.username || userData.name || 'unknown_user',
+                        patCount: userData.patCount || 0
                     });
                 });
 
@@ -221,7 +223,8 @@
                 leaderboardListElement.innerHTML = '';
                 leaderboardData.forEach((user, index) => {
                     const li = document.createElement('li');
-                    li.textContent = `${index + 1}. @${user.username}: ${user.patCount} pats`;
+                    const displayName = user.username.startsWith('@') ? user.username : `@${user.username}`;
+                    li.textContent = `${index + 1}. ${displayName}: ${user.patCount} pats`;
                     leaderboardListElement.appendChild(li);
                 });
             }, (error) => {
@@ -246,8 +249,8 @@
                         if (userData.availablePats > 0) {
                             userData.patCount = (userData.patCount || 0) + 1;
                             userData.availablePats--;
-                            userData.name = userName; // Ensure user's name is always up to date
-                            userData.username = userUsername; // Ensure username is always up to date
+                            userData.name = userName;
+                            userData.username = userUsername;
                             return userData;
                         } else {
                             return undefined; // abort the transaction
@@ -291,8 +294,18 @@
             try {
                 await checkAndResetIfNeeded();
                 await checkAndUpdateDailyLogin();
+                
+                // Update user data with current username
+                await runTransaction(userRef, (userData) => {
+                    if (userData) {
+                        userData.username = userUsername;
+                        return userData;
+                    }
+                    return null;
+                });
+                
                 updateCatImage();
-                updateLeaderboard(); // Initialize leaderboard
+                updateLeaderboard();
             } catch (error) {
                 console.error("Error during initialization:", error);
             }
