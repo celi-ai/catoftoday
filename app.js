@@ -1,7 +1,6 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-import { getDatabase, ref, onValue, set, get, increment, serverTimestamp, runTransaction, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
-
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+import { getDatabase, ref, onValue, set, get, increment, serverTimestamp, runTransaction, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js';
+import { getStorage, ref as storageRef, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js';
 import { initializeBuyPats } from './buyPats.js';
 
 const firebaseConfig = {
@@ -15,9 +14,62 @@ const firebaseConfig = {
     measurementId: "G-53VSVBFRK1"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const storage = getStorage(app);
+let db;
+let storage;
+
+async function initialize() {
+    console.log("Starting initialization...");
+    try {
+        console.log("Initializing Firebase...");
+        const app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        storage = getStorage(app);
+        console.log("Firebase initialized successfully");
+
+        console.log("Checking and resetting if needed...");
+        await checkAndResetIfNeeded();
+        
+        console.log("Checking and updating daily login...");
+        await checkAndUpdateDailyLogin();
+        
+        console.log("Updating user data...");
+        await runTransaction(userRef, (userData) => {
+            if (userData) {
+                userData.username = userUsername;
+                return userData;
+            }
+            return null;
+        });
+        
+        console.log("Updating cat image...");
+        await updateCatImage();
+        
+        console.log("Updating leaderboard...");
+        updateLeaderboard();
+        
+        console.log("Setting up tab navigation...");
+        setupTabNavigation();
+
+        console.log("Initializing buy pats functionality...");
+        initializeBuyPats(tg);
+
+        console.log("Initialization complete!");
+    } catch (error) {
+        console.error("Error during initialization:", error);
+    } finally {
+        console.log("Fading out loading overlay...");
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('fade-out');
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                console.log("Loading overlay hidden.");
+            }, 500);
+        } else {
+            console.error("Loading overlay element not found!");
+        }
+    }
+}
 
 const countRef = ref(db, 'globalPatCount');
 const lastResetRef = ref(db, 'lastResetTimestamp');
