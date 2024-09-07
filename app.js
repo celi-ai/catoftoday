@@ -3,6 +3,8 @@ import { getDatabase, ref, onValue, set, get, increment, serverTimestamp, runTra
 import { getStorage, ref as storageRef, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js';
 import { initializeBuyPats } from './buyPats.js';
 
+console.log("Firebase modules imported successfully");
+
 const firebaseConfig = {
     apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
     authDomain: "catoftoday-e2451.firebaseapp.com",
@@ -49,8 +51,11 @@ async function initializeApplication() {
     try {
         console.log("Initializing Firebase...");
         const app = initializeApp(firebaseConfig);
+        console.log("Firebase app initialized");
         db = getDatabase(app);
+        console.log("Firebase database initialized");
         storage = getStorage(app);
+        console.log("Firebase storage initialized");
         
         countRef = ref(db, 'globalPatCount');
         lastResetRef = ref(db, 'lastResetTimestamp');
