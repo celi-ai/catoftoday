@@ -272,19 +272,31 @@ function getCatOfTheDay() {
     const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
     return catImages[dayOfYear % catImages.length];
 }
+
 function updateCatImage() {
-    const catImageFilename = getCatOfTheDay();
-    const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
-    
-    getDownloadURL(imageRef).then((url) => {
-        const img = catContainer.querySelector('img');
-        img.src = url;
-        img.alt = "Cat of Today";
-        console.log("Cat image updated:", url);
-    }).catch((error) => {
-        console.error("Error getting cat image:", error);
+    return new Promise((resolve, reject) => {
+        const catImageFilename = getCatOfTheDay();
+        const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
+        
+        getDownloadURL(imageRef).then((url) => {
+            const img = catContainer.querySelector('img');
+            img.onload = () => {
+                console.log("Cat image loaded:", url);
+                resolve();
+            };
+            img.onerror = (error) => {
+                console.error("Error loading cat image:", error);
+                reject(error);
+            };
+            img.src = url;
+            img.alt = "Cat of Today";
+        }).catch((error) => {
+            console.error("Error getting cat image URL:", error);
+            reject(error);
+        });
     });
 }
+
 
 // Initial setup
 async function initialize() {
@@ -333,11 +345,14 @@ async function initialize() {
     } catch (error) {
         console.error("Error during initialization:", error);
     } finally {
-        console.log("Hiding loading overlay...");
+        console.log("Fading out loading overlay...");
         const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
-            loadingOverlay.classList.add('hidden');
-            console.log("Loading overlay hidden.");
+            loadingOverlay.classList.add('fade-out');
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                console.log("Loading overlay hidden.");
+            }, 500); // Wait for fade-out transition to complete
         } else {
             console.error("Loading overlay element not found!");
         }

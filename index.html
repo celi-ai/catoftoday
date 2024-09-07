@@ -8,6 +8,14 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        #loadingOverlay {
+            transition: opacity 0.5s ease-out;
+        }
+        #loadingOverlay.fade-out {
+            opacity: 0;
+        }
+    </style>
 </head>
 <body class="flex flex-col min-h-screen pb-20">
     <div id="loadingOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900">
