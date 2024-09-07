@@ -4,6 +4,8 @@ import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstat
 
 import { initializeBuyPats } from './buyPats.js';
 
+console.log("Starting app initialization...");
+
 const firebaseConfig = {
     apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
     authDomain: "catoftoday-e2451.firebaseapp.com",
@@ -19,25 +21,20 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-const countRef = ref(db, 'globalPatCount');
-const lastResetRef = ref(db, 'lastResetTimestamp');
-const counterElement = document.getElementById('counter');
-const catContainer = document.getElementById('catContainer');
-const userPatCountElement = document.getElementById('userPatCount');
-const userNameElement = document.getElementById('userName');
-const availablePatsElement = document.getElementById('availablePats');
-const userStreakElement = document.getElementById('userStreak');
-const leaderboardListElement = document.getElementById('leaderboardList');
+console.log("Firebase initialized");
 
 const tg = window.Telegram.WebApp;
-
 tg.ready();
+
+console.log("Telegram WebApp ready");
 
 // Global variables
 const user = tg.initDataUnsafe.user;
 const userId = user ? user.id.toString() : 'anonymous';
 const userName = user ? user.first_name : 'Anonymous';
 const userUsername = user ? user.username : 'unknown_user';
+
+console.log("User information retrieved");
 
 // DOM elements
 const counterElement = document.getElementById('counter');
@@ -48,6 +45,8 @@ const availablePatsElement = document.getElementById('availablePats');
 const userStreakElement = document.getElementById('userStreak');
 const leaderboardListElement = document.getElementById('leaderboardList');
 
+console.log("DOM elements referenced");
+
 // Firebase references
 const countRef = ref(db, 'globalPatCount');
 const lastResetRef = ref(db, 'lastResetTimestamp');
@@ -57,10 +56,13 @@ const userAvailablePatsRef = ref(db, `users/${userId}/availablePats`);
 const userStreakRef = ref(db, `users/${userId}/streak`);
 const userLastLoginRef = ref(db, `users/${userId}/lastLogin`);
 
+console.log("Firebase references created");
+
 // Tab system
 let currentTab = 'homeTab';
 
 function showTab(tabId) {
+    console.log(`Switching to tab: ${tabId}`);
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
     document.getElementById(tabId).classList.remove('hidden');
     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -73,6 +75,7 @@ function showTab(tabId) {
 }
 
 function setupTabNavigation() {
+    console.log("Setting up tab navigation");
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -85,6 +88,7 @@ function setupTabNavigation() {
 // Leaderboard functionality
 function updateLeaderboard() {
     if (currentTab !== 'topTab') return;
+    console.log("Updating leaderboard");
 
     const leaderboardRef = ref(db, 'users');
     const leaderboardQuery = query(leaderboardRef, orderByChild('patCount'), limitToLast(10));
@@ -121,6 +125,7 @@ function updateLeaderboard() {
                 leaderboardListElement.innerHTML += entryHtml;
             }
         });
+        console.log("Leaderboard updated");
     }, (error) => {
         console.error("Error fetching leaderboard data:", error);
     });
@@ -184,12 +189,72 @@ function createParticles(x, y) {
     }
 }
 
+async function checkAndResetIfNeeded() {
+    console.log("Checking if reset is needed");
+    try {
+        const lastResetSnapshot = await get(lastResetRef);
+        const lastReset = lastResetSnapshot.val();
+        const now = Date.now();
+
+        if (!lastReset || (now - lastReset > 24 * 60 * 60 * 1000)) {
+            console.log("Resetting counters and updating timestamp");
+            await set(countRef, 0);
+            await set(lastResetRef, serverTimestamp());
+            await updateCatImage();
+            return true;
+        }
+        console.log("No reset needed");
+        return false;
+    } catch (error) {
+        console.error("Error in checkAndResetIfNeeded:", error);
+        return false;
+    }
+}
+
+async function checkAndUpdateDailyLogin() {
+    console.log("Checking and updating daily login");
+    try {
+        const userSnapshot = await get(userRef);
+        const userData = userSnapshot.val() || {};
+        const now = new Date();
+        const today = now.toDateString();
+        const yesterday = new Date(now.setDate(now.getDate() - 1)).toDateString();
+
+        if (!userData.lastLogin || userData.lastLogin !== today) {
+            let newStreak = 1;
+            if (userData.lastLogin === yesterday) {
+                newStreak = (userData.streak || 0) + 1;
+            }
+
+            const newAvailablePats = 10 + (newStreak * 10);
+
+            await set(userRef, {
+                ...userData,
+                name: userName,
+                username: userUsername,
+                streak: newStreak,
+                lastLogin: today,
+                availablePats: newAvailablePats,
+                patCount: userData.patCount || 0
+            });
+
+            console.log("Updated daily login data");
+        }
+    } catch (error) {
+        console.error("Error in checkAndUpdateDailyLogin:", error);
+    }
+}
+
 // Initialize the app
 async function initialize() {
     console.log("Starting initialization...");
     try {
         await checkAndResetIfNeeded();
+        console.log("Reset check completed");
+        
         await checkAndUpdateDailyLogin();
+        console.log("Daily login updated");
+        
         await runTransaction(userRef, (userData) => {
             if (userData) {
                 userData.username = userUsername;
@@ -197,11 +262,20 @@ async function initialize() {
             }
             return null;
         });
+        console.log("User data updated");
+        
         await updateCatImage();
+        console.log("Cat image updated");
+        
         setupTabNavigation();
+        console.log("Tab navigation set up");
+        
         showTab('homeTab'); // Start with home tab
+        console.log("Home tab shown");
+        
         initializeBuyPats(tg);
-        // ... (other initialization tasks)
+        console.log("Buy pats initialized");
+        
         console.log("Initialization complete!");
     } catch (error) {
         console.error("Error during initialization:", error);
@@ -211,14 +285,20 @@ async function initialize() {
             loadingOverlay.classList.add('fade-out');
             setTimeout(() => {
                 loadingOverlay.classList.add('hidden');
+                console.log("Loading overlay hidden");
             }, 500);
         }
     }
 }
 
 // Event listeners
-document.addEventListener('DOMContentLoaded', initialize);
-catContainer.addEventListener('click', handleCatClick);
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM content loaded, calling initialize...");
+    initialize().catch(error => {
+        console.error("Initialization failed:", error);
+        alert("Failed to initialize the app. Please try refreshing the page.");
+    });
+});
 
 // Expand to full screen
 tg.expand();
