@@ -4,8 +4,6 @@ import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstat
 
 import { initializeBuyPats } from './buyPats.js';
 
-console.log("Starting app initialization...");
-
 const firebaseConfig = {
     apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
     authDomain: "catoftoday-e2451.firebaseapp.com",
@@ -21,22 +19,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-console.log("Firebase initialized");
-
-const tg = window.Telegram.WebApp;
-tg.ready();
-
-console.log("Telegram WebApp ready");
-
-// Global variables
-const user = tg.initDataUnsafe.user;
-const userId = user ? user.id.toString() : 'anonymous';
-const userName = user ? user.first_name : 'Anonymous';
-const userUsername = user ? user.username : 'unknown_user';
-
-console.log("User information retrieved");
-
-// DOM elements
+const countRef = ref(db, 'globalPatCount');
+const lastResetRef = ref(db, 'lastResetTimestamp');
 const counterElement = document.getElementById('counter');
 const catContainer = document.getElementById('catContainer');
 const userPatCountElement = document.getElementById('userPatCount');
@@ -45,51 +29,127 @@ const availablePatsElement = document.getElementById('availablePats');
 const userStreakElement = document.getElementById('userStreak');
 const leaderboardListElement = document.getElementById('leaderboardList');
 
-console.log("DOM elements referenced");
+// Telegram WebApp initialization
+const tg = window.Telegram.WebApp;
 
-// Firebase references
-const countRef = ref(db, 'globalPatCount');
-const lastResetRef = ref(db, 'lastResetTimestamp');
+// Ensure the app is ready
+tg.ready();
+
+async function checkAndResetIfNeeded() {
+    try {
+        const lastResetSnapshot = await get(lastResetRef);
+        const lastReset = lastResetSnapshot.val();
+        const now = Date.now();
+
+        console.log("Last reset:", lastReset);
+        console.log("Current time:", now);
+
+        if (!lastReset || (now - lastReset > 24 * 60 * 60 * 1000)) {
+            console.log("Resetting counters and updating timestamp");
+            await set(countRef, 0);
+            await set(lastResetRef, serverTimestamp());
+            updateCatImage();
+            return true;
+        }
+        console.log("No reset needed");
+        return false;
+    } catch (error) {
+        console.error("Error in checkAndResetIfNeeded:", error);
+        return false;
+    }
+}
+
+// Get user data from Telegram
+const user = tg.initDataUnsafe.user;
+const userId = user ? user.id.toString() : 'anonymous';
+const userName = user ? user.first_name : 'Anonymous';
+const userUsername = user ? user.username : 'unknown_user';
+
+userNameElement.textContent = userName;
+
 const userRef = ref(db, `users/${userId}`);
 const userPatCountRef = ref(db, `users/${userId}/patCount`);
 const userAvailablePatsRef = ref(db, `users/${userId}/availablePats`);
 const userStreakRef = ref(db, `users/${userId}/streak`);
 const userLastLoginRef = ref(db, `users/${userId}/lastLogin`);
 
-console.log("Firebase references created");
+async function checkAndUpdateDailyLogin() {
+    const userSnapshot = await get(userRef);
+    const userData = userSnapshot.val() || {};
+    const now = new Date();
+    const today = now.toDateString();
+    const yesterday = new Date(now.setDate(now.getDate() - 1)).toDateString();
 
-// Tab system
-let currentTab = 'homeTab';
+    if (!userData.lastLogin || userData.lastLogin !== today) {
+        // It's a new day
+        let newStreak = 1;
+        if (userData.lastLogin === yesterday) {
+            // User logged in yesterday, increment streak
+            newStreak = (userData.streak || 0) + 1;
+        }
 
-function showTab(tabId) {
-    console.log(`Switching to tab: ${tabId}`);
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-    document.getElementById(tabId).classList.remove('hidden');
-    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
-    currentTab = tabId;
+        // Calculate new available pats
+        const newAvailablePats = 10 + (newStreak * 10);
 
-    if (tabId === 'topTab') {
-        updateLeaderboard();
+        // Update user data
+        await set(userRef, {
+            ...userData,
+            name: userName,
+            username: userUsername,
+            streak: newStreak,
+            lastLogin: today,
+            availablePats: newAvailablePats,
+            patCount: userData.patCount || 0
+        });
+
+        console.log("Updated daily login data");
     }
 }
 
-function setupTabNavigation() {
-    console.log("Setting up tab navigation");
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const tabId = button.getAttribute('data-tab');
-            showTab(tabId);
-        });
-    });
-}
+// Initialize counters
+get(countRef).then((snapshot) => {
+    const count = snapshot.val() || 0;
+    counterElement.textContent = count;
+}).catch(error => console.error("Error getting global count:", error));
 
-// Leaderboard functionality
+get(userPatCountRef).then((snapshot) => {
+    const count = snapshot.val() || 0;
+    userPatCountElement.textContent = count;
+}).catch(error => console.error("Error getting user count:", error));
+
+get(userAvailablePatsRef).then((snapshot) => {
+    const count = snapshot.val() || 0;
+    availablePatsElement.textContent = count;
+}).catch(error => console.error("Error getting available pats:", error));
+
+get(userStreakRef).then((snapshot) => {
+    const streak = snapshot.val() || 0;
+    userStreakElement.textContent = streak;
+}).catch(error => console.error("Error getting user streak:", error));
+
+// Listen for real-time updates
+onValue(countRef, (snapshot) => {
+    const count = snapshot.val() || 0;
+    counterElement.textContent = count;
+}, error => console.error("Error in global count listener:", error));
+
+onValue(userPatCountRef, (snapshot) => {
+    const count = snapshot.val() || 0;
+    userPatCountElement.textContent = count;
+}, error => console.error("Error in user count listener:", error));
+
+onValue(userAvailablePatsRef, (snapshot) => {
+    const count = snapshot.val() || 0;
+    availablePatsElement.textContent = count;
+}, error => console.error("Error in available pats listener:", error));
+
+onValue(userStreakRef, (snapshot) => {
+    const streak = snapshot.val() || 0;
+    userStreakElement.textContent = streak;
+}, error => console.error("Error in user streak listener:", error));
+
+// Function to update leaderboard
 function updateLeaderboard() {
-    if (currentTab !== 'topTab') return;
-    console.log("Updating leaderboard");
-
     const leaderboardRef = ref(db, 'users');
     const leaderboardQuery = query(leaderboardRef, orderByChild('patCount'), limitToLast(10));
 
@@ -104,11 +164,14 @@ function updateLeaderboard() {
             });
         });
 
+        // Sort in descending order
         leaderboardData.sort((a, b) => b.patCount - a.patCount);
 
+        // Update total holders
         const totalHoldersElement = document.getElementById('totalHolders');
         totalHoldersElement.textContent = `${snapshot.size} holders`;
 
+        // Update leaderboard UI
         const leaderboardListElement = document.getElementById('leaderboardList');
         const currentUserRankElement = document.getElementById('currentUserRank');
         leaderboardListElement.innerHTML = '';
@@ -125,7 +188,6 @@ function updateLeaderboard() {
                 leaderboardListElement.innerHTML += entryHtml;
             }
         });
-        console.log("Leaderboard updated");
     }, (error) => {
         console.error("Error fetching leaderboard data:", error);
     });
@@ -189,72 +251,117 @@ function createParticles(x, y) {
     }
 }
 
-async function checkAndResetIfNeeded() {
-    console.log("Checking if reset is needed");
-    try {
-        const lastResetSnapshot = await get(lastResetRef);
-        const lastReset = lastResetSnapshot.val();
-        const now = Date.now();
-
-        if (!lastReset || (now - lastReset > 24 * 60 * 60 * 1000)) {
-            console.log("Resetting counters and updating timestamp");
-            await set(countRef, 0);
-            await set(lastResetRef, serverTimestamp());
-            await updateCatImage();
-            return true;
-        }
-        console.log("No reset needed");
-        return false;
-    } catch (error) {
-        console.error("Error in checkAndResetIfNeeded:", error);
-        return false;
-    }
-}
-
-async function checkAndUpdateDailyLogin() {
-    console.log("Checking and updating daily login");
-    try {
-        const userSnapshot = await get(userRef);
-        const userData = userSnapshot.val() || {};
-        const now = new Date();
-        const today = now.toDateString();
-        const yesterday = new Date(now.setDate(now.getDate() - 1)).toDateString();
-
-        if (!userData.lastLogin || userData.lastLogin !== today) {
-            let newStreak = 1;
-            if (userData.lastLogin === yesterday) {
-                newStreak = (userData.streak || 0) + 1;
+// Increment counter
+catContainer.addEventListener('click', async (event) => {
+    if (user) {
+        try {
+            // Immediate feedback
+            createParticles(event.clientX, event.clientY);
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
             }
 
-            const newAvailablePats = 10 + (newStreak * 10);
+            const wasReset = await checkAndResetIfNeeded();
+            if (!wasReset) {
+                await set(countRef, increment(1));
+            }
 
-            await set(userRef, {
-                ...userData,
-                name: userName,
-                username: userUsername,
-                streak: newStreak,
-                lastLogin: today,
-                availablePats: newAvailablePats,
-                patCount: userData.patCount || 0
+            const result = await runTransaction(userRef, (userData) => {
+                if (!userData) {
+                    return null; // abort the transaction
+                }
+
+                if (userData.availablePats > 0) {
+                    userData.patCount = (userData.patCount || 0) + 1;
+                    userData.availablePats--;
+                    userData.name = userName;
+                    userData.username = userUsername;
+                    return userData;
+                } else {
+                    return undefined; // abort the transaction
+                }
             });
 
-            console.log("Updated daily login data");
+            if (result.committed) {
+                // Play sound effect
+                const audio = new Audio('pat-sound.mp3');
+                audio.play();
+
+                // Animate pat count and available pats
+                animateValue(userPatCountElement, parseInt(userPatCountElement.textContent), parseInt(userPatCountElement.textContent) + 1, 300);
+                animateValue(availablePatsElement, parseInt(availablePatsElement.textContent), parseInt(availablePatsElement.textContent) - 1, 300);
+                animateValue(counterElement, parseInt(counterElement.textContent), parseInt(counterElement.textContent) + 1, 300);
+            } else {
+                alert("You're out of pats! Come back tomorrow for more pats.");
+            }
+        } catch (error) {
+            console.error("Error incrementing counters:", error);
         }
-    } catch (error) {
-        console.error("Error in checkAndUpdateDailyLogin:", error);
+    } else {
+        alert("Please open this app in Telegram to pat the cat!");
+    }
+});
+
+
+// Cat image functionality
+const catImages = ['cat1.jpeg', 'cat2.jpeg', 'cat3.jpeg'];
+function getCatOfTheDay() {
+    const today = new Date();
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+    return catImages[dayOfYear % catImages.length];
+}
+
+function updateCatImage() {
+    return new Promise((resolve, reject) => {
+        const catImageFilename = getCatOfTheDay();
+        const imageRef = storageRef(storage, 'cat_images/' + catImageFilename);
+        
+        getDownloadURL(imageRef).then((url) => {
+            const img = catContainer.querySelector('img');
+            img.onload = () => {
+                console.log("Cat image loaded:", url);
+                resolve();
+            };
+            img.onerror = (error) => {
+                console.error("Error loading cat image:", error);
+                reject(error);
+            };
+            img.src = url;
+            img.alt = "Cat of Today";
+        }).catch((error) => {
+            console.error("Error getting cat image URL:", error);
+            reject(error);
+        });
+    });
+}
+
+const catFacts = [
+    "Cats can make over 100 different sounds, while dogs can only make about 10.",
+    "A group of cats is called a 'clowder'.",
+    "Cats spend 70% of their lives sleeping.",
+    "A cat's nose print is unique, like a human's fingerprint.",
+    "Cats can't taste sweetness.",
+    "The first cat in space was a French cat named Felicette in 1963.",
+    "Cats can jump up to 6 times their length.",
+    "A cat's hearing is better than a dog's.",
+    "Cats have 32 muscles in each ear.",
+    "A cat's purr may be a form of self-healing."
+];
+
+function updateCatFact() {
+    const factElement = document.querySelector('.cat-fact');
+    if (factElement) {
+        const randomFact = catFacts[Math.floor(Math.random() * catFacts.length)];
+        factElement.textContent = `Did you know? ${randomFact}`;
     }
 }
 
-// Initialize the app
+// Initial setup
 async function initialize() {
     console.log("Starting initialization...");
     try {
         await checkAndResetIfNeeded();
-        console.log("Reset check completed");
-        
         await checkAndUpdateDailyLogin();
-        console.log("Daily login updated");
-        
         await runTransaction(userRef, (userData) => {
             if (userData) {
                 userData.username = userUsername;
@@ -262,45 +369,62 @@ async function initialize() {
             }
             return null;
         });
-        console.log("User data updated");
-        
         await updateCatImage();
-        console.log("Cat image updated");
-        
+        updateLeaderboard();
         setupTabNavigation();
-        console.log("Tab navigation set up");
-        
-        showTab('homeTab'); // Start with home tab
-        console.log("Home tab shown");
-        
         initializeBuyPats(tg);
-        console.log("Buy pats initialized");
-        
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#ffffff" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                move: { enable: true, speed: 1, direction: "none", random: true, out_mode: "out" }
+            }
+        });
         console.log("Initialization complete!");
     } catch (error) {
         console.error("Error during initialization:", error);
     } finally {
+        console.log("Fading out loading overlay...");
         const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
             loadingOverlay.classList.add('fade-out');
             setTimeout(() => {
                 loadingOverlay.classList.add('hidden');
-                console.log("Loading overlay hidden");
-            }, 500);
+                console.log("Loading overlay hidden.");
+            }, 500); // Wait for fade-out transition to complete
+        } else {
+            console.error("Loading overlay element not found!");
         }
     }
 }
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM content loaded, calling initialize...");
-    initialize().catch(error => {
-        console.error("Initialization failed:", error);
-        alert("Failed to initialize the app. Please try refreshing the page.");
+
+function setupTabNavigation() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+        });
     });
+}
+
+// Call initialize function when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM content loaded. Calling initialize...");
+    initialize();
 });
 
 // Expand to full screen
 tg.expand();
 
+// Add this at the end of the file
 console.log("app.js loaded and executed.");

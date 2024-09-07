@@ -8,6 +8,71 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        #loadingOverlay {
+            transition: opacity 0.5s ease-out;
+        }
+        #loadingOverlay.fade-out {
+            opacity: 0;
+        }
+        .cat-loader {
+            width: 100px;
+            height: 100px;
+            position: relative;
+        }
+        .cat-ear {
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 40px solid #63b3ed;
+            animation: wiggle 1s infinite alternate;
+        }
+        .cat-ear.left {
+            left: 10px;
+            transform: rotate(-30deg);
+        }
+        .cat-ear.right {
+            right: 10px;
+            transform: rotate(30deg);
+        }
+        .cat-face {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 60px;
+            background-color: #63b3ed;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        }
+        .cat-eye {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #1a202c;
+            border-radius: 50%;
+            top: 20px;
+            animation: blink 2.5s infinite;
+        }
+        .cat-eye.left { left: 20px; }
+        .cat-eye.right { right: 20px; }
+        @keyframes wiggle {
+            0% { transform: rotate(-30deg); }
+            100% { transform: rotate(-25deg); }
+        }
+        @keyframes blink {
+            0%, 45%, 50%, 100% { transform: scaleY(1); }
+            48% { transform: scaleY(0.1); }
+        }
+        .cat-fact {
+            margin-top: 20px;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body class="flex flex-col min-h-screen pb-20">
     <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900">
@@ -45,23 +110,21 @@
 
         <!-- Pats Tab -->
         <div id="patsTab" class="tab-content hidden">
-            <h2 class="text-2xl font-bold mb-6 text-center">Get More Pats</h2>
-            <div class="flex flex-col items-center space-y-4">
-                <button id="buyPatsBtn" class="bg-blue-500 text-white p-2 rounded w-64">Buy Pats</button>
-                <button id="shareTwitterBtn" class="bg-blue-400 text-white p-2 rounded w-64">Share on Twitter</button>
-                <button id="inviteFriendBtn" class="bg-green-500 text-white p-2 rounded w-64">Invite a Friend</button>
-            </div>
+            <h2>Get More Pats</h2>
+            <button id="buyPatsBtn" class="bg-blue-500 text-white p-2 rounded">Buy Pats</button>
+            <button id="shareTwitterBtn" class="bg-blue-400 text-white p-2 rounded mt-2">Share on Twitter</button>
+            <button id="inviteFriendBtn" class="bg-green-500 text-white p-2 rounded mt-2">Invite a Friend</button>
         </div>
 
         <!-- Top Tab -->
         <div id="topTab" class="tab-content hidden">
             <h1 class="text-3xl font-bold mb-6 text-center text-white">Top Tappers</h1>
             
-            <div id="currentUserRank" class="mb-4">
+            <div id="currentUserRank">
                 <!-- Current user ranking will be inserted here -->
             </div>
             
-            <div id="totalHolders" class="text-blue-400 text-lg mb-4 text-center">
+            <div id="totalHolders" class="text-blue-400 text-lg mb-4">
                 <!-- Total holders count will be inserted here -->
             </div>
             
@@ -74,12 +137,12 @@
 
         <!-- User Tab -->
         <div id="userTab" class="tab-content hidden">
-            <div id="userProfile" class="p-4 bg-gray-800 rounded-lg">
-                <h3 class="text-2xl font-bold mb-4 text-center">Your Profile</h3>
-                <p class="mb-2">Welcome, <span id="userName" class="font-bold"></span>!</p>
-                <p class="mb-2">Total Pats: <span id="userPatCount" class="font-bold">0</span></p>
-                <p class="mb-2">Available Pats: <span id="userAvailablePats" class="font-bold">0</span></p>
-                <p class="mb-2">Streak: <span id="userStreak" class="font-bold">0</span> days</p>
+            <div id="userProfile">
+                <h3>Your Profile</h3>
+                <p>Welcome, <span id="userName"></span>!</p>
+                <p>Total Pats: <span id="userPatCount">0</span></p>
+                <p>Available Pats: <span id="availablePats">0</span></p>
+                <p>Streak: <span id="userStreak">0</span> days</p>
             </div>
         </div>
     </div>
@@ -106,5 +169,8 @@
 
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script type="module" src="app.js"></script>
+    <script>
+        console.log("HTML file loaded and executed.");
+    </script>
 </body>
 </html>
