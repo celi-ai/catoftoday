@@ -360,7 +360,6 @@ async function initialize() {
     console.log("Starting initialization...");
     const loadingOverlay = document.getElementById('loadingOverlay');
     const progressBar = document.querySelector('.progress-bar');
-    const catTail = document.querySelector('.cat-tail');
     const steps = [
         'Checking and resetting',
         'Updating daily login',
@@ -377,7 +376,6 @@ async function initialize() {
         console.log(step + "...");
         progress += 100 / steps.length;
         progressBar.style.width = `${progress}%`;
-        catTail.style.backgroundPosition = `-${progress}px 0`; // Animate tail
         await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay for smoother animation
     }
 
