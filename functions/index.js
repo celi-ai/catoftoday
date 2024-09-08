@@ -98,10 +98,11 @@ bot.command("refund", (ctx) => {
 
 // Function to create invoice link for mini apps
 exports.generateInvoice = functions.https.onCall(async (data, context) => {
-  // Ensure the user is authenticated
+  /* Ensure the user is authenticated
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
   }
+  */
 
   const { title, description, amount, patsAmount } = data;
 
