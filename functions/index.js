@@ -12,6 +12,7 @@ const bot = new Telegraf(functions.config().telegram.token);
 // Bot commands
 bot.command('start', (ctx) => ctx.reply('Welcome! Up and running.'));
 
+/* from example found online
 bot.command('pay', (ctx) => {
   return ctx.replyWithInvoice(
     "Test Product", // Product title
@@ -25,6 +26,25 @@ bot.command('pay', (ctx) => {
     }
   );
 });
+*/
+
+bot.command('pay', (ctx) => {
+  return ctx.replyWithInvoice(
+    "Test Product", // Ensure this is a valid non-empty string
+    "Test description", // Product description
+    "test_payload", // Valid payload string
+    "", // Provider token for Telegram Stars (empty for Stars)
+    "XTR", // Currency for Telegram Stars
+    [{ amount: 100, label: "Test Product" }], // Pricing in Stars (100 Stars)
+    {
+      need_name: true,  // Ask for name (optional)
+      need_email: true, // Ask for email (optional)
+    }
+  ).catch((error) => {
+    console.error('Error sending invoice:', error);
+  });
+});
+
 
 // Handle pre-checkout query
 bot.on("pre_checkout_query", (ctx) => {
