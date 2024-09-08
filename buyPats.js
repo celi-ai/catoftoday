@@ -55,7 +55,11 @@ export function initializeBuyPats(tg, userId) {
         })
         .catch((error) => {
             console.error('Error calling generateInvoice:', error);
-            tg.showAlert('An unexpected error occurred. Please try again or contact support.');
+            if (error.code === 'unauthenticated') {
+                tg.showAlert('You need to be logged in to make a purchase. Please log in and try again.');
+            } else {
+                tg.showAlert('An unexpected error occurred. Please try again or contact support.');
+            }
         });
     }
 

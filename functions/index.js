@@ -77,13 +77,18 @@ bot.command("refund", (ctx) => {
 
 // Function to create invoice link for mini apps
 exports.generateInvoice = functions.https.onCall(async (data, context) => {
+  // Ensure the user is authenticated
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
+
   const { title, description, amount, patsAmount } = data;
 
   try {
     const invoiceLink = await bot.telegram.createInvoiceLink(
       title || "Pats Purchase",
       description || "Purchase pats for your cat",
-      JSON.stringify({ patsAmount }),
+      JSON.stringify({ patsAmount, userId: context.auth.uid }),
       "", // Provider token must be empty for Telegram Stars
       "XTR",
       [{ amount, label: title || "Pats" }]
@@ -92,7 +97,7 @@ exports.generateInvoice = functions.https.onCall(async (data, context) => {
     return { success: true, invoiceLink };
   } catch (error) {
     console.error('Error creating invoice:', error);
-    return { success: false, error: error.message };
+    throw new functions.https.HttpsError('internal', 'Error creating invoice', error);
   }
 });
 
