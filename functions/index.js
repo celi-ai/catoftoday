@@ -14,23 +14,23 @@ bot.command('start', (ctx) => ctx.reply('Welcome! Up and running.'));
 
 // Pay command
 bot.command('pay', (ctx) => {
-  const title = "Test Product";  // Ensure this is a valid string
-  const description = "Test description";  // Ensure this is a valid string
-  const payload = "test_payload";  // Use a simple string payload
-  const currency = "XTR";  // Currency for Telegram Stars
-  const price = [{ amount: 100 * 100, label: "Test Product" }];  // Ensure price is correctly handled in the smallest unit
-  
-  // Extra logging for debugging
+  const title = "Test Product";
+  const description = "Test description";
+  const payload = "test_payload";
+  const currency = "XTR";
+  const price = [{ amount: 100 * 100, label: "Test Product" }];
+
+  // Extra logging for debugging, including types
   console.log('Pay command received');
-  console.log('Title (type):', typeof title, '| Value:', title);
-  console.log('Description (type):', typeof description, '| Value:', description);
-  console.log('Payload (type):', typeof payload, '| Value:', payload);
-  console.log('Currency:', currency);
-  console.log('Price:', price);
+  console.log('Title (value):', title, '| Type:', typeof title);
+  console.log('Description (value):', description, '| Type:', typeof description);
+  console.log('Payload (value):', payload, '| Type:', typeof payload);
+  console.log('Currency (value):', currency, '| Type:', typeof currency);
+  console.log('Price (value):', price, '| Type:', typeof price);
 
   // Reply with invoice
   return ctx.replyWithInvoice(
-    title,            // Title of the product
+    title,            // Product title
     description,      // Product description
     payload,          // A payload string
     "",               // Empty provider token for Telegram Stars
@@ -41,7 +41,7 @@ bot.command('pay', (ctx) => {
       need_email: true, // Ask for the email (optional)
     }
   ).catch((error) => {
-    // Catch errors and log them for further debugging
+    // Log the exact error message returned by Telegram
     console.error('Error sending invoice:', error);
   });
 });
