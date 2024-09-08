@@ -356,19 +356,39 @@ function updateCatFact() {
     }
 }
 
-// Initial setup
 async function initialize() {
     console.log("Starting initialization...");
-    // Update fact every 3.5 seconds
-    let factInterval = setInterval(updateCatFact, 3500);
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const progressBar = document.querySelector('.progress-bar');
+    const catTail = document.querySelector('.cat-tail');
+    const steps = [
+        'Checking and resetting',
+        'Updating daily login',
+        'Updating user data',
+        'Updating cat image',
+        'Updating leaderboard',
+        'Setting up navigation',
+        'Initializing buy pats',
+        'Initializing particles'
+    ];
+    let progress = 0;
+
+    async function updateProgress(step) {
+        console.log(step + "...");
+        progress += 100 / steps.length;
+        progressBar.style.width = `${progress}%`;
+        catTail.style.backgroundPosition = `-${progress / 2}px 0`; // Animate tail
+        await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay for smoother animation
+    }
+
     try {
-        console.log("Checking and resetting if needed...");
+        await updateProgress(steps[0]);
         await checkAndResetIfNeeded();
         
-        console.log("Checking and updating daily login...");
+        await updateProgress(steps[1]);
         await checkAndUpdateDailyLogin();
         
-        console.log("Updating user data...");
+        await updateProgress(steps[2]);
         await runTransaction(userRef, (userData) => {
             if (userData) {
                 userData.username = userUsername;
@@ -377,19 +397,19 @@ async function initialize() {
             return null;
         });
         
-        console.log("Updating cat image...");
+        await updateProgress(steps[3]);
         await updateCatImage();
         
-        console.log("Updating leaderboard...");
+        await updateProgress(steps[4]);
         updateLeaderboard();
         
-        console.log("Setting up tab navigation...");
+        await updateProgress(steps[5]);
         setupTabNavigation();
 
-        console.log("Initializing buy pats functionality...");
+        await updateProgress(steps[6]);
         initializeBuyPats(tg);
 
-        console.log("Initializing particle.js...");
+        await updateProgress(steps[7]);
         particlesJS('particles-js', {
             particles: {
                 number: { value: 80, density: { enable: true, value_area: 800 } },
@@ -405,9 +425,7 @@ async function initialize() {
     } catch (error) {
         console.error("Error during initialization:", error);
     } finally {
-        clearInterval(factInterval); // Stop updating facts
         console.log("Fading out loading overlay...");
-        const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
             loadingOverlay.classList.add('fade-out');
             setTimeout(() => {
