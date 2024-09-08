@@ -5,7 +5,7 @@ export function initializeBuyPats(tg, userId) {
     const buyPatsBtn = document.getElementById('buyPatsBtn');
     const db = getDatabase();
     const functions = getFunctions();
-    const generateInvoice = httpsCallable(functions, 'generateInvoice');
+    const generateInvoice = httpsCallable(functions, 'generateInvoice'); 
 
     buyPatsBtn.addEventListener('click', () => {
         const patsOptions = [
