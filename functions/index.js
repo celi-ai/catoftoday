@@ -104,6 +104,8 @@ exports.generateInvoice = functions.https.onCall(async (data, context) => {
   }
   */
 
+  console.log('Data received:', data); 
+
   const { title, description, amount, patsAmount } = data;
 
   try {
