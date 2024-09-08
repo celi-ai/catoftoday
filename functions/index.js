@@ -14,34 +14,38 @@ bot.command('start', (ctx) => ctx.reply('Welcome! Up and running.'));
 
 // Pay command
 bot.command('pay', (ctx) => {
-  const title = "Test Product";
-  const description = "Test description";
-  const payload = "test_payload";
-  const currency = "XTR";
-  const price = [{ amount: 100 * 100, label: "Test Product" }]; // Convert to smallest unit
-
+  const title = "Test Product";  // Ensure this is a valid string
+  const description = "Test description";  // Ensure this is a valid string
+  const payload = "test_payload";  // Use a simple string payload
+  const currency = "XTR";  // Currency for Telegram Stars
+  const price = [{ amount: 100 * 100, label: "Test Product" }];  // Ensure price is correctly handled in the smallest unit
+  
+  // Extra logging for debugging
   console.log('Pay command received');
-  console.log('Title:', title);
-  console.log('Description:', description);
-  console.log('Payload:', payload);
+  console.log('Title (type):', typeof title, '| Value:', title);
+  console.log('Description (type):', typeof description, '| Value:', description);
+  console.log('Payload (type):', typeof payload, '| Value:', payload);
   console.log('Currency:', currency);
   console.log('Price:', price);
 
+  // Reply with invoice
   return ctx.replyWithInvoice(
-    title,
-    description,
-    payload,
-    "",  // Empty provider token for Telegram Stars
-    currency,
-    price,
+    title,            // Title of the product
+    description,      // Product description
+    payload,          // A payload string
+    "",               // Empty provider token for Telegram Stars
+    currency,         // Currency (XTR for Stars)
+    price,            // Product price
     {
-      need_name: true,
-      need_email: true,
+      need_name: true,  // Ask for the name (optional)
+      need_email: true, // Ask for the email (optional)
     }
   ).catch((error) => {
+    // Catch errors and log them for further debugging
     console.error('Error sending invoice:', error);
   });
 });
+
 
 // Handle pre-checkout query
 bot.on("pre_checkout_query", (ctx) => {
