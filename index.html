@@ -8,74 +8,9 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
-    <style>
-        #loadingOverlay {
-            transition: opacity 0.5s ease-out;
-        }
-        #loadingOverlay.fade-out {
-            opacity: 0;
-        }
-        .cat-loader {
-            width: 100px;
-            height: 100px;
-            position: relative;
-        }
-        .cat-ear {
-            position: absolute;
-            top: 0;
-            width: 0;
-            height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-bottom: 40px solid #63b3ed;
-            animation: wiggle 1s infinite alternate;
-        }
-        .cat-ear.left {
-            left: 10px;
-            transform: rotate(-30deg);
-        }
-        .cat-ear.right {
-            right: 10px;
-            transform: rotate(30deg);
-        }
-        .cat-face {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 60px;
-            background-color: #63b3ed;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-        }
-        .cat-eye {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background-color: #1a202c;
-            border-radius: 50%;
-            top: 20px;
-            animation: blink 2.5s infinite;
-        }
-        .cat-eye.left { left: 20px; }
-        .cat-eye.right { right: 20px; }
-        @keyframes wiggle {
-            0% { transform: rotate(-30deg); }
-            100% { transform: rotate(-25deg); }
-        }
-        @keyframes blink {
-            0%, 45%, 50%, 100% { transform: scaleY(1); }
-            48% { transform: scaleY(0.1); }
-        }
-        .cat-fact {
-            margin-top: 20px;
-            text-align: center;
-            font-style: italic;
-        }
-    </style>
 </head>
-<body class="flex flex-col min-h-screen pb-20">
-    <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900">
+<body class="main-content">
+    <div id="loadingOverlay" class="loading-overlay">
         <div class="cat-loader">
             <div class="cat-ear left"></div>
             <div class="cat-ear right"></div>
@@ -84,32 +19,32 @@
                 <div class="cat-eye right"></div>
             </div>
         </div>
-        <div class="text-white text-2xl mt-4">Warming up the cat...</div>
-        <div class="cat-fact text-white text-lg max-w-md px-4">
+        <div class="loading-text">Warming up the cat...</div>
+        <div class="cat-fact cat-fact-loading">
             Did you know? Cats can make over 100 different sounds, while dogs can only make about 10.
         </div>
     </div>
     <div id="content" class="flex-grow overflow-y-auto">
         <!-- Home Tab -->
         <div id="homeTab" class="tab-content">
-            <h1 class="text-3xl font-bold mb-6 text-center pixel-font glow">Cat of Today</h1>
+            <h1 class="title">Cat of Today</h1>
             <div class="flex justify-center space-x-4 mb-6">
-                <div class="global-pat-count px-4 py-2 rounded-full bg-opacity-20 bg-white backdrop-filter backdrop-blur-sm">
-                    <span class="text-gray-300">Global Pat Count:</span>
-                    <span id="counter" class="text-blue-400 font-bold ml-2">378</span>
+                <div class="global-pat-count">
+                    <span>Global Pat Count:</span>
+                    <span id="counter">378</span>
                 </div>
-                <div class="available-pats px-4 py-2 rounded-full bg-opacity-20 bg-white backdrop-filter backdrop-blur-sm">
-                    <span class="text-gray-300">Available Pats:</span>
-                    <span id="availablePats" class="text-green-400 font-bold ml-2">224</span>
+                <div class="available-pats">
+                    <span>Available Pats:</span>
+                    <span id="availablePats">224</span>
                 </div>
             </div>
             <div id="catContainer" class="mb-6 relative">
                 <img src="cat-image.png" alt="Cat of Today" class="w-full rounded-lg">
-                <button id="patMe" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-full text-sm flex items-center hover:bg-blue-600 transition-colors">
+                <button id="patMe">
                     <span class="mr-1">👋</span> Pat me!
                 </button>
             </div>
-            <div id="dailyFact" class="bg-gray-800 rounded-lg p-4 text-center">
+            <div id="dailyFact">
                 <span class="block text-yellow-400 mb-2">📚 Did you know?</span>
                 Cats sleep for about 70% of their lives.
             </div>
@@ -157,20 +92,20 @@
     </div>
 
     <!-- Tab Navigation -->
-    <div id="tabNavigation" class="fixed bottom-0 left-0 right-0 bg-gray-800 bg-opacity-80 backdrop-blur-md border-t border-gray-700 flex justify-around items-center h-20 z-20">
-        <button class="tab-button flex flex-col items-center" data-tab="homeTab">
+    <div id="tabNavigation" class="tab-navigation">
+        <button class="tab-button" data-tab="homeTab">
             <span class="text-2xl mb-1">🏠</span>
             <span>Home</span>
         </button>
-        <button class="tab-button flex flex-col items-center" data-tab="patsTab">
+        <button class="tab-button" data-tab="patsTab">
             <span class="text-2xl mb-1">🐾</span>
             <span>Pats</span>
         </button>
-        <button class="tab-button flex flex-col items-center" data-tab="topTab">
+        <button class="tab-button" data-tab="topTab">
             <span class="text-2xl mb-1">🏆</span>
             <span>Top</span>
         </button>
-        <button class="tab-button flex flex-col items-center" data-tab="userTab">
+        <button class="tab-button" data-tab="userTab">
             <span class="text-2xl mb-1">👤</span>
             <span>User</span>
         </button>
