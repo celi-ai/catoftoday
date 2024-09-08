@@ -32,6 +32,14 @@ export function initializeBuyPats(tg, userId) {
 
     function initiatePayment(option) {
         const patsAmount = parseInt(option.name.split(' ')[0]);
+
+        // Logging the values being sent to generateInvoice
+        console.log("Initiating payment with the following data:");
+        console.log("Title:", option.name);
+        console.log("Description:", `Purchase ${patsAmount} pats for your cat`);
+        console.log("Amount:", option.price);
+        console.log("Pats Amount:", patsAmount);
+
         generateInvoice({
             title: option.name,
             description: `Purchase ${patsAmount} pats for your cat`,
