@@ -377,7 +377,7 @@ async function initialize() {
         console.log(step + "...");
         progress += 100 / steps.length;
         progressBar.style.width = `${progress}%`;
-        catTail.style.backgroundPosition = `-${progress / 2}px 0`; // Animate tail
+        catTail.style.backgroundPosition = `-${progress}px 0`; // Animate tail
         await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay for smoother animation
     }
 
