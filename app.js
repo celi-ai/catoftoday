@@ -407,7 +407,7 @@ async function initialize() {
         setupTabNavigation();
 
         await updateProgress(steps[6]);
-        initializeBuyPats(tg);
+        initializeBuyPats(tg, userId);
 
         await updateProgress(steps[7]);
         particlesJS('particles-js', {
