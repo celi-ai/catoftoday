@@ -33,6 +33,24 @@ bot.onText(/\/buy/, (msg) => {
   });
 });
 
+bot.onText(/\/pay/, (msg) => {
+  console.log('Pay command received');
+  const chatId = msg.chat.id;
+  const prices = [{ label: "10 Pets", amount: 100 }];
+
+  bot.sendInvoice(
+    chatId,
+    "Buy More Pets",
+    "Get 10 more pets for 1 XTR",
+    "unique-payload",
+    "", // Provider token for Telegram Stars
+    "XTR", // Currency
+    prices
+  ).catch((error) => {
+    console.error('Error sending invoice:', error);
+  });
+});
+
 // Handle pre-checkout query (sent before the payment is finalized)
 bot.on('pre_checkout_query', (query) => {
   bot.answerPreCheckoutQuery(query.id, true).catch((error) => {
