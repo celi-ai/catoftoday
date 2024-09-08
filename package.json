@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Cat of Today Telegram Mini App",
   "scripts": {
-    "start": "node index.js",
+    "start": "node functions/index.js",
     "deploy": "firebase deploy"
   },
   "dependencies": {
