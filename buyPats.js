@@ -9,9 +9,9 @@ export function initializeBuyPats(tg, userId) {
 
     buyPatsBtn.addEventListener('click', () => {
         const patsOptions = [
-            { id: 'pats_10', name: '10 Pats', price: 100 }, // 100 Stars
-            { id: 'pats_50', name: '50 Pats', price: 450 }, // 450 Stars
-            { id: 'pats_100', name: '100 Pats', price: 800 } // 800 Stars
+            { id: 'pats_10', name: '10 Pats', price: 1 }, // 1 Stars
+            { id: 'pats_50', name: '50 Pats', price: 4 }, // 4 Stars
+            { id: 'pats_100', name: '100 Pats', price: 5 } // 5 Stars
         ];
 
         tg.showPopup({
