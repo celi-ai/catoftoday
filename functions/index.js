@@ -110,7 +110,7 @@ exports.generateInvoice = functions.https.onCall(async (data, context) => {
     const invoiceLink = await bot.telegram.createInvoiceLink(
       title || "Pats Purchase",
       description || "Purchase pats for your cat",
-      JSON.stringify({ patsAmount, userId: context.auth.uid }),
+      JSON.stringify({ patsAmount}),
       "", // Provider token must be empty for Telegram Stars
       "XTR",
       [{ amount: amount * 100, label: title || "Pats" }] // Convert to smallest unit
