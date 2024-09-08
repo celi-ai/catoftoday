@@ -2,8 +2,7 @@ const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 const bodyParser = require('body-parser');
 
-// Initialize the bot with your token
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.6868406039:AAExi6ZuhTA5yNw-Nr1E-86P0d7xLhOoe04, { polling: true });
 const app = express();
 
 // Middleware to parse incoming requests
@@ -20,28 +19,15 @@ bot.onText(/\/start/, (msg) => {
   bot.sendMessage(msg.chat.id, 'Hello! Welcome to the mini-app.');
 });
 
-// Payment-related logic
-bot.command('pay', (msg) => {
-  const title = "Test Product";
-  const description = "Test description";
-  const payload = "test_payload";
-  const currency = "XTR";
-  const price = [{ amount: 100 * 100, label: "Test Product" }];
+// Handle /buy command to start the payment process
+bot.onText(/\/buy/, (msg) => {
+  const chatId = msg.chat.id;
+
+  // Define the price (in Telegram Stars or XTR)
+  const prices = [{ label: "10 Pets", amount: 100 }];  // Amount in smallest unit of XTR
 
   // Send invoice to the user
-  bot.sendInvoice(
-    msg.chat.id,
-    title,
-    description,
-    payload,
-    "",  // Leave provider_token empty for Telegram Stars
-    currency,
-    price,
-    {
-      need_name: true,  // Ask for the name (optional)
-      need_email: true, // Ask for the email (optional)
-    }
-  ).catch((error) => {
+  bot.sendInvoice(chatId, "Buy More Pets", "Get 10 more pets for 1 XTR", "unique-payload", "", "XTR", prices).catch((error) => {
     console.error('Error sending invoice:', error);  // Log errors for debugging
   });
 });
@@ -61,12 +47,12 @@ bot.on('message', (msg) => {
   if (msg.successful_payment) {
     paidUsers.set(msg.from.id, msg.successful_payment.telegram_payment_charge_id);
     console.log('Payment successful:', msg.successful_payment);
-    bot.sendMessage(msg.chat.id, 'Payment successful! Thank you for your purchase.');
+    bot.sendMessage(msg.chat.id, 'Payment successful! Thank you for your purchase of 10 pets.');
   }
 });
 
 // Check payment status
-bot.command("status", (msg) => {
+bot.onText(/\/status/, (msg) => {
   const message = paidUsers.has(msg.from.id)
     ? "You have paid"
     : "You have not paid yet";
@@ -74,7 +60,7 @@ bot.command("status", (msg) => {
 });
 
 // Refund logic (if applicable)
-bot.command("refund", (msg) => {
+bot.onText(/\/refund/, (msg) => {
   const userId = msg.from.id;
   if (!paidUsers.has(userId)) {
     return bot.sendMessage(msg.chat.id, "You have not paid yet, there is nothing to refund.");
