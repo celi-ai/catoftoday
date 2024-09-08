@@ -76,6 +76,6 @@ export function initializeBuyPats(tg, userId) {
         }).catch((error) => {
             console.error('Error updating user data:', error);
             tg.showAlert('Purchase successful, but there was an error updating your pats. Please contact support.');
-        });
+        }); 
     }
 }
