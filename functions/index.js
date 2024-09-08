@@ -12,28 +12,13 @@ const bot = new Telegraf(functions.config().telegram.token);
 // Bot commands
 bot.command('start', (ctx) => ctx.reply('Welcome! Up and running.'));
 
-/* from example found online
-bot.command('pay', (ctx) => {
-  return ctx.replyWithInvoice(
-    "Test Product", // Product title
-    "Test description", // Product description
-    "{}", // Product payload, not required for now
-    "XTR", // Stars Currency 
-    [{ amount: 100, label: "Test Product" }], // Product variants (100 Stars)
-    {
-      provider_token: "", // Empty for Telegram Stars
-      currency: "XTR"
-    }
-  );
-});
-*/
-
+// Pay command
 bot.command('pay', (ctx) => {
   const title = "Test Product";
   const description = "Test description";
   const payload = "test_payload";
   const currency = "XTR";
-  const price = [{ amount: 100, label: "Test Product" }];
+  const price = [{ amount: 100 * 100, label: "Test Product" }]; // Convert to smallest unit
 
   console.log('Pay command received');
   console.log('Title:', title);
@@ -43,15 +28,15 @@ bot.command('pay', (ctx) => {
   console.log('Price:', price);
 
   return ctx.replyWithInvoice(
-    title,            // Product title
-    description,      // Product description
-    payload,          // Payload
-    "",               // Empty provider token for Telegram Stars
-    currency,         // Currency (XTR for Telegram Stars)
-    price,            // Price in Stars (100 Stars)
+    title,
+    description,
+    payload,
+    "",  // Empty provider token for Telegram Stars
+    currency,
+    price,
     {
-      need_name: true,  // Ask for name (optional)
-      need_email: true, // Ask for email (optional)
+      need_name: true,
+      need_email: true,
     }
   ).catch((error) => {
     console.error('Error sending invoice:', error);
@@ -123,7 +108,7 @@ exports.generateInvoice = functions.https.onCall(async (data, context) => {
       JSON.stringify({ patsAmount, userId: context.auth.uid }),
       "", // Provider token must be empty for Telegram Stars
       "XTR",
-      [{ amount, label: title || "Pats" }]
+      [{ amount: amount * 100, label: title || "Pats" }] // Convert to smallest unit
     );
 
     return { success: true, invoiceLink };
@@ -151,4 +136,3 @@ exports.getPatCount = functions.https.onCall(async (data, context) => {
   const snapshot = await patCountRef.once('value');
   return snapshot.val() || 0;
 });
-
