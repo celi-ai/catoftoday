@@ -7,7 +7,8 @@
     "deploy": "firebase deploy"
   },
   "dependencies": {
-    "firebase": "^9.22.1"
+    "express": "^4.17.1",
+    "node-telegram-bot-api": "^0.64.0"
   },
   "devDependencies": {
     "firebase-tools": "^11.30.0"
