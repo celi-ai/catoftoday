@@ -29,13 +29,26 @@ bot.command('pay', (ctx) => {
 */
 
 bot.command('pay', (ctx) => {
+  const title = "Test Product";
+  const description = "Test description";
+  const payload = "test_payload";
+  const currency = "XTR";
+  const price = [{ amount: 100, label: "Test Product" }];
+
+  console.log('Pay command received');
+  console.log('Title:', title);
+  console.log('Description:', description);
+  console.log('Payload:', payload);
+  console.log('Currency:', currency);
+  console.log('Price:', price);
+
   return ctx.replyWithInvoice(
-    "Test Product", // Ensure this is a valid non-empty string
-    "Test description", // Product description
-    "test_payload", // Valid payload string
-    "", // Provider token for Telegram Stars (empty for Stars)
-    "XTR", // Currency for Telegram Stars
-    [{ amount: 100, label: "Test Product" }], // Pricing in Stars (100 Stars)
+    title,            // Product title
+    description,      // Product description
+    payload,          // Payload
+    "",               // Empty provider token for Telegram Stars
+    currency,         // Currency (XTR for Telegram Stars)
+    price,            // Price in Stars (100 Stars)
     {
       need_name: true,  // Ask for name (optional)
       need_email: true, // Ask for email (optional)
@@ -44,7 +57,6 @@ bot.command('pay', (ctx) => {
     console.error('Error sending invoice:', error);
   });
 });
-
 
 // Handle pre-checkout query
 bot.on("pre_checkout_query", (ctx) => {
