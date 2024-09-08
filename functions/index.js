@@ -2,7 +2,8 @@ const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 const bodyParser = require('body-parser');
 
-const bot = new TelegramBot(process.env.6868406039:AAExi6ZuhTA5yNw-Nr1E-86P0d7xLhOoe04, { polling: true });
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
+
 const app = express();
 
 // Middleware to parse incoming requests
