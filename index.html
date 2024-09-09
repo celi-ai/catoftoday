@@ -9,11 +9,8 @@
         font-family: Arial, sans-serif;
         text-align: center;
         margin: 0;
-        padding: 50px;
+        padding-bottom: 60px; /* Space for the navigation bar */
         background-color: #f0f0f0;
-      }
-      h1 {
-        color: #333;
       }
       #patButton {
         padding: 10px 20px;
@@ -23,14 +20,42 @@
         border-radius: 5px;
         cursor: pointer;
       }
+      #navBar {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #333;
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+      }
+      #navBar a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        padding: 10px;
+      }
+      #navBar a.active {
+        background-color: #ffcc00;
+        color: #333;
+        border-radius: 5px;
+      }
     </style>
   </head>
   <body>
-    <h1>Welcome to the Cat of Today!</h1>
-    <p>
-      <button id="patButton">Pat the Cat!</button>
-    </p>
-    <p id="patCount">You have patted the cat 0 times.</p>
+    <div id="content">
+      <p>
+        <button id="patButton">Pat the Cat!</button>
+      </p>
+      <p id="patCount">You have patted the cat 0 times.</p>
+    </div>
+
+    <div id="navBar">
+      <a href="#" class="active" id="homeLink">Home</a>
+      <a href="#" id="patsLink">Pats</a>
+      <a href="#" id="ranksLink">Ranks</a>
+      <a href="#" id="profileLink">Profile</a>
+    </div>
 
     <script src="app.js"></script>
   </body>
