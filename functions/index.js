@@ -6,6 +6,9 @@ const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 const app = express();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Middleware to parse incoming requests
 app.use(bodyParser.json());
 
@@ -13,6 +16,11 @@ app.use(bodyParser.json());
 app.post('/bot', (req, res) => {
   bot.processUpdate(req.body);  // Process incoming updates from Telegram
   res.sendStatus(200);
+});
+
+// Root route for the app
+app.get('/', (req, res) => {
+  res.send('Welcome to the Cat of Today app!');
 });
 
 // Handle /start command
@@ -98,9 +106,7 @@ bot.onText(/\/refund/, (msg) => {
 });
 
 
-
-// Start the Express server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
