@@ -1,75 +1,113 @@
 const express = require('express');
-const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 const bodyParser = require('body-parser');
-const app = express();
-const port = process.env.PORT || 3000; // Heroku assigns the port dynamically
 
-// Set up the Telegram bot
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
-// Middleware for parsing JSON data from incoming requests
+const app = express();
+
+app.use(express.static('public'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Middleware to parse incoming requests
 app.use(bodyParser.json());
 
-// Serve the index.html and app.js directly from the root
+// Webhook route for Telegram bot
+app.post('/bot', (req, res) => {
+  bot.processUpdate(req.body);  // Process incoming updates from Telegram
+  res.sendStatus(200);
+});
+
+// Root route for the app
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.send('Welcome to the Cat of Today app!');
 });
 
-app.get('/app.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'app.js'));
-});
-
-// Telegram bot commands
+// Handle /start command
 bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(msg.chat.id, "Welcome to the Cat of Today game!");
+  bot.sendMessage(msg.chat.id, 'Hello! Welcome to the mini-app.');
 });
 
-// /buy command
+// Handle /buy command to start the payment process
 bot.onText(/\/buy/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "You can buy more pats. How many pats do you want to buy?");
-  // More options like inline keyboard or specific amounts can be added here
+
+  // Define the price (in Telegram Stars or XTR)
+  const prices = [{ label: "10 Pets", amount: 100 }];  // Amount in smallest unit of XTR
+
+  // Send invoice to the user
+  bot.sendInvoice(chatId, "Buy More Pets", "Get 10 more pets for 1 XTR", "unique-payload", "", "XTR", prices).catch((error) => {
+    console.error('Error sending invoice:', error);  // Log errors for debugging
+  });
 });
 
-// /pay command
 bot.onText(/\/pay/, (msg) => {
+  console.log('Pay command received');
   const chatId = msg.chat.id;
-  const invoice = {
-    chat_id: chatId,
-    title: "Purchase Pats",
-    description: "Buy more pats to continue patting cats!",
-    payload: "unique-payload", // Unique payload for tracking purchases
-    provider_token: process.env.PAYMENT_PROVIDER_TOKEN, // Heroku environment variable for payment
-    currency: "USD", // or your desired currency
-    prices: [{ label: "100 Pats", amount: 100 * 100 }], // Example pricing, 100 Pats = $1.00
-    start_parameter: "buy-pats",
-    photo_url: "https://example.com/cat.jpg", // Optional, add a nice image
-  };
-  
-  bot.sendInvoice(chatId, invoice.title, invoice.description, invoice.payload, invoice.provider_token, invoice.start_parameter, invoice.currency, invoice.prices, {
-    photo_url: invoice.photo_url,
-  });
-  
-  // Handling the payment
-  bot.on('pre_checkout_query', (query) => {
-    bot.answerPreCheckoutQuery(query.id, true); // Approving payment
-  });
+  const prices = [{ label: "10 Pets", amount: 100 }];
 
-  bot.on('successful_payment', (payment) => {
-    bot.sendMessage(chatId, 'Payment successful! Enjoy your pats!');
-    console.log('Payment successful: ', payment);
+  bot.sendInvoice(
+    chatId,
+    "Buy More Pets",
+    "Get 10 more pets for 1 XTR",
+    "unique-payload",
+    "", // Provider token for Telegram Stars
+    "XTR", // Currency
+    prices
+  ).catch((error) => {
+    console.error('Error sending invoice:', error);
   });
 });
 
-// Generic webhook for processing Telegram commands
-app.post('/webhook', (req, res) => {
-  const message = req.body;
-  console.log('Incoming message: ', message);
-  res.status(200).send('Message received');
+// Handle pre-checkout query (sent before the payment is finalized)
+bot.on('pre_checkout_query', (query) => {
+  bot.answerPreCheckoutQuery(query.id, true).catch((error) => {
+    console.error("Error answering pre_checkout_query:", error);
+  });
 });
 
-// Start the server
+// Store successful payments in memory (for testing purposes, consider using a real database in production)
+const paidUsers = new Map();
+
+// Handle successful payments
+bot.on('message', (msg) => {
+  if (msg.successful_payment) {
+    paidUsers.set(msg.from.id, msg.successful_payment.telegram_payment_charge_id);
+    console.log('Payment successful:', msg.successful_payment);
+    bot.sendMessage(msg.chat.id, 'Payment successful! Thank you for your purchase of 10 pets.');
+  }
+});
+
+// Check payment status
+bot.onText(/\/status/, (msg) => {
+  const message = paidUsers.has(msg.from.id)
+    ? "You have paid"
+    : "You have not paid yet";
+  bot.sendMessage(msg.chat.id, message);
+});
+
+// Refund logic (if applicable)
+bot.onText(/\/refund/, (msg) => {
+  const userId = msg.from.id;
+  if (!paidUsers.has(userId)) {
+    return bot.sendMessage(msg.chat.id, "You have not paid yet, there is nothing to refund.");
+  }
+
+  bot.api
+    .refundStarPayment(userId, paidUsers.get(userId))  // Using Telegram Star's refund API
+    .then(() => {
+      paidUsers.delete(userId);
+      bot.sendMessage(msg.chat.id, "Refund successful.");
+    })
+    .catch((error) => {
+      console.error("Refund failed:", error);
+      bot.sendMessage(msg.chat.id, "Refund failed.");
+    });
+});
+
+
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
