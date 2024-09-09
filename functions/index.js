@@ -6,6 +6,7 @@ const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 const app = express();
 
+app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
