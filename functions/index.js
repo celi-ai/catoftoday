@@ -97,7 +97,7 @@ bot.onText(/\/refund/, (msg) => {
     });
 });
 
-// exports.app = functions.https.onRequest(app);
+// 
 /*
 // Start the Express server
 const PORT = process.env.PORT || 3000;
