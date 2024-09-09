@@ -7,10 +7,60 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(to bottom, #1a202c, #2d3748);
+    background: linear-gradient(to bottom, #FFDFD3, #F7E4F5); /* Softer pastel gradient */
     padding-bottom: 70px;
-    color: white;
+    color: #4B4B4B; /* Dark gray for better readability */
 }
+
+
+#catContainer {
+    width: 80%;
+    max-width: 280px;
+    margin: 0 auto;
+    background-size: cover;
+    background-position: center;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#patMe {
+    background-color: #F7A4A8; /* Light coral */
+    color: white;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+#patMe:hover {
+    background-color: #F28C8C; /* Slightly darker coral on hover */
+    transform: translateX(-50%) scale(1.05);
+}
+
+#patMe:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
+.global-pat-count, .available-pats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.3); /* Lighter background */
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #555; /* Softer text color */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 
 h1, h2, h3 {
     font-weight: 700; /* Uses the bold weight for headings */
@@ -502,39 +552,40 @@ p, li, .text {
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: rgba(40, 44, 52, 0.9);
+    background-color: rgba(255, 255, 255, 0.8); /* Soft white background */
     backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    padding-top: 8px;
+    padding-bottom: 10px;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    height: 60px;
+    height: 70px;
     z-index: 20;
     font-family: 'Quicksand', sans-serif;
 }
 
 .tab-button {
-    color: white;
+    color: #F7A4A8; /* Soft coral for icons and text */
     font-weight: bold;
-    font-size: 14px;
-    padding: 8px 10px; /* More padding for better touch targets */
+    font-size: 12px;
+    padding: 8px;
     text-align: center;
 }
 
 .tab-button span:first-child {
     font-size: 20px;
-    margin-bottom: 4px; /* Added margin to give space between icon and text */
+    margin-bottom: 4px;
 }
 
 .tab-button:hover {
-    color: #63b3ed; /* Changes text color on hover */
-    transform: translateY(-2px); /* Slight lift effect on hover */
-    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition */
+    color: #A8D5BA; /* Mint green for hover */
+    transform: translateY(-2px);
 }
 
 .tab-button.active {
-    color: #63b3ed;
-    border-bottom: 2px solid #63b3ed;
+    color: #A8D5BA; /* Soft mint green for active state */
+    border-bottom: 2px solid #A8D5BA;
 }
+
 
