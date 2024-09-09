@@ -5,6 +5,11 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com
 
 import { initializeBuyPats } from './buyPats.js';
 
+
+
+
+
+
 const firebaseConfig = {
     apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
     authDomain: "catoftoday-e2451.firebaseapp.com",
@@ -309,7 +314,6 @@ catContainer.addEventListener('click', async (event) => {
     }
 });
 
-
 // Cat image functionality
 const catImages = ['cat1.jpeg', 'cat2.jpeg', 'cat3.jpeg'];
 function getCatOfTheDay() {
@@ -372,6 +376,7 @@ async function initialize() {
         'Updating daily login',
         'Updating user data',
         'Updating cat image',
+        'Loading background image',
         'Updating leaderboard',
         'Setting up navigation',
         'Initializing buy pats',
@@ -383,7 +388,31 @@ async function initialize() {
         console.log(step + "...");
         progress += 100 / steps.length;
         progressBar.style.width = `${progress}%`;
-        await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay for smoother animation
+        await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+    async function loadBackgroundImage() {
+        const backgroundImageFilename = 'background1.png';
+        const backgroundImageRef = ref(storage, 'background/background1/' + backgroundImageFilename);
+
+        function setBackgroundImage(url) {
+            document.documentElement.style.setProperty('--background-image-url', `url(${url})`);
+        }
+
+        const cachedImageUrl = localStorage.getItem('backgroundImageUrl');
+        if (cachedImageUrl) {
+            setBackgroundImage(cachedImageUrl);
+        } else {
+            setBackgroundImage('path/to/placeholder.jpg');
+        }
+
+        try {
+            const url = await getDownloadURL(backgroundImageRef);
+            setBackgroundImage(url);
+            localStorage.setItem('backgroundImageUrl', url);
+        } catch (error) {
+            console.error("Error loading background image:", error);
+        }
     }
 
     try {
@@ -406,15 +435,18 @@ async function initialize() {
         await updateCatImage();
         
         await updateProgress(steps[4]);
-        updateLeaderboard();
+        await loadBackgroundImage();
         
         await updateProgress(steps[5]);
+        updateLeaderboard();
+        
+        await updateProgress(steps[6]);
         setupTabNavigation();
 
-        await updateProgress(steps[6]);
+        await updateProgress(steps[7]);
         initializeBuyPats(tg, userId);
 
-        await updateProgress(steps[7]);
+        await updateProgress(steps[8]);
         particlesJS('particles-js', {
             particles: {
                 number: { value: 80, density: { enable: true, value_area: 800 } },
@@ -436,7 +468,7 @@ async function initialize() {
             setTimeout(() => {
                 loadingOverlay.classList.add('hidden');
                 console.log("Loading overlay hidden.");
-            }, 500); // Wait for fade-out transition to complete
+            }, 500);
         } else {
             console.error("Loading overlay element not found!");
         }
