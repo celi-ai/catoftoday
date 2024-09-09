@@ -14,23 +14,40 @@
       flex-direction: column;
     }
 
-    /* Set the background image */
+    /* Set the background image with opacity */
     body {
-      background-image: url('https://sleghazbpzgynnzriozz.supabase.co/storage/v1/object/public/images/backgrounds/background3.png');
+      background-image: url('https://sleghazbpzgynnzriozz.supabase.co/storage/v1/object/sign/images/backgrounds/background1.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       display: flex;
       justify-content: center;
       align-items: center;
-    }
-
-    /* Make sure the content on top of the background remains visible */
-    .content {
-      text-align: center;
+      position: relative;
       z-index: 1;
     }
 
+    /* Make background slightly opaque */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* Add opacity here */
+      z-index: 0;
+    }
+
+    /* Set the cat image */
+    #catImage {
+      max-width: 400px;
+      max-height: 400px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Button */
     #patButton {
       padding: 10px 20px;
       font-size: 18px;
@@ -38,6 +55,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      z-index: 3;
     }
 
     /* Navigation Bar */
@@ -49,7 +67,7 @@
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
-      z-index: 2;
+      z-index: 3;
     }
 
     #navBar a {
@@ -67,8 +85,10 @@
   </style>
 </head>
 <body>
-  <!-- Main content -->
+  <!-- Cat Image -->
   <div class="content">
+    <img id="catImage" src="https://sleghazbpzgynnzriozz.supabase.co/storage/v1/object/public/images/images/catnew1.png" alt="Cat Image">
+    <br>
     <button id="patButton">Pat me!</button>
   </div>
 
