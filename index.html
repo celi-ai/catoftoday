@@ -3,85 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat Patter</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.4.0/dist/themes/light.css">
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.4.0/dist/shoelace.js"></script>
+    <title>Cat of Today</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div id="app">
-        <sl-drawer label="Loading" id="loadingOverlay" class="loading-overlay" open>
-          <div class="loading-content">
-            <div class="loading-text">Warming up the cat...</div>
-            <sl-progress-bar id="loadingProgress"></sl-progress-bar>
-          </div>
-        </sl-drawer>
-
-        <div id="content" class="flex-grow overflow-y-auto">
-            <div id="homeTab" class="tab-content">
-                <h1 class="title">Cat of Today</h1>
-
-                <div class="flex justify-center space-x-4 mb-6">
-                    <sl-card class="global-pat-count">
-                        Global Pat Count: <span id="counter">378</span>
-                    </sl-card>
-                    <sl-card class="available-pats">
-                        Available Pats: <span id="availablePats">224</span>
-                    </sl-card>
+<body class="main-content">
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-text">Warming up the cat...</div>
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+            <div class="cat-tail"></div>
+        </div>
+    </div>
+    <div id="content" class="flex-grow overflow-y-auto">
+        <!-- Home Tab -->
+        <div id="homeTab" class="tab-content">
+            <h1 class="title">Cat of Today</h1>
+            <div class="flex justify-center space-x-4 mb-6">
+                <div class="global-pat-count">
+                    <span>Global Pat Count:</span>
+                    <span id="counter">378</span>
                 </div>
-
-                <sl-card id="catContainer" class="mb-6 relative">
-                    <img src="cat-image.png" alt="Cat of Today" class="w-full rounded-lg">
-                    <sl-button id="patMe" variant="primary">👋 Pat me!</sl-button>
-                </sl-card>
-
-                <sl-card id="dailyFact">
-                    <sl-icon name="book" slot="header"></sl-icon>
-                    Did you know? Cats sleep for about 70% of their lives.
-                </sl-card>
-            </div>
-
-            <div id="patsTab" class="tab-content hidden">
-                <h2>Get More Pats</h2>
-                <sl-button-group>
-                    <sl-button>Buy Pats</sl-button>
-                    <sl-button>Share on Twitter</sl-button>
-                    <sl-button>Invite a Friend</sl-button>
-                </sl-button-group>
-            </div>
-
-            <div id="topTab" class="tab-content hidden">
-                <h1 class="text-3xl font-bold mb-6 text-center text-white pt-6">Top Tappers</h1>
-                <div class="max-w-md mx-auto">
-                    <sl-card id="currentUserRank" class="mb-4"></sl-card>
-                    <div id="totalHolders" class="text-blue-400 text-lg mb-4 text-center"></div>
-                    <sl-card id="leaderboard"></sl-card>
+                <div class="available-pats">
+                    <span>Available Pats:</span>
+                    <span id="availablePats">224</span>
                 </div>
             </div>
-
-            <div id="userTab" class="tab-content hidden">
-                <sl-card id="userProfile">
-                    <h3 slot="header">Your Profile</h3>
-                    <div>Welcome, <span id="userName"></span>!</div>
-                    <div>Total Pats: <span id="userPatCount">0</span></div>
-                    <div>Available Pats: <span id="availablePats">0</span></div>
-                    <div>Streak: <span id="userStreak">0</span> days</div>
-                </sl-card>
+            <div id="catContainer" class="mb-6 relative">
+                <img src="cat-image.png" alt="Cat of Today" class="w-full rounded-lg">
+                <button id="patMe">
+                    <span class="mr-1">👋</span> Pat me!
+                </button>
+            </div>
+            <div id="dailyFact">
+                <span class="block text-yellow-400 mb-2">📚 Did you know?</span>
+                Cats sleep for about 70% of their lives.
             </div>
         </div>
 
-        <sl-tab-group id="tabNavigation" placement="bottom">
-            <sl-tab slot="nav" panel="home">🏠 Home</sl-tab>
-            <sl-tab slot="nav" panel="pats">🐾 Pats</sl-tab>
-            <sl-tab slot="nav" panel="top">🏆 Top</sl-tab>
-            <sl-tab slot="nav" panel="user">👤 User</sl-tab>
-            <sl-tab-panel name="home">Home content</sl-tab-panel>
-            <sl-tab-panel name="pats">Pats content</sl-tab-panel>
-            <sl-tab-panel name="top">Top content</sl-tab-panel>
-            <sl-tab-panel name="user">User content</sl-tab-panel>
-        </sl-tab-group>
+        <!-- Pats Tab -->
+        <div id="patsTab" class="tab-content hidden">
+            <h2>Get More Pats</h2>
+            <button id="buyPatsBtn" class="bg-blue-500 text-white p-2 rounded">Buy Pats</button>
+            <button id="shareTwitterBtn" class="bg-blue-400 text-white p-2 rounded mt-2">Share on Twitter</button>
+            <button id="inviteFriendBtn" class="bg-green-500 text-white p-2 rounded mt-2">Invite a Friend</button>
+        </div>
+
+        <!-- Top Tab -->
+        <div id="topTab" class="tab-content hidden">
+            <h1 class="text-3xl font-bold mb-6 text-center text-white pt-6">Top Tappers</h1>
+            
+            <div class="max-w-md mx-auto">
+                <div id="currentUserRank" class="mb-4">
+                    <!-- Current user ranking will be inserted here -->
+                </div>
+                
+                <div id="totalHolders" class="text-blue-400 text-lg mb-4 text-center">
+                    <!-- Total holders count will be inserted here -->
+                </div>
+                
+                <div id="leaderboard">
+                    <ul id="leaderboardList" class="space-y-2">
+                        <!-- Leaderboard entries will be inserted here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Tab -->
+        <div id="userTab" class="tab-content hidden">
+            <div id="userProfile">
+                <h3>Your Profile</h3>
+                <p>Welcome, <span id="userName"></span>!</p>
+                <p>Total Pats: <span id="userPatCount">0</span></p>
+                <p>Available Pats: <span id="availablePats">0</span></p>
+                <p>Streak: <span id="userStreak">0</span> days</p>
+            </div>
+        </div>
     </div>
 
+    <!-- Tab Navigation -->
+    <div id="tabNavigation" class="tab-navigation">
+        <button class="tab-button" data-tab="homeTab">
+            <span class="text-2xl mb-1">🏠</span>
+            <span>Home</span>
+        </button>
+        <button class="tab-button" data-tab="patsTab">
+            <span class="text-2xl mb-1">🐾</span>
+            <span>Pats</span>
+        </button>
+        <button class="tab-button" data-tab="topTab">
+            <span class="text-2xl mb-1">🏆</span>
+            <span>Top</span>
+        </button>
+        <button class="tab-button" data-tab="userTab">
+            <span class="text-2xl mb-1">👤</span>
+            <span>User</span> 
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script type="module" src="app.js"></script>
+    <script>
+        console.log("HTML file loaded and executed."); 
+    </script>
 </body>
 </html>

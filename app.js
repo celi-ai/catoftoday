@@ -258,10 +258,7 @@ function createParticles(x, y) {
     }
 }
 
-// Update catContainer selector for Shoelace component
-const catContainer = document.querySelector('#catContainer');
-
-// Keep the existing click event listener on catContainer
+// Increment counter
 catContainer.addEventListener('click', async (event) => {
     if (user) {
         try {
@@ -302,31 +299,15 @@ catContainer.addEventListener('click', async (event) => {
                 animateValue(availablePatsElement, parseInt(availablePatsElement.textContent), parseInt(availablePatsElement.textContent) - 1, 300);
                 animateValue(counterElement, parseInt(counterElement.textContent), parseInt(counterElement.textContent) + 1, 300);
             } else {
-                showAlert("You're out of pats! Come back tomorrow for more pats.");
+                alert("You're out of pats! Come back tomorrow for more pats.");
             }
         } catch (error) {
             console.error("Error incrementing counters:", error);
         }
     } else {
-        showAlert("Please open this app in Telegram to pat the cat!");
+        alert("Please open this app in Telegram to pat the cat!");
     }
 });
-
-// Add a function to show alerts using Shoelace
-function showAlert(message) {
-    const alert = Object.assign(document.createElement('sl-alert'), {
-        variant: 'primary',
-        closable: true,
-        duration: 3000,
-        innerHTML: `
-            <sl-icon slot="icon" name="info-circle"></sl-icon>
-            ${message}
-        `
-    });
-
-    document.body.append(alert);
-    return alert.toast();
-}
 
 
 // Cat image functionality
@@ -385,9 +366,8 @@ function updateCatFact() {
 async function initialize() {
     console.log("Starting initialization...");
     const loadingOverlay = document.getElementById('loadingOverlay');
-    const progressBar = loadingOverlay.querySelector('#loadingProgress');
-    loadingOverlay.show();
-
+    const progressBar = document.querySelector('.progress-bar');
+    const catTail = document.querySelector('.cat-tail');
     const steps = [
         'Checking and resetting',
         'Updating daily login',
@@ -403,67 +383,79 @@ async function initialize() {
     async function updateProgress(step) {
         console.log(step + "...");
         progress += 100 / steps.length;
-        progressBar.value = progress;
-        await new Promise(resolve => setTimeout(resolve, 300));
+        progressBar.style.width = `${progress}%`;
+        catTail.style.backgroundPosition = `-${progress}px 0`; // Animate tail
+        await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay for smoother animation
     }
 
     try {
-        for (let i = 0; i < steps.length; i++) {
-            await updateProgress(steps[i]);
-            switch (i) {
-                case 0: await checkAndResetIfNeeded(); break;
-                case 1: await checkAndUpdateDailyLogin(); break;
-                case 2: await runTransaction(userRef, (userData) => {
-                    if (userData) {
-                        userData.username = userUsername;
-                        return userData;
-                    }
-                    return null;
-                }); break;
-                case 3: await updateCatImage(); break;
-                case 4: updateLeaderboard(); break;
-                case 5: setupTabNavigation(); break;
-                case 6: initializeBuyPats(tg, userId); break;
-                case 7: 
-                    if (typeof particlesJS !== 'undefined') {
-                        particlesJS('particles-js', {
-                            particles: {
-                                number: { value: 80, density: { enable: true, value_area: 800 } },
-                                color: { value: "#ffffff" },
-                                shape: { type: "circle" },
-                                opacity: { value: 0.5, random: true },
-                                size: { value: 3, random: true },
-                                move: { enable: true, speed: 1, direction: "none", random: true, out_mode: "out" }
-                            }
-                        });
-                    } else {
-                        console.warn("particlesJS is not defined. Skipping particle initialization.");
-                    }
-                    break;
+        await updateProgress(steps[0]);
+        await checkAndResetIfNeeded();
+        
+        await updateProgress(steps[1]);
+        await checkAndUpdateDailyLogin();
+        
+        await updateProgress(steps[2]);
+        await runTransaction(userRef, (userData) => {
+            if (userData) {
+                userData.username = userUsername;
+                return userData;
             }
-        }
+            return null;
+        });
+        
+        await updateProgress(steps[3]);
+        await updateCatImage();
+        
+        await updateProgress(steps[4]);
+        updateLeaderboard();
+        
+        await updateProgress(steps[5]);
+        setupTabNavigation();
+
+        await updateProgress(steps[6]);
+        initializeBuyPats(tg, userId);
+
+        await updateProgress(steps[7]);
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#ffffff" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                move: { enable: true, speed: 1, direction: "none", random: true, out_mode: "out" }
+            }
+        });
         
         console.log("Initialization complete!");
     } catch (error) {
         console.error("Error during initialization:", error);
     } finally {
-        console.log("Closing loading overlay...");
-        loadingOverlay.hide();
+        console.log("Fading out loading overlay...");
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('fade-out');
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                console.log("Loading overlay hidden.");
+            }, 500); // Wait for fade-out transition to complete
+        } else {
+            console.error("Loading overlay element not found!");
+        }
     }
 }
 
 function setupTabNavigation() {
-    const tabGroup = document.querySelector('sl-tab-group');
-    const tabPanels = document.querySelectorAll('sl-tab-panel');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-    tabGroup.addEventListener('sl-tab-show', (event) => {
-        const selectedTab = event.detail.name;
-        tabPanels.forEach(panel => {
-            if (panel.name === selectedTab) {
-                panel.hidden = false;
-            } else {
-                panel.hidden = true;
-            }
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
         });
     });
 }
