@@ -7,8 +7,9 @@
     "deploy": "firebase deploy"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.45.3",
     "express": "^4.19.2",
-    "node-telegram-bot-api": "^0.66.0"
+    "node-telegram-bot-api": "^0.63.0"
   },
   "devDependencies": {
     "firebase-tools": "^13.16.0"
