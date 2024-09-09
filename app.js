@@ -385,7 +385,9 @@ function updateCatFact() {
 async function initialize() {
     console.log("Starting initialization...");
     const loadingOverlay = document.getElementById('loadingOverlay');
-    const progressBar = loadingOverlay.querySelector('sl-progress-bar');
+    const progressBar = loadingOverlay.querySelector('#loadingProgress');
+    loadingOverlay.show();
+
     const steps = [
         'Checking and resetting',
         'Updating daily login',
@@ -402,7 +404,7 @@ async function initialize() {
         console.log(step + "...");
         progress += 100 / steps.length;
         progressBar.value = progress;
-        await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay for smoother animation
+        await new Promise(resolve => setTimeout(resolve, 300));
     }
 
     try {
@@ -422,16 +424,22 @@ async function initialize() {
                 case 4: updateLeaderboard(); break;
                 case 5: setupTabNavigation(); break;
                 case 6: initializeBuyPats(tg, userId); break;
-                case 7: particlesJS('particles-js', {
-                    particles: {
-                        number: { value: 80, density: { enable: true, value_area: 800 } },
-                        color: { value: "#ffffff" },
-                        shape: { type: "circle" },
-                        opacity: { value: 0.5, random: true },
-                        size: { value: 3, random: true },
-                        move: { enable: true, speed: 1, direction: "none", random: true, out_mode: "out" }
+                case 7: 
+                    if (typeof particlesJS !== 'undefined') {
+                        particlesJS('particles-js', {
+                            particles: {
+                                number: { value: 80, density: { enable: true, value_area: 800 } },
+                                color: { value: "#ffffff" },
+                                shape: { type: "circle" },
+                                opacity: { value: 0.5, random: true },
+                                size: { value: 3, random: true },
+                                move: { enable: true, speed: 1, direction: "none", random: true, out_mode: "out" }
+                            }
+                        });
+                    } else {
+                        console.warn("particlesJS is not defined. Skipping particle initialization.");
                     }
-                }); break;
+                    break;
             }
         }
         
@@ -440,17 +448,7 @@ async function initialize() {
         console.error("Error during initialization:", error);
     } finally {
         console.log("Closing loading overlay...");
-        if (loadingOverlay) {
-            // Use Shoelace's hide method instead of classList
-            loadingOverlay.hide();
-            // Remove the element from the DOM after the transition
-            loadingOverlay.addEventListener('sl-after-hide', () => {
-                loadingOverlay.remove();
-                console.log("Loading overlay removed from DOM.");
-            }, { once: true });
-        } else {
-            console.error("Loading overlay element not found!");
-        }
+        loadingOverlay.hide();
     }
 }
 

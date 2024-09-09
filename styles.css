@@ -464,22 +464,17 @@ sl-tab::part(base):hover {
     padding-right: 1rem;
 }
 
-.loading-overlay::part(base) {
-  --size: 100vw;
-  --sl-panel-background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
+#loadingOverlay::part(base) {
+  --width: 100%;
+  --height: 100%;
 }
 
-.loading-overlay::part(body) {
+.loading-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-}
-
-.loading-content {
-  text-align: center;
 }
 
 .loading-text {
@@ -498,6 +493,12 @@ sl-progress-bar {
   --track-color: rgba(255, 255, 255, 0.2);
   --indicator-color: var(--sl-color-primary-600);
   width: 200px;
+  margin-top: 1rem;
+}
+
+#loadingProgress {
+  width: 80%;
+  max-width: 300px;
   margin-top: 1rem;
 }
 
