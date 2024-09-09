@@ -15,8 +15,6 @@ import { initializeBuyPats } from './buyPats.js';
 */
 
 
-
-
 const firebaseConfig = {
     apiKey: "AIzaSyCAZJHR6oxJnefsiLGbutLK10NK4JGLiko",
     authDomain: "catoftoday-e2451.firebaseapp.com",
