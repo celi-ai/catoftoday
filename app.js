@@ -258,7 +258,10 @@ function createParticles(x, y) {
     }
 }
 
-// Increment counter
+// Update catContainer selector for Shoelace component
+const catContainer = document.querySelector('#catContainer');
+
+// Keep the existing click event listener on catContainer
 catContainer.addEventListener('click', async (event) => {
     if (user) {
         try {
@@ -299,15 +302,31 @@ catContainer.addEventListener('click', async (event) => {
                 animateValue(availablePatsElement, parseInt(availablePatsElement.textContent), parseInt(availablePatsElement.textContent) - 1, 300);
                 animateValue(counterElement, parseInt(counterElement.textContent), parseInt(counterElement.textContent) + 1, 300);
             } else {
-                alert("You're out of pats! Come back tomorrow for more pats.");
+                showAlert("You're out of pats! Come back tomorrow for more pats.");
             }
         } catch (error) {
             console.error("Error incrementing counters:", error);
         }
     } else {
-        alert("Please open this app in Telegram to pat the cat!");
+        showAlert("Please open this app in Telegram to pat the cat!");
     }
 });
+
+// Add a function to show alerts using Shoelace
+function showAlert(message) {
+    const alert = Object.assign(document.createElement('sl-alert'), {
+        variant: 'primary',
+        closable: true,
+        duration: 3000,
+        innerHTML: `
+            <sl-icon slot="icon" name="info-circle"></sl-icon>
+            ${message}
+        `
+    });
+
+    document.body.append(alert);
+    return alert.toast();
+}
 
 
 // Cat image functionality
@@ -366,8 +385,7 @@ function updateCatFact() {
 async function initialize() {
     console.log("Starting initialization...");
     const loadingOverlay = document.getElementById('loadingOverlay');
-    const progressBar = document.querySelector('.progress-bar');
-    const catTail = document.querySelector('.cat-tail');
+    const progressBar = loadingOverlay.querySelector('sl-progress-bar');
     const steps = [
         'Checking and resetting',
         'Updating daily login',
@@ -384,7 +402,6 @@ async function initialize() {
         console.log(step + "...");
         progress += 100 / steps.length;
         progressBar.style.width = `${progress}%`;
-        catTail.style.backgroundPosition = `-${progress}px 0`; // Animate tail
         await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay for smoother animation
     }
 
@@ -446,16 +463,17 @@ async function initialize() {
 }
 
 function setupTabNavigation() {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
+    const tabGroup = document.querySelector('sl-tab-group');
+    const tabPanels = document.querySelectorAll('sl-tab-panel');
 
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const tabId = button.getAttribute('data-tab');
-            tabContents.forEach(content => {
-                content.classList.add('hidden');
-            });
-            document.getElementById(tabId).classList.remove('hidden');
+    tabGroup.addEventListener('sl-tab-show', (event) => {
+        const selectedTab = event.detail.name;
+        tabPanels.forEach(panel => {
+            if (panel.name === selectedTab) {
+                panel.hidden = false;
+            } else {
+                panel.hidden = true;
+            }
         });
     });
 }
