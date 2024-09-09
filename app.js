@@ -401,61 +401,53 @@ async function initialize() {
     async function updateProgress(step) {
         console.log(step + "...");
         progress += 100 / steps.length;
-        progressBar.style.width = `${progress}%`;
+        progressBar.value = progress;
         await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay for smoother animation
     }
 
     try {
-        await updateProgress(steps[0]);
-        await checkAndResetIfNeeded();
-        
-        await updateProgress(steps[1]);
-        await checkAndUpdateDailyLogin();
-        
-        await updateProgress(steps[2]);
-        await runTransaction(userRef, (userData) => {
-            if (userData) {
-                userData.username = userUsername;
-                return userData;
+        for (let i = 0; i < steps.length; i++) {
+            await updateProgress(steps[i]);
+            switch (i) {
+                case 0: await checkAndResetIfNeeded(); break;
+                case 1: await checkAndUpdateDailyLogin(); break;
+                case 2: await runTransaction(userRef, (userData) => {
+                    if (userData) {
+                        userData.username = userUsername;
+                        return userData;
+                    }
+                    return null;
+                }); break;
+                case 3: await updateCatImage(); break;
+                case 4: updateLeaderboard(); break;
+                case 5: setupTabNavigation(); break;
+                case 6: initializeBuyPats(tg, userId); break;
+                case 7: particlesJS('particles-js', {
+                    particles: {
+                        number: { value: 80, density: { enable: true, value_area: 800 } },
+                        color: { value: "#ffffff" },
+                        shape: { type: "circle" },
+                        opacity: { value: 0.5, random: true },
+                        size: { value: 3, random: true },
+                        move: { enable: true, speed: 1, direction: "none", random: true, out_mode: "out" }
+                    }
+                }); break;
             }
-            return null;
-        });
-        
-        await updateProgress(steps[3]);
-        await updateCatImage();
-        
-        await updateProgress(steps[4]);
-        updateLeaderboard();
-        
-        await updateProgress(steps[5]);
-        setupTabNavigation();
-
-        await updateProgress(steps[6]);
-        initializeBuyPats(tg, userId);
-
-        await updateProgress(steps[7]);
-        particlesJS('particles-js', {
-            particles: {
-                number: { value: 80, density: { enable: true, value_area: 800 } },
-                color: { value: "#ffffff" },
-                shape: { type: "circle" },
-                opacity: { value: 0.5, random: true },
-                size: { value: 3, random: true },
-                move: { enable: true, speed: 1, direction: "none", random: true, out_mode: "out" }
-            }
-        });
+        }
         
         console.log("Initialization complete!");
     } catch (error) {
         console.error("Error during initialization:", error);
     } finally {
-        console.log("Fading out loading overlay...");
+        console.log("Closing loading overlay...");
         if (loadingOverlay) {
-            loadingOverlay.classList.add('fade-out');
-            setTimeout(() => {
-                loadingOverlay.classList.add('hidden');
-                console.log("Loading overlay hidden.");
-            }, 500); // Wait for fade-out transition to complete
+            // Use Shoelace's hide method instead of classList
+            loadingOverlay.hide();
+            // Remove the element from the DOM after the transition
+            loadingOverlay.addEventListener('sl-after-hide', () => {
+                loadingOverlay.remove();
+                console.log("Loading overlay removed from DOM.");
+            }, { once: true });
         } else {
             console.error("Loading overlay element not found!");
         }

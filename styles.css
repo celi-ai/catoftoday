@@ -431,45 +431,10 @@ sl-tab::part(base):hover {
   }
 }
 
-#loadingOverlay::part(base) {
-  background-color: var(--sl-color-neutral-1000);
-}
-
-#loadingOverlay::part(body) {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.loading-text {
-  color: var(--sl-color-neutral-0);
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-}
-
 .cat-fact {
     margin-top: 20px;
     text-align: center;
     font-style: italic;
-}
-
-.loading-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #1a202c;
-}
-
-.loading-text {
-    font-family: 'Quicksand', sans-serif; /* Ensuring consistent font */
-    color: white;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
 }
 
 .progress-container {
@@ -497,6 +462,43 @@ sl-tab::part(base):hover {
     max-width: 28rem;
     padding-left: 1rem;
     padding-right: 1rem;
+}
+
+.loading-overlay::part(base) {
+  --size: 100vw;
+  --sl-panel-background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.loading-overlay::part(body) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-text {
+  color: var(--sl-color-neutral-0);
+  font-size: 1.2rem;
+  margin: 1rem 0;
+}
+
+sl-spinner {
+  font-size: 3rem;
+  --indicator-color: var(--sl-color-primary-600);
+}
+
+sl-progress-bar {
+  --height: 6px;
+  --track-color: rgba(255, 255, 255, 0.2);
+  --indicator-color: var(--sl-color-primary-600);
+  width: 200px;
+  margin-top: 1rem;
 }
 
 #tabNavigation {
