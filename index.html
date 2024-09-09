@@ -1,62 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cat of Today</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        margin: 0;
-        padding-bottom: 60px; /* Space for the navigation bar */
-        background-color: #f0f0f0;
-      }
-      #patButton {
-        padding: 10px 20px;
-        font-size: 18px;
-        background-color: #ffcc00;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      #navBar {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        background-color: #333;
-        display: flex;
-        justify-content: space-around;
-        padding: 10px 0;
-      }
-      #navBar a {
-        color: white;
-        text-decoration: none;
-        font-size: 16px;
-        padding: 10px;
-      }
-      #navBar a.active {
-        background-color: #ffcc00;
-        color: #333;
-        border-radius: 5px;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="content">
-      <p>
-        <button id="patButton">Pat the Cat!</button>
-      </p>
-      <p id="patCount">You have patted the cat 0 times.</p>
-    </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cat of Today</title>
+  <style>
+    /* Fullscreen background styling */
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
 
-    <div id="navBar">
-      <a href="#" class="active" id="homeLink">Home</a>
-      <a href="#" id="patsLink">Pats</a>
-      <a href="#" id="ranksLink">Ranks</a>
-      <a href="#" id="profileLink">Profile</a>
-    </div>
+    /* Set the background image */
+    body {
+      background-image: url('https://sleghazbpzgynnzriozz.supabase.co/storage/v1/object/sign/images/backgrounds/background1.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJpbWFnZXMvYmFja2dyb3VuZHMvYmFja2dyb3VuZDEucG5nIiwiaWF0IjoxNzI1ODk2ODQ0LCJleHAiOjIwNDEyNTY4NDR9.peCGUUBNs5pqwqbtAeqwH9H5sDQ8v-ViPjc04TM61jU');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-    <script src="app.js"></script>
-  </body>
+    /* Make sure the content on top of the background remains visible */
+    .content {
+      text-align: center;
+      z-index: 1;
+    }
+
+    #patButton {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #ffcc00;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Navigation Bar */
+    #navBar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 2;
+    }
+
+    #navBar a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      padding: 10px;
+    }
+
+    #navBar a.active {
+      background-color: #ffcc00;
+      color: #333;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Main content -->
+  <div class="content">
+    <h1>Welcome to Cat of Today!</h1>
+    <button id="patButton">Pat me!</button>
+  </div>
+
+  <!-- Navigation Bar -->
+  <div id="navBar">
+    <a href="#" class="active">Home</a>
+    <a href="#">Pats</a>
+    <a href="#">Ranks</a>
+    <a href="#">Profile</a>
+  </div>
+</body>
 </html>
