@@ -31,13 +31,14 @@ bot.onText(/\/start/, (msg) => {
 
 // Handle /buy command to start the payment process
 bot.onText(/\/buy/, (msg) => {
+  console.log('Buy command received');
   const chatId = msg.chat.id;
 
   // Define the price (in Telegram Stars or XTR)
-  const prices = [{ label: "10 Pets", amount: 100 }];  // Amount in smallest unit of XTR
+  const prices = [{ label: "100 Pats", amount: 100 }];  // Amount in smallest unit of XTR
 
   // Send invoice to the user
-  bot.sendInvoice(chatId, "Buy More Pets", "Get 10 more pets for 1 XTR", "unique-payload", "", "XTR", prices).catch((error) => {
+  bot.sendInvoice(chatId, "Buy More Pats", "Get 100 more pets for 1 XTR", "unique-payload", "", "XTR", prices).catch((error) => {
     console.error('Error sending invoice:', error);  // Log errors for debugging
   });
 });
@@ -45,12 +46,12 @@ bot.onText(/\/buy/, (msg) => {
 bot.onText(/\/pay/, (msg) => {
   console.log('Pay command received');
   const chatId = msg.chat.id;
-  const prices = [{ label: "10 Pets", amount: 100 }];
+  const prices = [{ label: "100 Pats", amount: 100 }];
 
   bot.sendInvoice(
     chatId,
     "Buy More Pets",
-    "Get 10 more pets for 1 XTR",
+    "Get 100 more pets for 1 XTR",
     "unique-payload",
     "", // Provider token for Telegram Stars
     "XTR", // Currency
