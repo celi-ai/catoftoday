@@ -32,6 +32,7 @@ function animateValue(element, start, end, duration) {
     window.requestAnimationFrame(step);
 }
 
+/*
 function updateCatMood() {
     const moods = ['sleepy', 'content', 'playful', 'excited', 'blissful'];
     catMood = moods[Math.floor(Math.random() * moods.length)];
@@ -39,6 +40,7 @@ function updateCatMood() {
     catImage.style.backgroundColor = `var(--mood-${catMood})`;
     document.getElementById('current-mood').textContent = catMood;
 }
+*/
 
 function showMultiplierAlert() {
     const alert = document.createElement('div');
@@ -71,7 +73,7 @@ document.querySelector('.circular-container').addEventListener('click', function
         showMultiplierAlert();
     }
 
-    updateCatMood();
+    // updateCatMood();
     updateCounters();
 });
 
@@ -130,5 +132,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-updateCounters();
-updateCatMood();
+// updateCounters();
+// updateCatMood();
