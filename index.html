@@ -91,13 +91,15 @@
         .cat-image {
             width: 80%;
             height: 80%;
-            background-image: url('path_to_your_cat_image.png');
+            background-image: url('https://sleghazbpzgynnzriozz.supabase.co/storage/v1/object/public/images/images/u3174781746_Create_a_heartwarming_animation_of_an_adorable_ch_12cdfcfc-e3d0-4899-b942-cd4ddb24e809_3.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             position: relative;
             z-index: 2;
             transition: transform 0.3s ease;
+            border-radius: 100%; /* Makes the container circular */
+            overflow: hidden; /* Ensures anything outside the circle is hidden */
         }
 
         .progress-text {
