@@ -9,7 +9,6 @@ let patCount = 281;
 let progress = 28;
 const totalProgress = 5000;
 let multiplier = 1;
-let catMood = 'content';
 
 function updateCounters() {
     document.getElementById('pat-count').textContent = patCount;
@@ -29,14 +28,6 @@ function animateValue(element, start, end, duration) {
         }
     };
     window.requestAnimationFrame(step);
-}
-
-function updateCatMood() {
-    const moods = ['sleepy', 'content', 'playful', 'excited', 'blissful'];
-    catMood = moods[Math.floor(Math.random() * moods.length)];
-    const catImage = document.querySelector('.cat-image');
-    catImage.style.backgroundColor = `var(--mood-${catMood})`;
-    document.getElementById('current-mood').textContent = catMood;
 }
 
 function showMultiplierAlert() {
@@ -70,7 +61,6 @@ document.querySelector('.circular-container').addEventListener('click', function
         showMultiplierAlert();
     }
 
-    updateCatMood();
     updateCounters();
 });
 
@@ -130,4 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 updateCounters();
-updateCatMood();
+
+
+
+
