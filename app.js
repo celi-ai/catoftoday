@@ -6,17 +6,55 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
-let patCount = 281;
+let patCount = 0;
 let progress = 28;
 const totalProgress = 5000;
 let multiplier = 1;
-let catMood = 'content';
+// let catMood = 'content';
+
+// Function to fetch patCount from Supabase for the current user
+async function fetchPatCount() {
+    const { data, error } = await supabase
+        .from('user_pats')
+        .select('pats_count')
+        .eq('user_id', 'current_user')  // Replace with actual user logic
+        .single();
+
+    if (error) {
+        console.error('Error fetching pat count:', error);
+        return;
+    }
+
+    if (data) {
+        patCount = data.pats_count;
+        updateCounters();
+    }
+}
+
+// Function to update patCount in Supabase
+async function updatePatCount(newCount) {
+    const { data, error } = await supabase
+        .from('user_pats')
+        .upsert({ user_id: 'current_user', pats_count: newCount })  // Replace with actual user logic
+        .single();
+
+    if (error) {
+        console.error('Error updating pat count:', error);
+    }
+}
 
 function updateCounters() {
     document.getElementById('pat-count').textContent = patCount;
     document.getElementById('progress-current').textContent = progress;
     document.getElementById('progress-total').textContent = totalProgress;
     document.getElementById('multiplier').textContent = multiplier;
+}
+
+function updateProfileInfo() {
+    document.getElementById('profile-username').textContent = 'CatLover123';
+    document.getElementById('profile-total-pats').textContent = patCount;
+    document.getElementById('profile-available-pats').textContent = '200';
+    document.getElementById('profile-streak').textContent = '5';
 }
 
 function animateValue(element, start, end, duration) {
@@ -32,13 +70,14 @@ function animateValue(element, start, end, duration) {
     window.requestAnimationFrame(step);
 }
 
+/*
 function updateCatMood() {
     const moods = ['sleepy', 'content', 'playful', 'excited', 'blissful'];
     catMood = moods[Math.floor(Math.random() * moods.length)];
     const catImage = document.querySelector('.cat-image');
     catImage.style.backgroundColor = `var(--mood-${catMood})`;
     document.getElementById('current-mood').textContent = catMood;
-}
+}*/
 
 function showMultiplierAlert() {
     const alert = document.createElement('div');
@@ -59,10 +98,11 @@ function showMultiplierAlert() {
     }, 2000);
 }
 
-document.querySelector('.circular-container').addEventListener('click', function(event) {
+document.querySelector('.circular-container').addEventListener('click', async function(event) {
     patCount += multiplier;
     progress += multiplier;
 
+    // Animate values for smooth UI updates
     animateValue(document.getElementById('pat-count'), patCount - multiplier, patCount, 300);
     animateValue(document.getElementById('progress-current'), progress - multiplier, progress, 300);
 
@@ -71,23 +111,19 @@ document.querySelector('.circular-container').addEventListener('click', function
         showMultiplierAlert();
     }
 
-    updateCatMood();
     updateCounters();
+
+    // Update the patCount in Supabase after each interaction
+    await updatePatCount(patCount);
 });
 
-function updateProfileInfo() {
-    document.getElementById('profile-username').textContent = 'CatLover123';
-    document.getElementById('profile-total-pats').textContent = patCount;
-    document.getElementById('profile-available-pats').textContent = '200';
-    document.getElementById('profile-streak').textContent = '5';
-}
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const navItems = document.querySelectorAll('.nav-item');
     const screens = document.querySelectorAll('.screen');
 
     navItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
             e.preventDefault();
             const targetScreen = this.getAttribute('data-screen');
 
@@ -119,6 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
     claimRewardBtn.addEventListener('click', () => {
         dailyRewardPopup.style.display = 'none';
         patCount += 20;
+        updatePatCount(patCount);  // Update Supabase with new pat count
         updateCounters();
         updateProfileInfo();
     });
@@ -128,7 +165,10 @@ document.addEventListener('DOMContentLoaded', function() {
             dailyRewardPopup.style.display = 'none';
         }
     });
-});
 
-updateCounters();
-updateCatMood();
+    // Fetch initial pat count when the page loads
+    fetchPatCount();
+
+    updateCounters();
+    // updateCatMood();
+});
