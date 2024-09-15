@@ -43,7 +43,7 @@ function updateCounters() {
     document.getElementById('pat-count').textContent = patCount;
     document.getElementById('progress-current').textContent = progress;
     document.getElementById('progress-total').textContent = totalProgress;
-    document.getElementById('multiplier').textContent = multiplier;
+    document.getElementById('multiplier').textContent = `x${multiplier}`;
 }
 
 function updateProfileInfo() {
@@ -104,7 +104,7 @@ document.querySelector('.circular-container').addEventListener('click', async fu
     patCount += multiplier;
     progress += multiplier;
 
-    // Animate the patCount and progress
+    // Animate the patCount and progress in the UI
     animateValue(document.getElementById('pat-count'), patCount - multiplier, patCount, 300);
     animateValue(document.getElementById('progress-current'), progress - multiplier, progress, 300);
 
