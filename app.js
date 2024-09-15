@@ -166,7 +166,7 @@ document.querySelector('.circular-container').addEventListener('click', async fu
 
         // Update global pat count
         await updateGlobalPatCount(multiplier);
-        
+
     } else {
         alert("You're out of pats! Come back tomorrow for more.");
     }
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     updateCounters();
     console.log('Counters updated');
 
-    await fetchGlobalPatCount();
+    await checkAndResetGlobalPats();
 
 
     const navItems = document.querySelectorAll('.nav-item');
@@ -278,40 +278,52 @@ async function testSupabaseConnection() {
 }
 
 async function fetchGlobalPatCount() {
-    const { data, error } = await supabase
-        .from('global_settings')
-        .select('global_pat_count')
+    const today = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+    let { data, error } = await supabase
+        .from('global_pats')
+        .select('*')
+        .eq('date', today)
         .single();
 
     if (error) {
-        console.error('Error fetching global pat count:', error);
-        return;
+        if (error.code === 'PGRST116') {
+            // No record for today, create a new one
+            const { data: newData, error: insertError } = await supabase
+                .from('global_pats')
+                .insert({ current_pats: 0, pat_goal: 5000, date: today })
+                .single();
+
+            if (insertError) {
+                console.error('Error creating new global pat record:', insertError);
+                return;
+            }
+            data = newData;
+        } else {
+            console.error('Error fetching global pat count:', error);
+            return;
+        }
     }
 
-    if (data) {
-        globalPatCount = data.global_pat_count || 0;
-        updateGlobalPatDisplay();
-    } else {
-        console.error('No global settings found');
-    }
+    globalPatCount = data.current_pats;
+    globalPatGoal = data.pat_goal;
+    updateGlobalPatDisplay();
 }
 
 // Add this function to update the global pat count
 async function updateGlobalPatCount(increment) {
-    const { data, error } = await supabase
-        .rpc('increment_global_pat_count', { increment_by: increment });
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await supabase.rpc('increment_global_pat_count', { 
+        increment_by: increment,
+        current_date: today
+    });
 
     if (error) {
         console.error('Error updating global pat count:', error);
         return;
     }
 
-    if (data !== null) {
-        globalPatCount = data;
-        updateGlobalPatDisplay();
-    } else {
-        console.error('Failed to update global pat count');
-    }
+    globalPatCount = data.current_pats;
+    updateGlobalPatDisplay();
 }
 
 
@@ -337,5 +349,33 @@ function updateGlobalPatDisplay() {
     console.log('Progress bar width:', globalPatBarElement ? globalPatBarElement.style.width : 'N/A');
 }
 
+// Call this function when the page loads
+async function checkAndResetGlobalPats() {
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await supabase
+        .from('global_pats')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(1)
+        .single();
+
+    if (error) {
+        console.error('Error checking global pats:', error);
+        return;
+    }
+
+    if (data.date !== today) {
+        // It's a new day, create a new record
+        const { error: insertError } = await supabase
+            .from('global_pats')
+            .insert({ current_pats: 0, pat_goal: 5000, date: today });
+
+        if (insertError) {
+            console.error('Error creating new global pat record:', insertError);
+        }
+    }
+
+    await fetchGlobalPatCount();
+}
 
 
