@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             dailyRewardPopup.style.display = 'none';
         }
     });
-    
+
     await fetchGlobalPatCount();
 
     updateCounters(); 
@@ -303,10 +303,10 @@ async function updateGlobalPatCount(increment) {
 }
 
 
-// Add this function to update the UI
 function updateGlobalPatDisplay() {
     const globalPatCountElement = document.getElementById('global-pats-count');
     const globalPatBarElement = document.getElementById('global-pats-bar');
+    const globalPatGoalElement = document.getElementById('global-pats-goal');
     
     if (globalPatCountElement) {
         globalPatCountElement.textContent = globalPatCount;
@@ -316,6 +316,13 @@ function updateGlobalPatDisplay() {
         const progressPercentage = (globalPatCount / globalPatGoal) * 100;
         globalPatBarElement.style.width = `${Math.min(progressPercentage, 100)}%`;
     }
+
+    if (globalPatGoalElement) {
+        globalPatGoalElement.textContent = globalPatGoal;
+    }
+
+    console.log('Global pat count updated:', globalPatCount);
+    console.log('Progress bar width:', globalPatBarElement ? globalPatBarElement.style.width : 'N/A');
 }
 
 
