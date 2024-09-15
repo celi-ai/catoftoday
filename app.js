@@ -40,10 +40,19 @@ async function updatePatCount(newCount) {
 }
 
 function updateCounters() {
-    document.getElementById('pat-count').textContent = patCount;
-    document.getElementById('progress-current').textContent = progress;
-    document.getElementById('progress-total').textContent = totalProgress;
-    document.getElementById('multiplier').textContent = `x${multiplier}`;
+    const patCounter = document.getElementById('pat-count');
+    const multiplierDisplay = document.getElementById('multiplier');
+    const patsLeftDisplay = document.getElementById('pats-left');
+
+    if (patCounter) {
+        patCounter.textContent = patCount;
+    }
+    if (multiplierDisplay) {
+        multiplierDisplay.textContent = `x${multiplier}`;
+    }
+    if (patsLeftDisplay) {
+        patsLeftDisplay.textContent = patCount;
+    }
 }
 
 function updateProfileInfo() {
@@ -105,13 +114,22 @@ document.querySelector('.circular-container').addEventListener('click', async fu
     progress += multiplier;
 
     // Animate the patCount and progress in the UI
-    animateValue(document.getElementById('pat-count'), patCount - multiplier, patCount, 300);
-    animateValue(document.getElementById('progress-current'), progress - multiplier, progress, 300);
+    const patCounter = document.getElementById('pat-count');
+    const progressCounter = document.getElementById('progress-current');
+    if (patCounter) {
+        patCounter.textContent = patCount;
+    }
+    if (progressCounter) {
+        progressCounter.textContent = progress;
+    }
 
     // Randomly increase multiplier
     if (Math.random() < 0.1) {
         multiplier++;
-        showMultiplierAlert();
+        const multiplierDisplay = document.getElementById('multiplier');
+        if (multiplierDisplay) {
+            multiplierDisplay.textContent = `x${multiplier}`;
+        }
     }
 
     updateCounters();
