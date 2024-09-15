@@ -153,8 +153,6 @@ document.querySelector('.circular-container').addEventListener('click', async fu
             console.error('Error updating pat count:', error);
         }
 
-        // Update global pat count
-        await updateGlobalPatCount(multiplier);
 
         animateValue(document.getElementById('pat-count'), patCount - multiplier, patCount, 300);
         animateValue(document.getElementById('pats-left'), availablePats + 1, availablePats, 300);
@@ -165,6 +163,10 @@ document.querySelector('.circular-container').addEventListener('click', async fu
         }
 
         updateCounters();
+
+        // Update global pat count
+        await updateGlobalPatCount(multiplier);
+        
     } else {
         alert("You're out of pats! Come back tomorrow for more.");
     }
@@ -185,6 +187,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('User initialized');
     updateCounters();
     console.log('Counters updated');
+
+    await fetchGlobalPatCount();
+
 
     const navItems = document.querySelectorAll('.nav-item');
     const screens = document.querySelectorAll('.screen');
@@ -258,8 +263,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     });
 
-    await fetchGlobalPatCount();
-
+    
     updateCounters(); 
 });
 
@@ -284,8 +288,12 @@ async function fetchGlobalPatCount() {
         return;
     }
 
-    globalPatCount = data.global_pat_count;
-    updateGlobalPatDisplay();
+    if (data) {
+        globalPatCount = data.global_pat_count || 0;
+        updateGlobalPatDisplay();
+    } else {
+        console.error('No global settings found');
+    }
 }
 
 // Add this function to update the global pat count
@@ -298,8 +306,12 @@ async function updateGlobalPatCount(increment) {
         return;
     }
 
-    globalPatCount = data;
-    updateGlobalPatDisplay();
+    if (data !== null) {
+        globalPatCount = data;
+        updateGlobalPatDisplay();
+    } else {
+        console.error('Failed to update global pat count');
+    }
 }
 
 
