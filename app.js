@@ -26,6 +26,8 @@ let streak = 0;
 let multiplier = 1;
 let progress = 28;
 const totalProgress = 5000;
+let globalPatCount = 0;
+const globalPatGoal = 5000;
 
 // Function to initialize or update user data in Supabase
 async function initializeUser() {
@@ -151,6 +153,9 @@ document.querySelector('.circular-container').addEventListener('click', async fu
             console.error('Error updating pat count:', error);
         }
 
+        // Update global pat count
+        await updateGlobalPatCount(multiplier);
+
         animateValue(document.getElementById('pat-count'), patCount - multiplier, patCount, 300);
         animateValue(document.getElementById('pats-left'), availablePats + 1, availablePats, 300);
 
@@ -252,6 +257,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             dailyRewardPopup.style.display = 'none';
         }
     });
+    
+    await fetchGlobalPatCount();
 
     updateCounters(); 
 });
@@ -265,5 +272,51 @@ async function testSupabaseConnection() {
         console.log('Supabase connection successful. User count:', data.count);
     }
 }
+
+async function fetchGlobalPatCount() {
+    const { data, error } = await supabase
+        .from('global_settings')
+        .select('global_pat_count')
+        .single();
+
+    if (error) {
+        console.error('Error fetching global pat count:', error);
+        return;
+    }
+
+    globalPatCount = data.global_pat_count;
+    updateGlobalPatDisplay();
+}
+
+// Add this function to update the global pat count
+async function updateGlobalPatCount(increment) {
+    const { data, error } = await supabase
+        .rpc('increment_global_pat_count', { increment_by: increment });
+
+    if (error) {
+        console.error('Error updating global pat count:', error);
+        return;
+    }
+
+    globalPatCount = data;
+    updateGlobalPatDisplay();
+}
+
+
+// Add this function to update the UI
+function updateGlobalPatDisplay() {
+    const globalPatCountElement = document.getElementById('global-pats-count');
+    const globalPatBarElement = document.getElementById('global-pats-bar');
+    
+    if (globalPatCountElement) {
+        globalPatCountElement.textContent = globalPatCount;
+    }
+    
+    if (globalPatBarElement) {
+        const progressPercentage = (globalPatCount / globalPatGoal) * 100;
+        globalPatBarElement.style.width = `${Math.min(progressPercentage, 100)}%`;
+    }
+}
+
 
 
