@@ -1,13 +1,14 @@
+// Import Supabase client
+import { createClient } from '@supabase/supabase-js';
+
 // Replace these with your actual Supabase URL and API Key from the Supabase dashboard
 const SUPABASE_URL = 'https://sleghazbpzgynnzriozz.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsZWdoYXpicHpneW5uenJpb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU4ODc5MDQsImV4cCI6MjA0MTQ2MzkwNH0.ltjHJAEnQBYko4Om6pwQRU5xp6QsQfkYyZwEBKG71xA';
 
-// const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Telegram WebApp initialization
 const tg = window.Telegram.WebApp;
-
-// Ensure the app is ready
 tg.ready();
 
 // Get user data from Telegram
@@ -16,7 +17,28 @@ const userId = user ? user.id.toString() : 'anonymous';
 const userName = user ? user.first_name : 'Anonymous';
 const userUsername = user ? user.username : 'unknown_user';
 
-userNameElement.textContent = userName;
+// Function to initialize or update user data in Supabase
+async function initializeUser() {
+    const { data, error } = await supabase
+        .from('users')
+        .upsert({
+            id: userId,
+            name: userName,
+            username: userUsername,
+            pat_count: 0,
+            available_pats: 10,
+            streak: 0,
+            last_login: new Date().toISOString()
+        }, { onConflict: 'id' });
+
+    if (error) {
+        console.error('Error initializing user:', error);
+    } else {
+        console.log('User initialized:', data);
+    }
+}
+
+//userNameElement.textContent = userName;
 
 
 let patCount = 0;
@@ -132,6 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+document.getElementById('userName').textContent = userName;
 
 updateCounters();
 
