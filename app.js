@@ -1,16 +1,14 @@
+
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://sleghazbpzgynnzriozz.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsZWdoYXpicHpneW5uenJpb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU4ODc5MDQsImV4cCI6MjA0MTQ2MzkwNH0.ltjHJAEnQBYko4Om6pwQRU5xp6QsQfkYyZwEBKG71xA';
-
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInNsZWdoYXpicHpneW5uenJpb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU4ODc5MDQsImV4cCI6MjA0MTQ2MzkwNH0.ltjHJAEnQBYko4Om6pwQRU5xp6QsQfkYyZwEBKG71xA';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 
 let patCount = 0;
 let progress = 28;
 const totalProgress = 5000;
 let multiplier = 1;
-// let catMood = 'content';
 
 // Function to fetch patCount from Supabase for the current user
 async function fetchPatCount() {
@@ -33,10 +31,9 @@ async function fetchPatCount() {
 
 // Function to update patCount in Supabase
 async function updatePatCount(newCount) {
-    const { data, error } = await supabase
+    const { error } = await supabase
         .from('user_pats')
         .upsert({ user_id: 'current_user', pats_count: newCount })  // Replace with actual user logic
-        .single();
 
     if (error) {
         console.error('Error updating pat count:', error);
@@ -56,67 +53,6 @@ function updateProfileInfo() {
     document.getElementById('profile-available-pats').textContent = '200';
     document.getElementById('profile-streak').textContent = '5';
 }
-
-function animateValue(element, start, end, duration) {
-    let startTimestamp = null;
-    const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        element.textContent = Math.floor(progress * (end - start) + start);
-        if (progress < 1) {
-            window.requestAnimationFrame(step);
-        }
-    };
-    window.requestAnimationFrame(step);
-}
-
-/*
-function updateCatMood() {
-    const moods = ['sleepy', 'content', 'playful', 'excited', 'blissful'];
-    catMood = moods[Math.floor(Math.random() * moods.length)];
-    const catImage = document.querySelector('.cat-image');
-    catImage.style.backgroundColor = `var(--mood-${catMood})`;
-    document.getElementById('current-mood').textContent = catMood;
-}*/
-
-function showMultiplierAlert() {
-    const alert = document.createElement('div');
-    alert.textContent = 'Multiplier increased!';
-    alert.style.position = 'fixed';
-    alert.style.top = '20px';
-    alert.style.left = '50%';
-    alert.style.transform = 'translateX(-50%)';
-    alert.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-    alert.style.padding = '10px 20px';
-    alert.style.borderRadius = '20px';
-    alert.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-    alert.style.zIndex = '1000';
-    document.body.appendChild(alert);
-
-    setTimeout(() => {
-        alert.remove();
-    }, 2000);
-}
-
-document.querySelector('.circular-container').addEventListener('click', async function(event) {
-    patCount += multiplier;
-    progress += multiplier;
-
-    // Animate values for smooth UI updates
-    animateValue(document.getElementById('pat-count'), patCount - multiplier, patCount, 300);
-    animateValue(document.getElementById('progress-current'), progress - multiplier, progress, 300);
-
-    if (Math.random() < 0.1) {
-        multiplier++;
-        showMultiplierAlert();
-    }
-
-    updateCounters();
-
-    // Update the patCount in Supabase after each interaction
-    await updatePatCount(patCount);
-});
-
 
 document.addEventListener('DOMContentLoaded', function () {
     const navItems = document.querySelectorAll('.nav-item');
@@ -170,5 +106,26 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchPatCount();
 
     updateCounters();
-    // updateCatMood();
 });
+
+// Pat interaction logic
+document.querySelector('.circular-container').addEventListener('click', async function(event) {
+    patCount += multiplier;
+    progress += multiplier;
+
+    // Animate the patCount and progress
+    animateValue(document.getElementById('pat-count'), patCount - multiplier, patCount, 300);
+    animateValue(document.getElementById('progress-current'), progress - multiplier, progress, 300);
+
+    // Randomly increase multiplier
+    if (Math.random() < 0.1) {
+        multiplier++;
+        showMultiplierAlert();
+    }
+
+    updateCounters();
+
+    // Update the patCount in Supabase after each interaction
+    await updatePatCount(patCount);
+});
+
