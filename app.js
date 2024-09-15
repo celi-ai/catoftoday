@@ -4,13 +4,25 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 // const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Telegram WebApp initialization
+const tg = window.Telegram.WebApp;
+
+// Ensure the app is ready
+tg.ready();
+
+// Get user data from Telegram
+const user = tg.initDataUnsafe.user;
+const userId = user ? user.id.toString() : 'anonymous';
+const userName = user ? user.first_name : 'Anonymous';
+const userUsername = user ? user.username : 'unknown_user';
+
+userNameElement.textContent = userName;
 
 
-let patCount = 281;
+let patCount = 0;
 let progress = 28;
 const totalProgress = 5000;
 let multiplier = 1;
-let catMood = 'content';
 
 function updateCounters() {
     document.getElementById('pat-count').textContent = patCount;
@@ -30,14 +42,6 @@ function animateValue(element, start, end, duration) {
         }
     };
     window.requestAnimationFrame(step);
-}
-
-function updateCatMood() {
-    const moods = ['sleepy', 'content', 'playful', 'excited', 'blissful'];
-    catMood = moods[Math.floor(Math.random() * moods.length)];
-    const catImage = document.querySelector('.cat-image');
-    catImage.style.backgroundColor = `var(--mood-${catMood})`;
-    document.getElementById('current-mood').textContent = catMood;
 }
 
 function showMultiplierAlert() {
@@ -71,7 +75,6 @@ document.querySelector('.circular-container').addEventListener('click', function
         showMultiplierAlert();
     }
 
-    updateCatMood();
     updateCounters();
 });
 
@@ -131,4 +134,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 updateCounters();
-updateCatMood();
+
+
+
