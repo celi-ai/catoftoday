@@ -1,8 +1,7 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://sleghazbpzgynnzriozz.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInNsZWdoYXpicHpneW5uenJpb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU4ODc5MDQsImV4cCI6MjA0MTQ2MzkwNH0.ltjHJAEnQBYko4Om6pwQRU5xp6QsQfkYyZwEBKG71xA';
+const SUPABASE_KEY = 'your_supabase_key';  // Replace with your actual key
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let patCount = 0;
@@ -33,7 +32,7 @@ async function fetchPatCount() {
 async function updatePatCount(newCount) {
     const { error } = await supabase
         .from('user_pats')
-        .upsert({ user_id: 'current_user', pats_count: newCount })  // Replace with actual user logic
+        .upsert({ user_id: 'current_user', pats_count: newCount });  // Replace with actual user logic
 
     if (error) {
         console.error('Error updating pat count:', error);
@@ -63,20 +62,13 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             const targetScreen = this.getAttribute('data-screen');
 
+            // Remove active class from all nav items and screens
             navItems.forEach(navItem => navItem.classList.remove('active'));
+            screens.forEach(screen => screen.classList.remove('active'));
+
+            // Add active class to clicked nav item and corresponding screen
             this.classList.add('active');
-
-            screens.forEach(screen => {
-                if (screen.id === targetScreen) {
-                    screen.classList.add('active');
-                } else {
-                    screen.classList.remove('active');
-                }
-            });
-
-            if (targetScreen === 'profile') {
-                updateProfileInfo();
-            }
+            document.getElementById(targetScreen).classList.add('active');
         });
     });
 
@@ -104,7 +96,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fetch initial pat count when the page loads
     fetchPatCount();
-
     updateCounters();
 });
 
@@ -128,4 +119,3 @@ document.querySelector('.circular-container').addEventListener('click', async fu
     // Update the patCount in Supabase after each interaction
     await updatePatCount(patCount);
 });
-
