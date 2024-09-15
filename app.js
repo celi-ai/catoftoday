@@ -7,6 +7,7 @@ const SUPABASE_URL = 'https://sleghazbpzgynnzriozz.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsZWdoYXpicHpneW5uenJpb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU4ODc5MDQsImV4cCI6MjA0MTQ2MzkwNH0.ltjHJAEnQBYko4Om6pwQRU5xp6QsQfkYyZwEBKG71xA';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+console.log('Supabase client initialized');
 
 // Telegram WebApp initialization
 const tg = window.Telegram.WebApp;
@@ -28,11 +29,15 @@ const totalProgress = 5000;
 
 // Function to initialize or update user data in Supabase
 async function initializeUser() {
+    console.log('Initializing user:', userId);
     let { data: userData, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
         .single();
+
+    console.log('Fetched user data:', userData);
+    console.log('Fetch error:', error);
 
     if (error && error.code !== 'PGRST116') {
         console.error('Error fetching user data:', error);
@@ -62,6 +67,7 @@ async function initializeUser() {
         userData = data;
     }
 
+    console.log('Final user data:', userData);
     // Update UI with user data
     updateUIWithUserData(userData);
 }
@@ -72,6 +78,7 @@ async function initializeUser() {
 
 // Function to update UI elements with user data
 function updateUIWithUserData(userData) {
+    console.log('Updating UI with user data:', userData);
     document.getElementById('userName').textContent = userData.name;
     document.getElementById('pat-count').textContent = userData.pat_count;
     document.getElementById('pats-left').textContent = userData.available_pats;
@@ -165,9 +172,15 @@ function updateProfileInfo() {
     document.getElementById('profile-streak').textContent = streak;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    await initializeUser(); // Wait for user data to be initialized
+document.addEventListener('DOMContentLoaded', async function() {
+    await testSupabaseConnection();
     
+    console.log('DOM content loaded');
+    await initializeUser();
+    console.log('User initialized');
+    updateCounters();
+    console.log('Counters updated');
+
     const navItems = document.querySelectorAll('.nav-item');
     const screens = document.querySelectorAll('.screen');
 
@@ -230,5 +243,14 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCounters(); 
 });
 
+
+async function testSupabaseConnection() {
+    const { data, error } = await supabase.from('users').select('count').single();
+    if (error) {
+        console.error('Supabase connection error:', error);
+    } else {
+        console.log('Supabase connection successful. User count:', data.count);
+    }
+}
 
 
