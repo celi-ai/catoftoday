@@ -3,499 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat Patter</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
-
-        :root {
-            --background-color: #e2ded7;
-            --primary-color: #a7b4c2;
-            --secondary-color: #e8e4da;
-            --text-color: #4a4a4a;
-        }
-
-        body {
-            font-family: 'Nunito', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            min-height: 100vh;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            overflow-x: hidden;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 350px;
-            padding: 20px;
-            box-sizing: border-box;
-            margin-top: auto;
-            margin-bottom: 25vh;
-        }
-
-        .countdown-timer {
-            font-size: 1.2em;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 15px;
-            color: #4a4a4a;
-        }
-
-        .pats-counter {
-            font-size: clamp(36px, 8vw, 48px);
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: var(--secondary-color);
-            text-shadow: 2px 2px 0 #b8b3a9, -2px -2px 0 #b8b3a9, 2px -2px 0 #b8b3a9, -2px 2px 0 #b8b3a9;
-            transition: transform 0.3s ease;
-        }
-
-        .circular-container {
-            width: clamp(250px, 80vw, 300px);
-            height: clamp(250px, 80vw, 300px);
-            background: radial-gradient(circle at center, #c4cfd9 60%, var(--primary-color) 100%);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
-        }
-
-        .circular-container:active {
-            transform: scale(0.95) translateY(5px);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-        }
-
-        .ring {
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border-radius: 50%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 50%, rgba(0,0,0,0.1) 100%);
-            z-index: 1;
-        }
-
-        .cat-image {
-            width: 80%;
-            height: 80%;
-            background-image: url('https://sleghazbpzgynnzriozz.supabase.co/storage/v1/object/public/images/images/u3174781746_Create_a_heartwarming_animation_of_an_adorable_ch_12cdfcfc-e3d0-4899-b942-cd4ddb24e809_3.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            position: relative;
-            z-index: 2;
-            transition: transform 0.3s ease;
-            border-radius: 100%; /* Makes the container circular */
-            overflow: hidden; /* Ensures anything outside the circle is hidden */
-        }
-
-        .progress-text {
-            position: absolute;
-            bottom: 20px;
-            font-size: clamp(16px, 5vw, 20px);
-            font-weight: bold;
-            color: var(--secondary-color);
-            z-index: 2;
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-top: 10px;
-            margin-bottom: 15px;
-        }
-
-        .button {
-            width: clamp(100px, 30vw, 120px);
-            height: clamp(100px, 30vw, 120px);
-            font-size: clamp(14px, 4vw, 16px);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1), inset 0 -4px 4px rgba(0,0,0,0.1);
-        }
-
-        .button:first-child {
-            background-color: var(--primary-color);
-        }
-
-        .button:last-child {
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-        }
-
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0,0,0,0.15), inset 0 -4px 4px rgba(0,0,0,0.1);
-        }
-
-        .sparkles {
-            position: fixed;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-        }
-
-        .sparkle {
-            position: absolute;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M12 0L14 9L23 12L14 15L12 24L10 15L1 12L10 9L12 0Z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: contain;
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-        }
-
-        .sparkle.small { width: 10px; height: 10px; }
-        .sparkle.medium { width: 15px; height: 15px; }
-        .sparkle.large { width: 20px; height: 20px; }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 0.3; }
-        }
-
-        .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            width: 90%;
-            max-width: 400px;
-            background-color: rgba(214, 209, 200, 0.8);
-            padding: 15px 0;
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            backdrop-filter: blur(5px);
-        }
-
-        .nav-item {
-            color: #8c8780;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            transition: background-color 0.3s, color 0.3s;
-            font-weight: bold;
-        }
-
-        .nav-item.active {
-            background-color: #c5c1ba;
-            color: var(--text-color);
-        }
-
-        .nav-item:hover {
-            background-color: var(--background-color);
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .floating {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .particle {
-            position: absolute;
-            pointer-events: none;
-            opacity: 0;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-
-        @keyframes particle-burst {
-            0% {
-                opacity: 1;
-                transform: scale(0) translate(0, 0);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(1) translate(var(--tx), var(--ty));
-            }
-        }
-
-
-        /* Media queries for different screen sizes */
-        @media (max-width: 375px) {
-            .container {
-                width: 100%;
-                padding: 10px;
-                margin-bottom: 22vh;
-            }
-            .bottom-nav {
-                width: 95%;
-                bottom: 5px;
-            }
-            .pats-counter {
-                font-size: clamp(24px, 6vw, 36px);
-            }
-            .circular-container {
-                width: clamp(180px, 65vw, 220px);
-                height: clamp(180px, 65vw, 220px);
-            }
-            .action-buttons .button {
-                width: clamp(80px, 25vw, 100px);
-                height: clamp(80px, 25vw, 100px);
-            }
-            .global-pats-progress {
-                margin: 10px 0;
-            }
-            .progress-text {
-                font-size: clamp(12px, 4vw, 16px);
-            }
-        }
-
-        @media (max-height: 700px) {
-            .container {
-                margin-top: 5vh;
-                margin-bottom: 20vh;
-            }
-            .bottom-nav {
-                bottom: 10px;
-            }
-        }
-
-        @media (min-width: 1200px) {
-            .container {
-                max-width: 450px;
-            }
-            .circular-container {
-                width: clamp(300px, 50vw, 350px);
-                height: clamp(300px, 50vw, 350px);
-            }
-            .action-buttons .button {
-                width: clamp(120px, 30vw, 150px);
-                height: clamp(120px, 30vw, 150px);
-            }
-        }
-
-        /* Modify progress bar to fit smaller screens */
-        .progress-bar {
-            height: 8px;
-        }
-
-        .progress-labels {
-            font-size: 10px;
-        }
-
-
-
-        .screen {
-            display: none;
-            width: 100%;
-            max-width: 350px;
-            padding: 20px;
-            box-sizing: border-box;
-            margin-top: auto;
-            margin-bottom: auto;
-        }
-
-        .screen.active {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .profile-info {
-            background-color: var(--secondary-color);
-            border-radius: 15px;
-            padding: 20px;
-            width: 100%;
-            max-width: 300px;
-            margin-top: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .profile-info h2 {
-            margin-top: 0;
-            color: var(--text-color);
-        }
-
-        .profile-info p {
-            margin: 10px 0;
-            font-size: 16px;
-            color: var(--text-color);
-        }
-
-        .pats-info, .ranks-info {
-            background-color: var(--secondary-color);
-            border-radius: 15px;
-            padding: 20px;
-            width: 100%;
-            max-width: 300px;
-            margin-top: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .pats-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-          }
-
-        .pats-option {
-            background-color: #a7b4c2;
-            color: #4a4a4a;
-            border: none;
-            border-radius: 8px;
-            padding: 15px;
-            font-size: 16px;
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .pats-option:hover {
-            background-color: #97a3b0;
-        }
-
-        .popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .popup-content {
-            background-color: var(--background-color);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            max-width: 300px;
-            width: 90%;
-        }
-
-        .claim-button {
-            background-color: var(--primary-color);
-            color: var(--text-color);
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .claim-button:hover {
-            background-color: #97a3b0;
-        }
-
-        
-        .global-pats-progress {
-            width: 100%;
-            margin: 20px 0;
-        }
-
-        .progress-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .progress-left, .progress-right {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .progress-right {
-            align-items: flex-end;
-        }
-
-
-        .progress-bar {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            height: 10px;
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
-
-        #global-pats-bar {
-            background-color: #a7b4c2; /* Gold color to match your theme */
-            height: 100%;
-            width: 0%; /* This will be updated with JavaScript */
-            transition: width 0.5s ease-in-out;
-        }
-
-        #global-pats-count {
-            font-size: 16px;
-            font-weight: bold;
-            color: #a7b4c2; /* Gold color to match your theme */
-        }
-
-         #global-pats-goal {
-            font-size: 16px;
-            font-weight: bold;
-            color: #8c8780; /* Gold color to match your theme */
-        }
-
-    </style>
+    <title>Cat of Today</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="screen active" id="home">
+    <div id="home" class="screen active">
         <div class="container">
-
             <div class="countdown-timer">
-                Time left: <span id="countdown">24:00:00</span>
+                Time left: <span id="countdown">24:00:00</span> 
                 Username: <span id="userName"></span>
             </div>
 
-            
             <div class="global-pats-progress">
                 <div class="progress-bar-container">
                     <div class="progress-bar">
                         <div id="global-pats-bar"></div>
                     </div>
-                    <div class="progress-labels">
-                        <span class="progress-left">Global Pats: <span id="global-pats-count">5000</span></span>
-                        <span class="progress-right">Goal: <span id="global-pats-goal">5000</span></span>
-                    </div>
+                </div>
+
+                <div class="progress-labels">
+                    <span class="progress-left">Global Pats: <span id="global-pats-count">5000</span></span>
+                    <span class="progress-right">Goal: <span id="global-pats-goal">5000</span></span>
                 </div>
             </div>
 
-            <div class="pats-counter">Pats: <span id="pat-count">0</span></div>
+            <div class="pats-counter">
+                Pats: <span id="pat-count">0</span>
+            </div>
+
             <div class="circular-container">
                 <div class="ring"></div>
                 <div class="cat-image floating"></div>
             </div>
+
             <div class="action-buttons">
-                <button class="button"> <div class="pats-left">Pats Left: <span id="pats-left">281</span></div> </button>
-                <button class="button"> <div class="multiplier"> Multiplier: <span id="multiplier">x1</span></div></button>
+                <div class="pats-left">
+                    Pats Left: <span id="pats-left">281</span>
+                </div>
+                <div class="multiplier">
+                    Multiplier: <span id="multiplier">x1</span>
+                </div>
             </div>
         </div>
     </div>
-    <div class="screen" id="profile">
+
+    <div id="profile" class="screen">
         <div class="profile-info">
             <h2>User Profile</h2>
             <p>Username: <span id="profile-username">CatLover123</span></p>
@@ -504,26 +58,27 @@
             <p>Streak: <span id="profile-streak">5</span> days</p>
         </div>
     </div>
+
     <div id="pats" class="screen">
         <div class="pats-info">
-        <h2 class="section-title">About the Game</h2>
-        <p class="rules-text">[Insert game rules here]</p>
-        
-        <h2 class="section-title">More Pats</h2>
-        <div class="pats-options">
-          <button class="pats-option" id="dailyRewardBtn">Daily Reward</button>
-          <button class="pats-option">Like and RT a post</button>
-          <button class="pats-option">Invite a friend</button>
-          <button class="pats-option">Buy Pats</button>
+            <h2 id="about-the-game" class="section-title">About the Game</h2>
+            <p>[Insert game rules here]</p>
+
+            <h2 id="more-pats" class="section-title">More Pats</h2>
+            <div class="pats-options">
+                <p>Daily Reward</p>
+                <p>Like and RT a post</p>
+                <p>Invite a friend</p>
+                <p>Buy Pats</p>
+            </div>
         </div>
-      </div>
     </div>
 
     <div id="dailyRewardPopup" class="popup">
         <div class="popup-content">
             <h3>Daily Reward</h3>
             <p>Log in every day to get 20 Pats!</p>
-            <button id="claimRewardBtn" class="claim-button">Claim</button>
+            <button id="claimRewardBtn">Claim</button>
         </div>
     </div>
 
@@ -539,20 +94,13 @@
 
     <div class="sparkles"></div>
 
-    <nav class="bottom-nav">
+    <nav>
         <a href="#" class="nav-item active" data-screen="home">Home</a>
         <a href="#" class="nav-item" data-screen="pats">Pats</a>
         <a href="#" class="nav-item" data-screen="ranks">Ranks</a>
         <a href="#" class="nav-item" data-screen="profile">Profile</a>
     </nav>
 
-    <!-- Supabase SDK: Keep this in your HTML file -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Your custom JavaScript file -->
-    <script type="module" src="/app.js"></script>
-
-
+    <script type="module" src="app.js"></script>
 </body>
 </html>
