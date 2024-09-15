@@ -1,14 +1,16 @@
+// Replace these with your actual Supabase URL and API Key from the Supabase dashboard
 const SUPABASE_URL = 'https://sleghazbpzgynnzriozz.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsZWdoYXpicHpneW5uenJpb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU4ODc5MDQsImV4cCI6MjA0MTQ2MzkwNH0.ltjHJAEnQBYko4Om6pwQRU5xp6QsQfkYyZwEBKG71xA';
 
 // const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
- 
+
 
 let patCount = 281;
 let progress = 28;
 const totalProgress = 5000;
 let multiplier = 1;
+let catMood = 'content';
 
 function updateCounters() {
     document.getElementById('pat-count').textContent = patCount;
@@ -28,6 +30,14 @@ function animateValue(element, start, end, duration) {
         }
     };
     window.requestAnimationFrame(step);
+}
+
+function updateCatMood() {
+    const moods = ['sleepy', 'content', 'playful', 'excited', 'blissful'];
+    catMood = moods[Math.floor(Math.random() * moods.length)];
+    const catImage = document.querySelector('.cat-image');
+    catImage.style.backgroundColor = `var(--mood-${catMood})`;
+    document.getElementById('current-mood').textContent = catMood;
 }
 
 function showMultiplierAlert() {
@@ -61,6 +71,7 @@ document.querySelector('.circular-container').addEventListener('click', function
         showMultiplierAlert();
     }
 
+    updateCatMood();
     updateCounters();
 });
 
@@ -120,7 +131,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 updateCounters();
-
-
-
-
+updateCatMood();
