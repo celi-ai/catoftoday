@@ -1,6 +1,6 @@
 
 // Import Supabase client
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/+esm'
 
 // Replace these with your actual Supabase URL and API Key from the Supabase dashboard
 const SUPABASE_URL = 'https://sleghazbpzgynnzriozz.supabase.co';
