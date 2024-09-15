@@ -174,7 +174,7 @@ function updateProfileInfo() {
 
 document.addEventListener('DOMContentLoaded', async function() {
     await testSupabaseConnection();
-    
+
     console.log('DOM content loaded');
     await initializeUser();
     console.log('User initialized');
@@ -229,8 +229,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     claimRewardBtn.addEventListener('click', async () => {
         dailyRewardPopup.style.display = 'none';
-        patCount += 20;
-        availablePats += 20;
+        patCount += 100;
+        availablePats += 100;
         
         // Update Supabase with new pat count and available pats
         const { data, error } = await supabase
