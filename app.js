@@ -184,17 +184,30 @@ document.addEventListener('DOMContentLoaded', async function() {
     const navItems = document.querySelectorAll('.nav-item');
     const screens = document.querySelectorAll('.screen');
 
+    // Initially hide all screens except the home screen
+    screens.forEach(screen => {
+        if (screen.id === 'home') {
+            screen.classList.add('active');
+        } else {
+            screen.classList.remove('active');
+        }
+    });
+
     navItems.forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
             const targetScreen = this.getAttribute('data-screen');
+            console.log('Clicked nav item:', targetScreen);
 
+            // Remove active class from all nav items and add to clicked item
             navItems.forEach(navItem => navItem.classList.remove('active'));
             this.classList.add('active');
 
+            // Hide all screens and show the target screen
             screens.forEach(screen => {
                 if (screen.id === targetScreen) {
                     screen.classList.add('active');
+                    console.log('Activating screen:', targetScreen);
                 } else {
                     screen.classList.remove('active');
                 }
