@@ -1,3 +1,4 @@
+
 // Import Supabase client
 import { createClient } from '@supabase/supabase-js';
 
@@ -5,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = 'https://sleghazbpzgynnzriozz.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsZWdoYXpicHpneW5uenJpb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU4ODc5MDQsImV4cCI6MjA0MTQ2MzkwNH0.ltjHJAEnQBYko4Om6pwQRU5xp6QsQfkYyZwEBKG71xA';
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Telegram WebApp initialization
 const tg = window.Telegram.WebApp;
@@ -17,41 +18,83 @@ const userId = user ? user.id.toString() : 'anonymous';
 const userName = user ? user.first_name : 'Anonymous';
 const userUsername = user ? user.username : 'unknown_user';
 
+// Global variables
+let patCount = 0;
+let availablePats = 0;
+let streak = 0;
+let multiplier = 1;
+let progress = 28;
+const totalProgress = 5000;
+
 // Function to initialize or update user data in Supabase
 async function initializeUser() {
-    const { data, error } = await supabase
+    let { data: userData, error } = await supabase
         .from('users')
-        .upsert({
-            id: userId,
-            name: userName,
-            username: userUsername,
-            pat_count: 0,
-            available_pats: 10,
-            streak: 0,
-            last_login: new Date().toISOString()
-        }, { onConflict: 'id' });
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-    if (error) {
-        console.error('Error initializing user:', error);
-    } else {
-        console.log('User initialized:', data);
+    if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching user data:', error);
+        return;
     }
+
+    if (!userData) {
+        // User doesn't exist, create new user
+        const { data, error: insertError } = await supabase
+            .from('users')
+            .insert({
+                id: userId,
+                name: userName,
+                username: userUsername,
+                pat_count: 0,
+                available_pats: 10,
+                streak: 0,
+                last_login: new Date().toISOString()
+            })
+            .single();
+
+        if (insertError) {
+            console.error('Error creating new user:', insertError);
+            return;
+        }
+
+        userData = data;
+    }
+
+    // Update UI with user data
+    updateUIWithUserData(userData);
 }
+
 
 //userNameElement.textContent = userName;
 
 
-let patCount = 0;
-let progress = 28;
-const totalProgress = 5000;
-let multiplier = 1;
+// Function to update UI elements with user data
+function updateUIWithUserData(userData) {
+    document.getElementById('userName').textContent = userData.name;
+    document.getElementById('pat-count').textContent = userData.pat_count;
+    document.getElementById('pats-left').textContent = userData.available_pats;
+    document.getElementById('profile-username').textContent = userData.username;
+    document.getElementById('profile-total-pats').textContent = userData.pat_count;
+    document.getElementById('profile-available-pats').textContent = userData.available_pats;
+    document.getElementById('profile-streak').textContent = userData.streak;
+
+    // Update global variables
+    patCount = userData.pat_count;
+    availablePats = userData.available_pats;
+    streak = userData.streak;
+}
 
 function updateCounters() {
     document.getElementById('pat-count').textContent = patCount;
-    document.getElementById('progress-current').textContent = progress;
-    document.getElementById('progress-total').textContent = totalProgress;
-    document.getElementById('multiplier').textContent = multiplier;
+    document.getElementById('pats-left').textContent = availablePats;
+    document.getElementById('multiplier').textContent = `x${multiplier}`;
+    // Update progress if you have a progress element
+    // document.getElementById('progress-current').textContent = progress;
 }
+
+
 
 function animateValue(element, start, end, duration) {
     let startTimestamp = null;
@@ -85,29 +128,46 @@ function showMultiplierAlert() {
     }, 2000);
 }
 
-document.querySelector('.circular-container').addEventListener('click', function(event) {
-    patCount += multiplier;
-    progress += multiplier;
+document.querySelector('.circular-container').addEventListener('click', async function(event) {
+    if (availablePats > 0) {
+        patCount += multiplier;
+        availablePats--;
+        progress += multiplier;
 
-    animateValue(document.getElementById('pat-count'), patCount - multiplier, patCount, 300);
-    animateValue(document.getElementById('progress-current'), progress - multiplier, progress, 300);
+        // Update Supabase with new pat count and available pats
+        const { data, error } = await supabase
+            .from('users')
+            .update({ pat_count: patCount, available_pats: availablePats })
+            .eq('id', userId);
 
-    if (Math.random() < 0.1) {
-        multiplier++;
-        showMultiplierAlert();
+        if (error) {
+            console.error('Error updating pat count:', error);
+        }
+
+        animateValue(document.getElementById('pat-count'), patCount - multiplier, patCount, 300);
+        animateValue(document.getElementById('pats-left'), availablePats + 1, availablePats, 300);
+
+        if (Math.random() < 0.1) {
+            multiplier++;
+            showMultiplierAlert();
+        }
+
+        updateCounters();
+    } else {
+        alert("You're out of pats! Come back tomorrow for more.");
     }
-
-    updateCounters();
 });
 
 function updateProfileInfo() {
-    document.getElementById('profile-username').textContent = 'CatLover123';
+    document.getElementById('profile-username').textContent = userUsername;
     document.getElementById('profile-total-pats').textContent = patCount;
-    document.getElementById('profile-available-pats').textContent = '200';
-    document.getElementById('profile-streak').textContent = '5';
+    document.getElementById('profile-available-pats').textContent = availablePats;
+    document.getElementById('profile-streak').textContent = streak;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    await initializeUser(); // Wait for user data to be initialized
+    
     const navItems = document.querySelectorAll('.nav-item');
     const screens = document.querySelectorAll('.screen');
 
@@ -141,23 +201,34 @@ document.addEventListener('DOMContentLoaded', function() {
         dailyRewardPopup.style.display = 'flex';
     });
 
-    claimRewardBtn.addEventListener('click', () => {
+    claimRewardBtn.addEventListener('click', async () => {
         dailyRewardPopup.style.display = 'none';
         patCount += 20;
+        availablePats += 20;
+        
+        // Update Supabase with new pat count and available pats
+        const { data, error } = await supabase
+            .from('users')
+            .update({ pat_count: patCount, available_pats: availablePats })
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error updating user data after claiming reward:', error);
+        }
+
         updateCounters();
         updateProfileInfo();
     });
+
 
     dailyRewardPopup.addEventListener('click', (e) => {
         if (e.target === dailyRewardPopup) {
             dailyRewardPopup.style.display = 'none';
         }
     });
+
+    updateCounters(); 
 });
-
-document.getElementById('userName').textContent = userName;
-
-updateCounters();
 
 
 
