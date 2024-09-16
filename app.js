@@ -70,6 +70,7 @@ async function initializeUser() {
     }
 
     console.log('Final user data:', userData);
+    
     // Update UI with user data
     updateUIWithUserData(userData);
 }
@@ -173,39 +174,10 @@ document.querySelector('.circular-container').addEventListener('click', async fu
 });
 
 function updateProfileInfo() {
-
-    /*
     document.getElementById('profile-username').textContent = userUsername;
     document.getElementById('profile-total-pats').textContent = patCount;
     document.getElementById('profile-available-pats').textContent = availablePats;
     document.getElementById('profile-streak').textContent = streak;
-    */
-
-    try {
-        const { data, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', userId)
-            .single();
-
-        if (error) throw error;
-
-        // Update global variables
-        patCount = data.pat_count;
-        availablePats = data.available_pats;
-        streak = data.streak;
-        userUsername = data.username;
-
-        // Update UI
-        document.getElementById('profile-username').textContent = data.username;
-        document.getElementById('profile-total-pats').textContent = data.pat_count;
-        document.getElementById('profile-available-pats').textContent = data.available_pats;
-        document.getElementById('profile-streak').textContent = data.streak;
-
-        console.log('Profile info updated from database');
-    } catch (error) {
-        console.error('Error fetching user data:', error);
-    }
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -216,7 +188,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('User initialized');
     updateCounters();
     console.log('Counters updated');
-    await updateProfileInfo();
 
     await checkAndResetGlobalPats();
 
@@ -407,5 +378,4 @@ async function checkAndResetGlobalPats() {
 
     await fetchGlobalPatCount();
 }
-
 
