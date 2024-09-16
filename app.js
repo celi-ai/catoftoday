@@ -70,7 +70,7 @@ async function initializeUser() {
     }
 
     console.log('Final user data:', userData);
-    
+
     // Update UI with user data
     updateUIWithUserData(userData);
 }
@@ -291,7 +291,7 @@ async function fetchGlobalPatCount() {
             // No record for today, create a new one
             const { data: newData, error: insertError } = await supabase
                 .from('global_pats')
-                .insert({ current_pats: 0, pat_goal: 5000, date: today })
+                .insert({ global_pat_count: 0, pat_goal: 50000, date: today })
                 .single();
 
             if (insertError) {
@@ -314,16 +314,15 @@ async function fetchGlobalPatCount() {
 async function updateGlobalPatCount(increment) {
     const today = new Date().toISOString().split('T')[0];
     const { data, error } = await supabase.rpc('increment_global_pat_count', { 
-        increment_by: increment,
-        current_date: today
+        increment_by: increment
     });
 
     if (error) {
-        console.error('Error updating global pat count:', error);
+        console.error('Error updating global pat count:', error.message, error.details, error.hint);
         return;
-    }
+      }
 
-    globalPatCount = data.current_pats;
+    globalPatCount = data;
     updateGlobalPatDisplay();
 }
 
