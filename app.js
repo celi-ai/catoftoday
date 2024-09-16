@@ -183,8 +183,6 @@ function updateProfileInfo() {
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM content loaded');
 
-    await checkAndResetGlobalPats();
-
     await initializeUser();
     console.log('User initialized');
 
@@ -193,6 +191,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     const navItems = document.querySelectorAll('.nav-item');
     const screens = document.querySelectorAll('.screen');
+
+    await checkAndResetGlobalPats();
 
     // Initially hide all screens except the home screen
     screens.forEach(screen => {
