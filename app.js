@@ -314,7 +314,8 @@ async function fetchGlobalPatCount() {
 async function updateGlobalPatCount(increment) {
     const today = new Date().toISOString().split('T')[0];
     const { data, error } = await supabase.rpc('increment_global_pat_count', { 
-        increment_by: increment
+        increment_by: increment,
+        input_date: today
     });
 
     if (error) {
