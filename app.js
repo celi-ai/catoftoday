@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const navItems = document.querySelectorAll('.nav-item');
     const screens = document.querySelectorAll('.screen');
 
-    await checkAndResetGlobalPats();
+
 
     // Initially hide all screens except the home screen
     screens.forEach(screen => {
@@ -263,6 +263,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     });
 
+    await checkAndResetGlobalPats();
     
     updateCounters(); 
 });
