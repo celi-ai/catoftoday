@@ -181,16 +181,15 @@ function updateProfileInfo() {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-    await testSupabaseConnection();
-
     console.log('DOM content loaded');
-    await initializeUser();
-    console.log('User initialized');
-    updateCounters();
-    console.log('Counters updated');
 
     await checkAndResetGlobalPats();
 
+    await initializeUser();
+    console.log('User initialized');
+
+    updateCounters();
+    console.log('Counters updated');
 
     const navItems = document.querySelectorAll('.nav-item');
     const screens = document.querySelectorAll('.screen');
