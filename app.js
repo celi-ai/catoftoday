@@ -292,6 +292,7 @@ async function fetchGlobalPatCount() {
             const { data: newData, error: insertError } = await supabase
                 .from('global_pats')
                 .insert({ global_pat_count: 0, pat_goal: 50000, date: today })
+                .select() // Add this line to return the inserted data
                 .single();
 
             if (insertError) {
@@ -305,7 +306,12 @@ async function fetchGlobalPatCount() {
         }
     }
 
-    globalPatCount = data.current_pats;
+    if (!data) {
+        console.error('No data returned after insert attempt');
+        return;
+    }
+
+    globalPatCount = data.global_pat_count;
     globalPatGoal = data.pat_goal;
     updateGlobalPatDisplay();
 }
