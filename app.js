@@ -187,6 +187,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('User initialized');
     updateCounters();
     console.log('Counters updated');
+    updateProfileInfo();
 
     await checkAndResetGlobalPats();
 
