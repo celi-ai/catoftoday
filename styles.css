@@ -387,8 +387,8 @@ body {
 
 /* Container for the progress bar */
 .progress-bar-container {
-    width: 80%;
-    height: 20px;
+    width: 100%;
+    height: 15px;
     background-color: var(--secondary-color);
     border-radius: 10px;
     overflow: hidden;
@@ -405,7 +405,7 @@ body {
 
 /* The dynamic progress bar that fills based on the clicks */
 #global-pats-bar {
-    background-color: var(--primary-color);
+    background-color: #a7b4c2;
     width: 0%; /* This will change dynamically */
     height: 100%;
     transition: width 0.5s ease-in-out; /* Smooth transition */
