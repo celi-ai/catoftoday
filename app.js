@@ -24,7 +24,8 @@ let patCount = 0;
 let availablePats = 0;
 let streak = 0;
 let multiplier = 1;
-let globalPatCount =0;
+let globalPatCount = 0;
+let globalGoal = 5000;
 
 //button click experiment
 
@@ -93,16 +94,17 @@ async function initClicker() {
         clicksCountDisplay.textContent = 0;
         // globalPatsBarElement.style.width = '0%';  // Set progress bar to 0
         return;
+    } else {
+        let count = data ? data.count : 0;
+        clicksCountDisplay.textContent = count;
+        globalPatCount = count;
     }
 
-    let count = data ? data.count : 0;
-    clicksCountDisplay.textContent = count;
-    globalPatCount = count;
-    // globalPatsBarElement.style.width = (count / 5000) * 100 + '%';  // Update progress bar
-}
+    let percentage = (globalPatCount / globalGoal) * 100;
+    globalPatsBarElement.style.width = percentage + '%';
 
 initClicker();
-globalPatsBarElement.style.width = (globalPatCount / 5000) * 100 + '%';
+
 
 //button click experiment end
 
