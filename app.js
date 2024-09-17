@@ -13,6 +13,14 @@ console.log('Supabase client initialized');
 const tg = window.Telegram.WebApp;
 tg.ready();
 
+// Expand to full height
+tg.expand();
+
+// Disable text selection
+tg.MainButton.textColor = "#FFFFFF";
+tg.MainButton.color = "#2cab37";
+
+
 // Get user data from Telegram
 const user = tg.initDataUnsafe.user;
 const userId = user ? user.id.toString() : 'anonymous';
@@ -258,6 +266,9 @@ function showMultiplierAlert() {
 }
 
 document.querySelector('.circular-container').addEventListener('click', async function(event) {
+    // Add haptic feedback on click
+    tg.HapticFeedback.impactOccurred('light');
+
     if (availablePats > 0) {
         patCount += multiplier;
         availablePats--;
