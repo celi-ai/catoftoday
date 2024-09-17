@@ -30,40 +30,27 @@ let globalPatCount = 0;
 const globalPatGoal = 5000;
 
 //button click experiment
-async function incrementCounter() {
-    // Get the current count
-    let { data, error } = await supabase
-      .from('clicks')
-      .select('count')
-      .eq('id', 1)
-      .single()
+// Get DOM elements
+const clickerButton = document.getElementById('clicker');
+const clicksCountDisplay = document.getElementById('clicks-count');
 
-    if (error) {
-      console.error(error)
-      return
-    }
+// Fetch and display the current count, then increment on click
+async function initClicker() {
+    let { data } = await supabase.from('clicks').select('count').eq('id', 1).single();
+    let count = data?.count || 0;
+    clicksCountDisplay.textContent = count;
 
-    // Increment the count
-    const newCount = data.count + 1
+    clickerButton.addEventListener('click', async () => {
+        let newCount = count + 1;
+        clicksCountDisplay.textContent = newCount;
+        count = newCount;
+        await supabase.from('clicks').update({ count: newCount }).eq('id', 1);
+    });
+}
 
-    // Update the count in the database
-    const { error: updateError } = await supabase
-      .from('clicks')
-      .update({ count: newCount })
-      .eq('id', 1)
+initClicker();
 
-    if (updateError) {
-      console.error(updateError)
-      return
-    }
-
-    // Update the display
-    document.getElementById('clicks-count').textContent = newCount
-  }
-
-  document.getElementById('clicker').addEventListener('click', incrementCounter)
-
-  //button click experiment end
+//button click experiment end
 
 // Function to initialize or update user data in Supabase
 async function initializeUser() {
