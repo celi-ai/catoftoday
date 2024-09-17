@@ -43,9 +43,20 @@ async function incrementCounter() {
         .select('count')
         .eq('id', 1)
         .single();
-    
-    if (error) {
-        console.error("Error fetching count:", error);
+
+    if (error && error.details === "The result contains 0 rows") {
+        // If no rows exist, create the initial row
+        let { error: insertError } = await supabase
+            .from('clicks')
+            .insert({ id: 1, count: 1 });
+        
+        if (insertError) {
+            console.error("Error inserting new count:", insertError);
+            return;
+        }
+
+        // Set UI
+        clicksCountDisplay.textContent = 1;
         return;
     }
 
@@ -78,8 +89,9 @@ async function initClicker() {
         .eq('id', 1)
         .single();
 
-    if (error) {
-        console.error("Error fetching count on init:", error);
+    if (error && error.details === "The result contains 0 rows") {
+        // If no rows exist, set default to 0
+        clicksCountDisplay.textContent = 0;
         return;
     }
 
@@ -87,6 +99,7 @@ async function initClicker() {
 }
 
 initClicker();
+
 
 //button click experiment end
 
