@@ -373,11 +373,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const dailyRewardPopup = document.getElementById('dailyRewardPopup');
     const claimRewardBtn = document.getElementById('claimRewardBtn');
 
-    dailyRewardBtn.addEventListener('click', () => {
-        dailyRewardPopup.style.display = 'flex';
-    });
-
-    claimRewardBtn.addEventListener('click', async () => {
+    async function claimDailyReward() {
         const canClaim = await canClaimDailyReward(userId);
         
         if (canClaim) {
@@ -408,8 +404,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             alert('You have already claimed your daily reward. Please come back tomorrow!');
             dailyRewardPopup.style.display = 'none';
         }
-    });
-
+    }
 
     dailyRewardBtn.addEventListener('click', async () => {
         const canClaim = await canClaimDailyReward(userId);
@@ -419,7 +414,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         } else {
             alert('You have already claimed your daily reward. Please come back tomorrow!');
         }
-    })
+    });
+
+    claimRewardBtn.addEventListener('click', claimDailyReward);
+
+    dailyRewardPopup.addEventListener('click', (e) => {
+        if (e.target === dailyRewardPopup) {
+            dailyRewardPopup.style.display = 'none';
+        }
+    });
 
     updateCounters(); 
 });
