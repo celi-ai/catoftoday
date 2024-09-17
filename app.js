@@ -303,6 +303,35 @@ function updateProfileInfo() {
     document.getElementById('profile-streak').textContent = streak;
 }
 
+function createSparkle() {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'sparkle';
+    
+    // Randomly choose size
+    const sizes = ['small', 'medium', 'large'];
+    sparkle.classList.add(sizes[Math.floor(Math.random() * sizes.length)]);
+    
+    // Set random position
+    sparkle.style.left = Math.random() * 100 + '%';
+    sparkle.style.top = Math.random() * 100 + '%';
+    
+    // Set random animation duration and delay
+    const duration = 0.5 + Math.random() * 0.5;
+    const delay = Math.random() * 0.5;
+    sparkle.style.animation = `twinkle ${duration}s ${delay}s infinite`;
+    
+    document.querySelector('.sparkles').appendChild(sparkle);
+    
+    // Remove sparkle after animation
+    setTimeout(() => {
+        sparkle.remove();
+    }, (duration + delay) * 1000);
+}
+
+function addSparkles() {
+    setInterval(createSparkle, 300);
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM content loaded');
 
@@ -392,4 +421,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 
     updateCounters(); 
+
+    addSparkles();
 });
+
