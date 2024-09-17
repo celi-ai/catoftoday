@@ -231,28 +231,49 @@ function updateUIWithUserData(userData) {
     streak = userData.streak;
 }
 
-// Check if the user can claim a reward
-async function canClaimDailyReward(userId) {
-    const { data, error } = await supabase
-        .from('users')
-        .select('last_reward_claim')
-        .eq('id', userId)
-        .single();
-
-    if (error) {
-        console.error('Error checking last reward claim:', error);
-        return false;
-    }
-
-    if (!data.last_reward_claim) {
-        return true;
-    }
-
-    const lastClaimDate = new Date(data.last_reward_claim);
-    const now = new Date();
+function updateDailyRewardPopup(message, showClaimButton = true) {
+    const popupContent = document.querySelector('#dailyRewardPopup .popup-content');
+    popupContent.innerHTML = `
+        <h3>Daily Reward</h3>
+        <p>${message}</p>
+        ${showClaimButton ? '<button id="claimRewardBtn" class="claim-button">Claim</button>' : ''}
+    `;
     
-    // Check if the last claim was on a different day
-    return lastClaimDate.toDateString() !== now.toDateString();
+    if (showClaimButton) {
+        document.getElementById('claimRewardBtn').addEventListener('click', claimDailyReward);
+    }
+}
+
+async function claimDailyReward() {
+    const canClaim = await canClaimDailyReward(userId);
+    
+    if (canClaim) {
+        patCount += 100;
+        availablePats += 100;
+        
+        const now = new Date().toISOString();
+        
+        // Update Supabase with new pat count, available pats, and last reward claim date
+        const { data, error } = await supabase
+            .from('users')
+            .update({ 
+                pat_count: patCount, 
+                available_pats: availablePats,
+                last_reward_claim: now
+            })
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error updating user data after claiming reward:', error);
+            updateDailyRewardPopup('Error claiming reward. Please try again later.', false);
+        } else {
+            updateCounters();
+            updateProfileInfo();
+            updateDailyRewardPopup('100 pats added! Come back tomorrow for more pats or consider other activities to get more pats.', false);
+        }
+    } else {
+        updateDailyRewardPopup('You have already claimed your pats for today. Come back tomorrow for more pats or consider other activities to get more pats.', false);
+    }
 }
 
 function updateCounters() {
@@ -371,52 +392,17 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     const dailyRewardBtn = document.getElementById('dailyRewardBtn');
     const dailyRewardPopup = document.getElementById('dailyRewardPopup');
-    const claimRewardBtn = document.getElementById('claimRewardBtn');
-
-    async function claimDailyReward() {
-        const canClaim = await canClaimDailyReward(userId);
-        
-        if (canClaim) {
-            dailyRewardPopup.style.display = 'none';
-            patCount += 100;
-            availablePats += 100;
-            
-            const now = new Date().toISOString();
-            
-            // Update Supabase with new pat count, available pats, and last reward claim date
-            const { data, error } = await supabase
-                .from('users')
-                .update({ 
-                    pat_count: patCount, 
-                    available_pats: availablePats,
-                    last_reward_claim: now
-                })
-                .eq('id', userId);
-
-            if (error) {
-                console.error('Error updating user data after claiming reward:', error);
-            } else {
-                updateCounters();
-                updateProfileInfo();
-                alert('Daily reward claimed successfully!');
-            }
-        } else {
-            alert('You have already claimed your daily reward. Please come back tomorrow!');
-            dailyRewardPopup.style.display = 'none';
-        }
-    }
 
     dailyRewardBtn.addEventListener('click', async () => {
         const canClaim = await canClaimDailyReward(userId);
         
         if (canClaim) {
-            dailyRewardPopup.style.display = 'flex';
+            updateDailyRewardPopup('Log in every day to get 100 Pats!', true);
         } else {
-            alert('You have already claimed your daily reward. Please come back tomorrow!');
+            updateDailyRewardPopup('You have already claimed your pats for today. Come back tomorrow for more pats or consider other activities to get more pats.', false);
         }
+        dailyRewardPopup.style.display = 'flex';
     });
-
-    claimRewardBtn.addEventListener('click', claimDailyReward);
 
     dailyRewardPopup.addEventListener('click', (e) => {
         if (e.target === dailyRewardPopup) {
