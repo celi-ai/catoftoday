@@ -30,22 +30,60 @@ let globalPatCount = 0;
 const globalPatGoal = 5000;
 
 //button click experiment
-// Get DOM elements
+
+// DOM Elements
 const clickerButton = document.getElementById('clicker');
 const clicksCountDisplay = document.getElementById('clicks-count');
 
-// Fetch and display the current count, then increment on click
-async function initClicker() {
-    let { data } = await supabase.from('clicks').select('count').eq('id', 1).single();
-    let count = data?.count || 0;
-    clicksCountDisplay.textContent = count;
+// Function to update the counter
+async function incrementCounter() {
+    // Fetch current count from Supabase
+    let { data, error } = await supabase
+        .from('clicks')
+        .select('count')
+        .eq('id', 1)
+        .single();
+    
+    if (error) {
+        console.error("Error fetching count:", error);
+        return;
+    }
 
-    clickerButton.addEventListener('click', async () => {
-        let newCount = count + 1;
-        clicksCountDisplay.textContent = newCount;
-        count = newCount;
-        await supabase.from('clicks').update({ count: newCount }).eq('id', 1);
-    });
+    let currentCount = data ? data.count : 0;
+    let newCount = currentCount + 1;
+
+    // Update count in Supabase
+    let { updateError } = await supabase
+        .from('clicks')
+        .update({ count: newCount })
+        .eq('id', 1);
+
+    if (updateError) {
+        console.error("Error updating count:", updateError);
+        return;
+    }
+
+    // Update UI
+    clicksCountDisplay.textContent = newCount;
+}
+
+// Event Listener
+clickerButton.addEventListener('click', incrementCounter);
+
+// Initialize clicker with current count
+async function initClicker() {
+    let { data, error } = await supabase
+        .from('clicks')
+        .select('count')
+        .eq('id', 1)
+        .single();
+
+    if (error) {
+        console.error("Error fetching count on init:", error);
+        return;
+    }
+
+    clicksCountDisplay.textContent = data ? data.count : 0;
 }
 
 initClicker();
