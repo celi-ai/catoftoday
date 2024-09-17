@@ -316,8 +316,8 @@ function createSparkle() {
     sparkle.style.top = Math.random() * 100 + '%';
     
     // Set random animation duration and delay
-    const duration = 0.5 + Math.random() * 0.5;
-    const delay = Math.random() * 0.5;
+    const duration = 0.9 + Math.random() * 0.5;
+    const delay = 0.9 + Math.random() * 0.5;
     sparkle.style.animation = `twinkle ${duration}s ${delay}s infinite`;
     
     document.querySelector('.sparkles').appendChild(sparkle);
