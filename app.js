@@ -231,50 +231,6 @@ function updateUIWithUserData(userData) {
     streak = userData.streak;
 }
 
-function updateDailyRewardPopup(message, showClaimButton = true) {
-    const popupContent = document.querySelector('#dailyRewardPopup .popup');
-    popupContent.innerHTML = `
-        <h3>Daily Reward</h3>
-        <p>${message}</p>
-        ${showClaimButton ? '<button id="claimRewardBtn" class="popup-content">Claim</button>' : ''}
-    `;
-    
-    if (showClaimButton) {
-        document.getElementById('claimRewardBtn').addEventListener('click', claimDailyReward);
-    }
-}
-
-async function claimDailyReward() {
-    const canClaim = await canClaimDailyReward(userId);
-    
-    if (canClaim) {
-        patCount += 100;
-        availablePats += 100;
-        
-        const now = new Date().toISOString();
-        
-        // Update Supabase with new pat count, available pats, and last reward claim date
-        const { data, error } = await supabase
-            .from('users')
-            .update({ 
-                pat_count: patCount, 
-                available_pats: availablePats,
-                last_reward_claim: now
-            })
-            .eq('id', userId);
-
-        if (error) {
-            console.error('Error updating user data after claiming reward:', error);
-            updateDailyRewardPopup('Error claiming reward. Please try again later.', false);
-        } else {
-            updateCounters();
-            updateProfileInfo();
-            updateDailyRewardPopup('100 pats added! Come back tomorrow for more pats or consider other activities to get more pats.', false);
-        }
-    } else {
-        updateDailyRewardPopup('You have already claimed your pats for today. Come back tomorrow for more pats or consider other activities to get more pats.', false);
-    }
-}
 
 function updateCounters() {
     document.getElementById('pat-count').textContent = patCount;
@@ -388,26 +344,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                 updateRankingsUI();
             }
         });
-    });
-
-    const dailyRewardBtn = document.getElementById('dailyRewardBtn');
-    const dailyRewardPopup = document.getElementById('dailyRewardPopup');
-
-    dailyRewardBtn.addEventListener('click', async () => {
-        const canClaim = await canClaimDailyReward(userId);
-        
-        if (canClaim) {
-            updateDailyRewardPopup('Log in every day to get 100 Pats!', true);
-        } else {
-            updateDailyRewardPopup('You have already claimed your pats for today. Come back tomorrow for more pats or consider other activities to get more pats.', false);
-        }
-        dailyRewardPopup.style.display = 'flex';
-    });
-
-    dailyRewardPopup.addEventListener('click', (e) => {
-        if (e.target === dailyRewardPopup) {
-            dailyRewardPopup.style.display = 'none';
-        }
     });
 
     updateCounters(); 
