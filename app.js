@@ -90,10 +90,13 @@ async function initClicker() {
     if (error && error.details === "The result contains 0 rows") {
         // If no rows exist, set default to 0
         clicksCountDisplay.textContent = 0;
+        globalPatsBarElement.style.width = '0%';  // Set progress bar to 0
         return;
     }
 
-    clicksCountDisplay.textContent = data ? data.count : 0;
+    let count = data ? data.count : 0;
+    clicksCountDisplay.textContent = count;
+    globalPatsBarElement.style.width = (count / 5000) * 100 + '%';  // Update progress bar
 }
 
 initClicker();
