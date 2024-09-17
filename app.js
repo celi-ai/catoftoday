@@ -346,5 +346,38 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     });
 
+    const dailyRewardBtn = document.getElementById('dailyRewardBtn');
+    const dailyRewardPopup = document.getElementById('dailyRewardPopup');
+    const claimRewardBtn = document.getElementById('claimRewardBtn');
+
+    dailyRewardBtn.addEventListener('click', () => {
+        dailyRewardPopup.style.display = 'flex';
+    });
+
+    claimRewardBtn.addEventListener('click', async () => {
+        dailyRewardPopup.style.display = 'none';
+        patCount += 100;
+        availablePats += 100;
+        
+        // Update Supabase with new pat count and available pats
+        const { data, error } = await supabase
+            .from('users')
+            .update({ pat_count: patCount, available_pats: availablePats })
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error updating user data after claiming reward:', error);
+        }
+
+        updateCounters();
+        updateProfileInfo();
+    });
+
+    dailyRewardPopup.addEventListener('click', (e) => {
+        if (e.target === dailyRewardPopup) {
+            dailyRewardPopup.style.display = 'none';
+        }
+    });
+
     updateCounters(); 
 });
