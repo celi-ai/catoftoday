@@ -24,14 +24,13 @@ let patCount = 0;
 let availablePats = 0;
 let streak = 0;
 let multiplier = 1;
-let globalPatCount = 0;
-const globalPatGoal = 5000;
 
 //button click experiment
 
 // DOM Elements
 const clickerButton = document.getElementById('clicker');
 const clicksCountDisplay = document.getElementById('clicks-count');
+const globalPatsBarElement = document.getElementById('global-pats-bar');
 
 // Function to update the counter
 async function incrementCounter() {
@@ -74,6 +73,7 @@ async function incrementCounter() {
 
     // Update UI
     clicksCountDisplay.textContent = newCount;
+    globalPatsBarElement.style.width = (newCount / 5000) * 100 + '%';
 }
 
 // Event Listener
@@ -97,8 +97,6 @@ async function initClicker() {
 }
 
 initClicker();
-
-
 //button click experiment end
 
 // Function to initialize or update user data in Supabase
