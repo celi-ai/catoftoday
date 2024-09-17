@@ -67,8 +67,9 @@ body {
 }
 
 .circular-container:active {
-    transform: scale(0.95) translateY(5px);
+    transform: scale(0.95);
     box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    background-color: #b3bec9; /* Slightly darker shade when pressed */
 }
 
 .ring {
@@ -91,9 +92,13 @@ body {
     background-position: center;
     position: relative;
     z-index: 2;
-    transition: transform 0.3s ease;
+    transition: transform 0.1s ease-in-out;
     border-radius: 100%; /* Makes the container circular */
     overflow: hidden; /* Ensures anything outside the circle is hidden */
+}
+
+.cat-image:active {
+    transform: scale(0.9);
 }
 
 .action-buttons {

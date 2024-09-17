@@ -267,7 +267,7 @@ function showMultiplierAlert() {
 
 document.querySelector('.circular-container').addEventListener('click', async function(event) {
     // Add haptic feedback on click
-    tg.HapticFeedback.impactOccurred('light');
+    tg.HapticFeedback.impactOccurred('medium');
 
     if (availablePats > 0) {
         patCount += multiplier;
