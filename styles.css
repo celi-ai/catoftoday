@@ -383,14 +383,15 @@ body {
 .global-pats-progress {
     margin: 20px 0;
     text-align: center;
+    width: 100%;
 }
 
 /* Container for the progress bar */
 .progress-bar-container {
     width: 100%;
-    height: 15px;
+    height: 8px;
     background-color: var(--secondary-color);
-    border-radius: 10px;
+    border-radius: 4px;
     overflow: hidden;
     position: relative;
     margin: 10px 0;
@@ -416,21 +417,13 @@ body {
     display: flex;
     justify-content: space-between;
     margin-top: 5px;
+    font-size: 12px
 }
 
 .progress-left, .progress-right {
-    font-size: 14px;
-}
-
-
-#global-pats-count {
-    font-size: 16px;
-    font-weight: bold;
     color: #8c8780;
 }
 
- #global-pats-goal {
-    font-size: 16px;
+#global-pats-count, #global-pats-goal {
     font-weight: bold;
-    color: #8c8780;
 }
