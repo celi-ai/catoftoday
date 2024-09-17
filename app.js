@@ -155,8 +155,50 @@ async function initializeUser() {
     updateUIWithUserData(userData);
 }
 
+async function getUserRank(userId) {
+    const { data, error } = await supabase
+        .from('users')
+        .select('pat_count')
+        .order('pat_count', { ascending: false });
 
-//userNameElement.textContent = userName;
+    if (error) {
+        console.error('Error fetching user ranks:', error);
+        return 'Error fetching rank';
+    }
+
+    const userIndex = data.findIndex(user => user.id === userId);
+    return userIndex !== -1 ? userIndex + 1 : 'Not ranked';
+}
+
+async function getTopUsers(limit = 10) {
+    const { data, error } = await supabase
+        .from('users')
+        .select('name, pat_count')
+        .order('pat_count', { ascending: false })
+        .limit(limit);
+
+    if (error) {
+        console.error('Error fetching top users:', error);
+        return [];
+    }
+
+    return data;
+}
+
+async function updateRankingsUI() {
+    const userRank = await getUserRank(userId);
+    document.getElementById('user-rank').textContent = `Your rank: ${userRank}`;
+
+    const topUsers = await getTopUsers();
+    const rankingListElement = document.getElementById('user-ranking-list');
+    rankingListElement.innerHTML = '';
+
+    topUsers.forEach((user, index) => {
+        const listItem = document.createElement('div');
+        listItem.textContent = `${index + 1}. ${user.name}: ${user.pat_count} pats`;
+        rankingListElement.appendChild(listItem);
+    });
+}
 
 
 // Function to update UI elements with user data
@@ -282,6 +324,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             if (targetScreen === 'profile') {
                 updateProfileInfo();
+            }
+
+            if (targetScreen === 'ranks') {
+                updateRankingsUI();
             }
         });
     });
