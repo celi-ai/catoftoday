@@ -232,11 +232,11 @@ function updateUIWithUserData(userData) {
 }
 
 function updateDailyRewardPopup(message, showClaimButton = true) {
-    const popupContent = document.querySelector('#dailyRewardPopup .popup-content');
+    const popupContent = document.querySelector('#dailyRewardPopup .popup');
     popupContent.innerHTML = `
         <h3>Daily Reward</h3>
         <p>${message}</p>
-        ${showClaimButton ? '<button id="claimRewardBtn" class="claim-button">Claim</button>' : ''}
+        ${showClaimButton ? '<button id="claimRewardBtn" class="popup-content">Claim</button>' : ''}
     `;
     
     if (showClaimButton) {
