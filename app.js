@@ -29,6 +29,42 @@ const totalProgress = 5000;
 let globalPatCount = 0;
 const globalPatGoal = 5000;
 
+//button click experiment
+async function incrementCounter() {
+    // Get the current count
+    let { data, error } = await supabase
+      .from('clicks')
+      .select('count')
+      .eq('id', 1)
+      .single()
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    // Increment the count
+    const newCount = data.count + 1
+
+    // Update the count in the database
+    const { error: updateError } = await supabase
+      .from('clicks')
+      .update({ count: newCount })
+      .eq('id', 1)
+
+    if (updateError) {
+      console.error(updateError)
+      return
+    }
+
+    // Update the display
+    document.getElementById('clicks-count').textContent = newCount
+  }
+
+  document.getElementById('clicker').addEventListener('click', incrementCounter)
+
+  //button click experiment end
+
 // Function to initialize or update user data in Supabase
 async function initializeUser() {
     console.log('Initializing user:', userId);
@@ -264,19 +300,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 
     await checkAndResetGlobalPats();
-    
+
     updateCounters(); 
 });
-
-
-async function testSupabaseConnection() {
-    const { data, error } = await supabase.from('users').select('count').single();
-    if (error) {
-        console.error('Supabase connection error:', error);
-    } else {
-        console.log('Supabase connection successful. User count:', data.count);
-    }
-}
 
 async function fetchGlobalPatCount() {
     const today = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
