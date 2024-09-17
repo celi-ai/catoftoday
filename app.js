@@ -290,9 +290,10 @@ document.querySelector('.circular-container').addEventListener('click', async fu
 
         updateCounters();
 
-    } else {
-        alert("You're out of pats! Come back tomorrow for more.");
     }
+    if (availablePats <= 0)
+        alert("You're out of pats! Come back tomorrow for more.");
+
 });
 
 function updateProfileInfo() {
