@@ -24,6 +24,7 @@ let patCount = 0;
 let availablePats = 0;
 let streak = 0;
 let multiplier = 1;
+let globalPatCount =0;
 
 //button click experiment
 
@@ -96,10 +97,13 @@ async function initClicker() {
 
     let count = data ? data.count : 0;
     clicksCountDisplay.textContent = count;
-    globalPatsBarElement.style.width = (count / 5000) * 100 + '%';  // Update progress bar
+    globalPatCount = count;
+    // globalPatsBarElement.style.width = (count / 5000) * 100 + '%';  // Update progress bar
 }
 
 initClicker();
+globalPatsBarElement.style.width = (globalPatCount / 5000) * 100 + '%';
+
 //button click experiment end
 
 // Function to initialize or update user data in Supabase
