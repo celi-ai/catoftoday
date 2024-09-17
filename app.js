@@ -238,6 +238,8 @@ function updateProfileInfo() {
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM content loaded');
 
+    await initClicker();
+
     await initializeUser();
     console.log('User initialized');
 
