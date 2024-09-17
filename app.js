@@ -102,6 +102,7 @@ async function initClicker() {
 
     let percentage = (globalPatCount / globalGoal) * 100;
     globalPatsBarElement.style.width = percentage + '%';
+}
 
 initClicker();
 
