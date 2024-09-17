@@ -156,9 +156,10 @@ async function initializeUser() {
 }
 
 async function getUserRank(userId) {
+    console.log('Getting rank for user ID:', userId);
     const { data, error } = await supabase
         .from('users')
-        .select('pat_count')
+        .select('id, pat_count')
         .order('pat_count', { ascending: false });
 
     if (error) {
@@ -166,8 +167,17 @@ async function getUserRank(userId) {
         return 'Error fetching rank';
     }
 
+    console.log('Fetched user data:', data);
+
     const userIndex = data.findIndex(user => user.id === userId);
-    return userIndex !== -1 ? userIndex + 1 : 'Not ranked';
+    console.log('User index:', userIndex);
+
+    if (userIndex !== -1) {
+        return userIndex + 1;
+    } else {
+        console.log('User not found in ranking data');
+        return 'Not ranked';
+    }
 }
 
 async function getTopUsers(limit = 10) {
@@ -186,10 +196,13 @@ async function getTopUsers(limit = 10) {
 }
 
 async function updateRankingsUI() {
+    console.log('Updating rankings UI for user ID:', userId);
     const userRank = await getUserRank(userId);
+    console.log('User rank:', userRank);
     document.getElementById('user-rank').textContent = `Your rank: ${userRank}`;
 
     const topUsers = await getTopUsers();
+    console.log('Top users:', topUsers);
     const rankingListElement = document.getElementById('user-ranking-list');
     rankingListElement.innerHTML = '';
 
