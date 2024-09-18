@@ -45,6 +45,50 @@ const globalPatsBarElement = document.getElementById('global-pats-bar');
 
 document.getElementById('global-pats-goal').textContent = globalGoal;
 
+async function startCountdown() {
+    const countdownElement = document.getElementById('countdown');
+
+    // Fetch the daily reset time from your database
+    const { data, error } = await supabase
+        .from('game_settings')
+        .select('daily_reset_time')
+        .single();
+
+    if (error) {
+        console.error("Error fetching reset time:", error);
+        return;
+    }
+
+    const resetTimeUTC = data.daily_reset_time; // e.g., "21:00:00" in UTC
+
+    function updateCountdown() {
+        const now = new Date();
+        const currentUTC = new Date(now.toUTCString());
+
+        // Get today's reset time in UTC
+        const todayReset = new Date(currentUTC);
+        const [hours, minutes, seconds] = resetTimeUTC.split(':');
+        todayReset.setUTCHours(hours, minutes, seconds, 0);
+
+        // If current time is past the reset time, calculate for the next day's reset
+        if (currentUTC > todayReset) {
+            todayReset.setUTCDate(todayReset.getUTCDate() + 1);
+        }
+
+        const timeLeft = todayReset - currentUTC;
+
+        // Convert to hours, minutes, and seconds
+        const hoursLeft = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
+        const minutesLeft = Math.floor((timeLeft / (1000 * 60)) % 60);
+        const secondsLeft = Math.floor((timeLeft / 1000) % 60);
+
+        // Update the countdown display
+        countdownElement.innerHTML = `${hoursLeft.toString().padStart(2, '0')}:${minutesLeft.toString().padStart(2, '0')}:${secondsLeft.toString().padStart(2, '0')}`;
+    }
+
+    // Update countdown every second
+    setInterval(updateCountdown, 1000);
+}
 
 // Function to update the counter
 async function incrementCounter() {
@@ -117,6 +161,8 @@ async function initClicker() {
 }
 
 initClicker();
+
+startCountdown();
 
 
 //button click experiment end
