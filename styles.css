@@ -20,6 +20,7 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     overflow-x: hidden;
+    overflow: hidden; /* Disable scrolling */
 }
 
 * {
@@ -39,7 +40,8 @@ body {
     padding: 20px;
     box-sizing: border-box;
     margin-top: auto;
-    margin-bottom: 25vh;
+    margin-bottom: auto; /* Keep container centered */
+    position: relative; /* Keeps everything in place */
 }
 
 .countdown-timer {
