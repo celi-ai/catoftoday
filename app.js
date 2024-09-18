@@ -266,6 +266,11 @@ function showMultiplierAlert() {
 }
 
 document.querySelector('.circular-container').addEventListener('click', async function(event) {
+    
+    // Add visual feedback
+    this.classList.add('press-effect');
+    document.querySelector('.cat-image').classList.add('pulse');
+
     // Add haptic feedback on click
     tg.HapticFeedback.impactOccurred('medium');
 
@@ -293,6 +298,12 @@ document.querySelector('.circular-container').addEventListener('click', async fu
     }
     if (availablePats <= 0)
         alert("You're out of pats! Come back tomorrow for more.");
+
+    // Remove visual feedback after a short delay
+    setTimeout(() => {
+        this.classList.remove('press-effect');
+        document.querySelector('.cat-image').classList.remove('pulse');
+    }, 300);
 
 });
 
