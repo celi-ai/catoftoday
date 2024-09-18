@@ -505,3 +505,27 @@ body {
     font-weight: bold;
     margin-bottom: 20px;
 }
+
+/* Dark Theme Variables */
+body.dark {
+    --background-color: #1e1e1e;
+    --primary-color: #444;
+    --secondary-color: #333;
+    --text-color: #f1f1f1;
+    --progress-bar-color: #888;
+}
+
+/* Adjust additional elements for dark mode */
+body.dark .pats-counter {
+    text-shadow: 2px 2px 0 #111, -2px -2px 0 #111, 2px -2px 0 #111, -2px 2px 0 #111;
+}
+
+body.dark .nav-item.active {
+    background-color: #555;
+    color: var(--text-color);
+}
+
+body.dark .progress-bar-container {
+    background-color: rgba(100, 100, 100, 0.7);
+}
+

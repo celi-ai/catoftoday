@@ -400,6 +400,23 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     });
 
+
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    
+    // Check if night mode was previously selected
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark');
+    }
+
+    // Add event listener to toggle night mode
+    themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
+        localStorage.setItem('theme', theme);  // Save theme to localStorage
+    });
+    
+
     const dailyRewardBtn = document.getElementById('dailyRewardBtn');
     const dailyRewardPopup = document.getElementById('dailyRewardPopup');
     const claimRewardBtn = document.getElementById('claimRewardBtn');
