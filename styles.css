@@ -529,3 +529,29 @@ body.dark .progress-bar-container {
     background-color: rgba(100, 100, 100, 0.7);
 }
 
+.theme-toggle {
+    background-color: var(--primary-color); /* Adjust color as needed */
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background-color: var(--secondary-color); /* Slight hover effect */
+    transform: scale(1.1);
+}
+
+.theme-toggle:active {
+    transform: scale(0.9);
+}
+
+
