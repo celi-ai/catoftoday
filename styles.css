@@ -40,7 +40,7 @@ body {
     padding: 20px;
     box-sizing: border-box;
     margin-top: 5vh;
-    margin-bottom: auto; /* Keep container centered */
+    margin-bottom: 0; /* Keep container centered */
     position: relative; /* Keeps everything in place */
 }
 
