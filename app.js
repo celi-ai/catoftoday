@@ -42,6 +42,10 @@ const clickerButton = document.getElementById('clicker');
 const clicksCountDisplay = document.getElementById('clicks-count');
 const globalPatsBarElement = document.getElementById('global-pats-bar');
 
+
+document.getElementById('global-pats-goal').textContent = globalGoal;
+
+
 // Function to update the counter
 async function incrementCounter() {
     // Fetch current count from Supabase
