@@ -296,8 +296,10 @@ document.querySelector('.circular-container').addEventListener('click', async fu
         updateCounters();
 
     }
+    /*
     if (availablePats <= 0)
         alert("You're out of pats! Come back tomorrow for more.");
+    */
 
     // Remove visual feedback after a short delay
     setTimeout(() => {
