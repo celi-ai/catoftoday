@@ -39,7 +39,7 @@ body {
     max-width: 350px;
     padding: 20px;
     box-sizing: border-box;
-    margin-top: auto;
+    margin-top: 5vh;
     margin-bottom: auto; /* Keep container centered */
     position: relative; /* Keeps everything in place */
 }
