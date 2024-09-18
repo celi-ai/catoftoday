@@ -265,7 +265,7 @@ function showMultiplierAlert() {
     }, 2000);
 }
 
-document.querySelector('.circular-container').addEventListener('click', async function(event) {
+document.querySelector('.circular-container').addEventListener('touchstart', async function(event) {
     
     // Add visual feedback
     this.classList.add('press-effect');
