@@ -510,11 +510,13 @@ body {
 
 /* Dark Theme Variables */
 body.dark {
-    --background-color: #1e1e1e;
-    --primary-color: #444;
-    --secondary-color: #333;
+    --background-color: #0d1b2a; /* Dark blue */
+    --primary-color: #1b263b;    /* Complementary dark blue */
+    --secondary-color: #415a77;  /* Lighter complementary blue */
     --text-color: #f1f1f1;
     --progress-bar-color: #888;
+    
+    background-color: var(--background-color); /* Ensure background uses the new color */
 }
 
 /* Adjust additional elements for dark mode */
@@ -559,5 +561,4 @@ body.dark .progress-bar-container {
 .theme-toggle:active {
     transform: scale(0.9);
 }
-
 
