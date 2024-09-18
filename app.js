@@ -471,28 +471,59 @@ document.addEventListener('DOMContentLoaded', async function() {
     const dailyRewardPopup = document.getElementById('dailyRewardPopup');
     const claimRewardBtn = document.getElementById('claimRewardBtn');
 
-    dailyRewardBtn.addEventListener('click', () => {
-        dailyRewardPopup.style.display = 'flex';
+    // Check and claim daily reward
+    dailyRewardBtn.addEventListener('click', async () => {
+        // Fetch the user's last_reward_claimed_at timestamp
+        const { data, error } = await supabase
+            .from('users')
+            .select('last_reward_claimed_at')
+            .eq('id', userId)
+            .single();
+
+        if (error) {
+            console.error('Error fetching last reward claim timestamp:', error);
+            return;
+        }
+
+        const now = new Date();
+        const lastClaimed = data.last_reward_claimed_at ? new Date(data.last_reward_claimed_at) : null;
+
+        // Check if 24 hours have passed since last claim
+        const hoursSinceLastClaim = lastClaimed ? (now - lastClaimed) / (1000 * 60 * 60) : 24;
+
+        if (!lastClaimed || hoursSinceLastClaim >= 24) {
+            dailyRewardPopup.style.display = 'flex';  // Show the reward popup
+        } else {
+            alert('You can only claim the reward once every 24 hours.');
+        }
     });
 
+    // When claiming the reward
     claimRewardBtn.addEventListener('click', async () => {
         dailyRewardPopup.style.display = 'none';
         patCount += 100;
         availablePats += 100;
-        
-        // Update Supabase with new pat count and available pats
+
+        // Update Supabase with new pat count, available pats, and last_reward_claimed_at
+        const now = new Date().toISOString();  // Current timestamp in UTC
         const { data, error } = await supabase
             .from('users')
-            .update({ pat_count: patCount, available_pats: availablePats })
+            .update({ 
+                pat_count: patCount, 
+                available_pats: availablePats, 
+                last_reward_claimed_at: now 
+            })
             .eq('id', userId);
 
         if (error) {
             console.error('Error updating user data after claiming reward:', error);
+            return;
         }
 
         updateCounters();
         updateProfileInfo();
     });
+
 
     dailyRewardPopup.addEventListener('click', (e) => {
         if (e.target === dailyRewardPopup) {
