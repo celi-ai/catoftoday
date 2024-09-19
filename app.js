@@ -91,38 +91,29 @@ async function startCountdown() {
 }
 
 // Function to update the counter
+// Function to update the counter
 async function incrementCounter() {
-    // Fetch current count from Supabase
+    // Fetch the most recent count from Supabase
     let { data, error } = await supabase
         .from('clicks')
-        .select('count')
-        .eq('id', 1)
+        .select('id, count')
+        .order('id', { ascending: false })  // Get the latest row by id (or date)
+        .limit(1)  // Limit the result to one row
         .single();
 
-    if (error && error.details === "The result contains 0 rows") {
-        // If no rows exist, create the initial row
-        let { error: insertError } = await supabase
-            .from('clicks')
-            .insert({ id: 1, count: 1 });
-        
-        if (insertError) {
-            console.error("Error inserting new count:", insertError);
-            return;
-        }
-
-        // Set UI
-        clicksCountDisplay.textContent = 1;
+    if (error) {
+        console.error("Error fetching latest count:", error);
         return;
     }
 
     let currentCount = data ? data.count : 0;
     let newCount = currentCount + 1;
 
-    // Update count in Supabase
+    // Update count in Supabase (using the latest row's id)
     let { updateError } = await supabase
         .from('clicks')
         .update({ count: newCount })
-        .eq('id', 1);
+        .eq('id', data.id);  // Update the latest row by its id
 
     if (updateError) {
         console.error("Error updating count:", updateError);
@@ -133,6 +124,7 @@ async function incrementCounter() {
     clicksCountDisplay.textContent = newCount;
     globalPatsBarElement.style.width = (newCount / 5000) * 100 + '%';
 }
+
 
 // Event Listener
 clickerButton.addEventListener('click', incrementCounter);
