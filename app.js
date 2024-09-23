@@ -91,7 +91,6 @@ async function startCountdown() {
 }
 
 // Function to update the counter
-// Function to update the counter
 async function incrementCounter() {
     // Fetch the most recent count from Supabase
     let { data, error } = await supabase
