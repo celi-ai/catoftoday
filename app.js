@@ -90,7 +90,28 @@ async function startCountdown() {
     setInterval(updateCountdown, 1000);
 }
 
-// Function to update the counter
+//load initial global pat counter
+async function loadInitialCounter() {
+    let { data, error } = await supabase
+        .from('clicks')
+        .select('id, count')
+        .order('id', { ascending: false })  // Get the latest row by id (or date)
+        .limit(1)  // Limit the result to one row
+        .single();
+
+    if (error) {
+        console.error("Error fetching latest count on page load:", error);
+        return;
+    }
+
+    let currentCount = data ? data.count : 0;
+
+    // Update the UI with the latest global pats count
+    clicksCountDisplay.textContent = currentCount;
+    globalPatsBarElement.style.width = (currentCount / 5000) * 100 + '%';
+}
+
+// Function to update the global pat counter
 async function incrementCounter() {
     // Fetch the most recent count from Supabase
     let { data, error } = await supabase
@@ -123,7 +144,6 @@ async function incrementCounter() {
     clicksCountDisplay.textContent = newCount;
     globalPatsBarElement.style.width = (newCount / 5000) * 100 + '%';
 }
-
 
 // Event Listener
 clickerButton.addEventListener('click', incrementCounter);
@@ -511,8 +531,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             return;
         }
 
+        //load initial global pat counter
+        loadInitialCounter();
+
         updateCounters();
         updateProfileInfo();
+
+
+
     });
 
 
