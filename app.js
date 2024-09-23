@@ -90,7 +90,7 @@ async function startCountdown() {
     setInterval(updateCountdown, 1000);
 }
 
-//load initial global pat counter
+// Function to load the initial lobal pat counter (for page load)
 async function loadInitialCounter() {
     let { data, error } = await supabase
         .from('clicks')
@@ -106,10 +106,14 @@ async function loadInitialCounter() {
 
     let currentCount = data ? data.count : 0;
 
+    // Log the currentCount to check if it's correct
+    console.log("Fetched current count from Supabase:", currentCount);
+
     // Update the UI with the latest global pats count
     clicksCountDisplay.textContent = currentCount;
     globalPatsBarElement.style.width = (currentCount / 5000) * 100 + '%';
 }
+
 
 // Function to update the global pat counter
 async function incrementCounter() {
