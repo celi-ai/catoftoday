@@ -38,7 +38,7 @@ bot.onText(/\/buy/, (msg) => {
   const prices = [{ label: "100 Pats", amount: 100 }];  // Amount in smallest unit of XTR
 
   // Send invoice to the user
-  bot.sendInvoice(chatId, "Buy More Pats", "Get 100 more pets for 1 XTR", "unique-payload", "", "XTR", prices).catch((error) => {
+  bot.sendInvoice(chatId, "Buy More Pats", "Get 100 more pats for 1 XTR", "unique-payload", "", "XTR", prices).catch((error) => {
     console.error('Error sending invoice:', error);  // Log errors for debugging
   });
 });
@@ -50,8 +50,8 @@ bot.onText(/\/pay/, (msg) => {
 
   bot.sendInvoice(
     chatId,
-    "Buy More Pets",
-    "Get 100 more pets for 1 XTR",
+    "Buy More Pats",
+    "Get 100 more pats for 1 XTR",
     "unique-payload",
     "", // Provider token for Telegram Stars
     "XTR", // Currency
@@ -76,7 +76,7 @@ bot.on('message', (msg) => {
   if (msg.successful_payment) {
     paidUsers.set(msg.from.id, msg.successful_payment.telegram_payment_charge_id);
     console.log('Payment successful:', msg.successful_payment);
-    bot.sendMessage(msg.chat.id, 'Payment successful! Thank you for your purchase of 10 pets.');
+    bot.sendMessage(msg.chat.id, 'Payment successful! Thank you for your purchase of 10 pats.');
   }
 });
 

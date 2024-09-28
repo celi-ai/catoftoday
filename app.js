@@ -114,7 +114,6 @@ async function loadInitialCounter() {
     globalPatsBarElement.style.width = (currentCount / 5000) * 100 + '%';
 }
 
-
 // Function to update the global pat counter
 async function incrementCounter() {
     // Fetch the most recent count from Supabase
@@ -156,8 +155,9 @@ clickerButton.addEventListener('click', incrementCounter);
 async function initClicker() {
     let { data, error } = await supabase
         .from('clicks')
-        .select('count')
-        .eq('id', 1)
+        .select('id, count')
+        .order('id', { ascending: false })  // Get the latest row by id (or date)
+        .limit(1)  // Limit the result to one row
         .single();
 
     if (error && error.details === "The result contains 0 rows") {
@@ -174,8 +174,6 @@ async function initClicker() {
     let percentage = (globalPatCount / globalGoal) * 100;
     globalPatsBarElement.style.width = percentage + '%';
 }
-
-initClicker();
 
 startCountdown();
 
@@ -536,7 +534,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         //load initial global pat counter
-        loadInitialCounter();
+        // loadInitialCounter();
 
         updateCounters();
         updateProfileInfo();
