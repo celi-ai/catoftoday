@@ -21,17 +21,26 @@ app.post('/bot', (req, res) => {
 
 // Route to handle "Buy Pats" button click
 app.post('/buy-pats', (req, res) => {
+  console.log("POST /buy-pats called"); // This log should appear in Heroku logs
   const chatId = req.body.chatId; // Get the chatId from the request (you'll send this from the front-end)
+
+  if (!chatId) {
+    console.error('No chatId provided');
+    return res.status(400).send({ success: false, message: 'chatId is required' });
+  }
   
   // Define the price (same as in the /buy command)
   const prices = [{ label: "100 Pats", amount: 100 }];
 
   // Send invoice to the user
   bot.sendInvoice(chatId, "Buy More Pats", "Get 100 more pats for 1 XTR", "unique-payload", "", "XTR", prices)
-    .then(() => res.send({ success: true }))
+    .then(() => {
+      console.log("Invoice sent successfully");
+      res.send({ success: true });
+    })
     .catch((error) => {
-      console.error('Error sending invoice:', error);
-      res.status(500).send({ success: false });
+        console.error('Error sending invoice:', error);  // Log errors here
+        res.status(500).send({ success: false, message: 'Error sending invoice' });
     });
 });
 
