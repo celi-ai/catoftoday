@@ -19,6 +19,23 @@ app.post('/bot', (req, res) => {
   res.sendStatus(200);
 });
 
+// Route to handle "Buy Pats" button click
+app.post('/buy-pats', (req, res) => {
+  const chatId = req.body.chatId; // Get the chatId from the request (you'll send this from the front-end)
+  
+  // Define the price (same as in the /buy command)
+  const prices = [{ label: "100 Pats", amount: 100 }];
+
+  // Send invoice to the user
+  bot.sendInvoice(chatId, "Buy More Pats", "Get 100 more pats for 1 XTR", "unique-payload", "", "XTR", prices)
+    .then(() => res.send({ success: true }))
+    .catch((error) => {
+      console.error('Error sending invoice:', error);
+      res.status(500).send({ success: false });
+    });
+});
+
+
 // Root route for the app
 app.get('/', (req, res) => {
   res.send('Welcome to the Cat of Today app!');
