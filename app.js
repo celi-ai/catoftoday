@@ -553,7 +553,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Handle "Buy Pats" button click
     document.getElementById('buyPatsBtn').addEventListener('click', function() {
-        
+        console.log('Buy Pats button clicked');  // Check if this message appears in the browser's console
+    
         const chatId = tg.initDataUnsafe.user.id; // Get the current user's chat ID
         // Send request to the server to initiate the payment
         fetch('/buy-pats', {
