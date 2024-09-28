@@ -13,7 +13,7 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-app.use(cors(corsOptions));  // Enable CORS with the defined options
+app.use(cors(corsOptions));  // Enable CORS with the defined options 
 
 app.use(express.static('public'));
 app.use(express.json());
