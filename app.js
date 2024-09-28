@@ -26,7 +26,6 @@ const user = tg.initDataUnsafe.user;
 const userId = user ? user.id.toString() : 'anonymous';
 const userName = user ? user.first_name : 'Anonymous';
 const userUsername = user ? user.username : 'unknown_user';
-const chatId = tg.initDataUnsafe.user.id; // Get the current user's chat ID
 
 
 // Global variables
@@ -554,26 +553,28 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Handle "Buy Pats" button click
     document.getElementById('buyPatsBtn').addEventListener('click', function() {
-      // Send request to the server to initiate the payment
-      fetch('/buy-pats', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ chatId }) // Send chatId to the server
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          Telegram.WebApp.showAlert('Invoice sent! Please complete the payment in chat.');
-        } else {
-          Telegram.WebApp.showAlert('Error sending invoice. Please try again.');
-        }
-      })
-      .catch(error => {
-        console.error('Error initiating payment:', error);
-        Telegram.WebApp.showAlert('An error occurred. Please try again.');
-      });
+
+        const chatId = tg.initDataUnsafe.user.id; // Get the current user's chat ID
+        // Send request to the server to initiate the payment
+        fetch('/buy-pats', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ chatId }) // Send chatId to the server
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Telegram.WebApp.showAlert('Invoice sent! Please complete the payment in chat.');
+            } else {
+                Telegram.WebApp.showAlert('Error sending invoice. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error initiating payment:', error);
+            Telegram.WebApp.showAlert('An error occurred. Please try again.');
+        });
     });
 
 
