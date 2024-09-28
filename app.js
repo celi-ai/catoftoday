@@ -557,7 +557,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
         const chatId = tg.initDataUnsafe.user.id; // Get the current user's chat ID
         // Send request to the server to initiate the payment
-        fetch('/buy-pats', {
+        fetch('https://catoftoday-heroku-48a700c0ced5.herokuapp.com/buy-pats', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
