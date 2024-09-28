@@ -26,6 +26,8 @@ const user = tg.initDataUnsafe.user;
 const userId = user ? user.id.toString() : 'anonymous';
 const userName = user ? user.first_name : 'Anonymous';
 const userUsername = user ? user.username : 'unknown_user';
+const chatId = tg.initDataUnsafe.user.id; // Get the current user's chat ID
+
 
 // Global variables
 let patCount = 0;
@@ -552,8 +554,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Handle "Buy Pats" button click
     document.getElementById('buyPatsBtn').addEventListener('click', function() {
-      const chatId = Telegram.WebApp.initDataUnsafe.user.id; // Get the current user's chat ID
-
       // Send request to the server to initiate the payment
       fetch('/buy-pats', {
         method: 'POST',
