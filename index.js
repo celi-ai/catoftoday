@@ -1,10 +1,19 @@
 const express = require('express');
+const cors = require('cors');  // Import CORS middleware
 const TelegramBot = require('node-telegram-bot-api');
 const bodyParser = require('body-parser');
 
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 const app = express();
+
+// Allow CORS only for your GitHub Pages domain
+const corsOptions = {
+    origin: 'https://celi-ai.github.io',  // Replace with your GitHub Pages URL
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));  // Enable CORS with the defined options
 
 app.use(express.static('public'));
 app.use(express.json());
